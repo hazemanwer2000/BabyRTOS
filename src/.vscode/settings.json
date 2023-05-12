@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "lcd_cfg.h": "c",
+        "uart_cfg.h": "c",
+        "kernel_priv.h": "c"
+    }
+}
