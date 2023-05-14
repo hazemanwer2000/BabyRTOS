@@ -38,6 +38,22 @@ void OS_init(void);
 
 
 /*************************************************************
+ * Description: Setup task.
+ * Parameters:
+ *      [1] Pointer to 'OS_Task'.
+ *      [2] Pointer to function, accepts argument as 'void *'.
+ *      [3] Argument, as 'void *'.
+ *      [4] Task priority.
+ *      [5] Pointer to stack beginning.
+ *      [6] Stack size.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, 
+        uint8_t priority, uint8_t *stackBegin, uint32_t stackSize);
+
+
+/*************************************************************
  * Description: Kick-start the OS.
  * Parameters:
  *      [X]

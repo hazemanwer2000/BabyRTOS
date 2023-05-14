@@ -32,10 +32,35 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 	return status;
 }
 
+#define HIGH_TASK_PRIORITY				11
+#define LOW_TASK_PRIORITY				23
+#define STACK_SIZE						256
+
+OS_task highTask;
+OS_task lowTask;
+
+uint8_t highStack[STACK_SIZE];
+uint8_t lowStack[STACK_SIZE];
+
+void highTask_Handler(void *args) {
+	while (1);
+}
+
+void lowTask_Handler(void *args) {
+	while (1);
+}
+
 void main(void) {
 	if (quickly_RCC() != RCC_status_Ok) return;
 	if (quickly_SYSTICK() != SYSTICK_status_Ok) return;
 
 	OS_init();
+
+	OS_setupTask(&highTask, &highTask_Handler, (void *) HIGH_TASK_PRIORITY,
+		HIGH_TASK_PRIORITY, highStack, STACK_SIZE);
+
+	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
+		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
+
 	OS_start();
 }

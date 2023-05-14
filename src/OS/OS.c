@@ -126,7 +126,11 @@ static void OS_stackInit(OS_task *task);
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
-SysTick_Handler (void) {}
+SysTick_Handler (void) {
+    prevTask = nextTask;
+    nextTask = &idleTask;
+    PENDSV();
+}
 
 
 /*************************************************************
@@ -137,6 +141,51 @@ SysTick_Handler (void) {}
 void __attribute__ ((section(".after_vectors"), naked))
 PendSV_Handler(void) {
 
+        /* If not first time, skip to 'save'. */
+    __asm("LDR R0, =prevTask");
+    __asm("LDR R0, [ R0 ]");
+    __asm("CBNZ R0, save");
+
+__asm("init:");
+
+        /* Unprivileged mode in thread state. */
+    __asm("MRS R0, CONTROL");
+    __asm("ORR R0, R0, #0x1");
+    __asm("MSR CONTROL, R0");
+
+        /* Skip to 'restore'. */
+    __asm("B restore");
+
+__asm("save:");
+        
+        /* Load 'PSP' into 'R0' and offset. */
+    __asm("MRS R0, PSP");
+    __asm("SUB R0, R0, #32");
+
+        /* Save registers. */
+    __asm("LDR R4, =#0x12345678");
+    __asm("STMIA R0, {R4-R11}");
+
+        /* Store 'PSP' in task-related info. */
+    __asm("LDR R1, =prevTask");
+    __asm("LDR R1, [ R1 ]");
+    __asm("STR R0, [ R1 ]");
+
+__asm("restore:");
+    
+        /* Get stack pointer of next task into 'R0'. */
+    __asm("LDR R0, =nextTask");
+    __asm("LDR R0, [ R0 ]");
+    __asm("LDR R0, [ R0 ]");
+
+        /* Restore registers. */
+    __asm("LDMIA R0, {R4-R11}");
+
+        /* Offset and store 'R0' into 'PSP'. */
+    __asm("ADD R0, R0, #32");
+    __asm("MSR PSP, R0");
+
+    __asm("BX LR");
 }
 
 
@@ -208,11 +257,16 @@ void OS_init(void) {
  * Description: Setup task.
  * Parameters:
  *      [1] Pointer to 'OS_Task'.
- *      [2] Pointer to 
+ *      [2] Pointer to function, accepts argument as 'void *'.
+ *      [3] Argument, as 'void *'.
+ *      [4] Task priority.
+ *      [5] Pointer to stack beginning.
+ *      [6] Stack size.
  * Return:
  *      None.
  *************************************************************/
-void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, uint8_t priority, uint8_t *stackBegin, uint32_t stackSize) {
+void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, 
+        uint8_t priority, uint8_t *stackBegin, uint32_t stackSize) {
     uint8_t bit_group = priority / 8;
     uint8_t bit_task = priority % 8;
 
@@ -222,7 +276,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, uint8_t prior
 
     task->fptr = fptr;
     task->args = args;
-    task->stackPtr = (uint32_t *) (stackBegin + ALIGN_8(stackSize));
+    task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
 
     OS_stackInit(task);
 }
@@ -238,6 +292,16 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, uint8_t prior
 void OS_start(void) {
     SYSTICK_CTRL |= (1 << BIT_ENABLE);      /* Enable 'SysTick' timer. */
     
+        /* Set 'PSP' to stack pointer of idle task. */
+    __asm("LDR R0, =idleTask");
+    __asm("LDR R0, [ R0 ]");
+    __asm("MSR PSP, R0");
+
+        /* PSP selected. */
+    __asm("MRS R0, CONTROL");
+    __asm("ORR R0, R0, #0x2");
+    __asm("MSR CONTROL, R0");
+
     nextTask = OS_getHighestPriorityTask();
     PENDSV();
 }
