@@ -1,0 +1,11 @@
+
+
+        /* Set PSP to Idle Task. */
+    __asm("LDR R0, =idleTask");
+    __asm("LDR R0, [ R0 ]");
+    __asm("MSR PSP, R0");
+
+        /* Unprivileged mode, 'SP' as 'PSP' */
+    __asm("MRS R0, CONTROL");
+    __asm("ORR R0, R0, #0x3");
+    __asm("MSR CONTROL, R0");

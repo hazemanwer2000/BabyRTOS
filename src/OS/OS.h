@@ -19,9 +19,11 @@
  * 
  *************************************************************/
 typedef struct {
-    void (*fptr)(void);
-    void *args;
+        /* Must be first, for easy stack pointer switching. */
     uint32_t *stackPtr;
+
+    void (*fptr)(void *);
+    void *args;
 } OS_task;
 
 
