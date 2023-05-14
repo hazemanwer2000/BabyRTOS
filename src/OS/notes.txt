@@ -1,0 +1,9 @@
+
+[1] The Timer.
+
+    [*] The tick is based on the 'SysTick' timer, using its handler.
+    [*] Configure the tick period yourself.
+            (Note: The recommended tick period is 1 ms.)
+    [*] 'OS_init' automatically enables the 'SysTick' interrupt.
+    [*] 'OS_start' automatically enables the timer.
+    [*] The priority of the 'SysTick' should be set per application requirements.
