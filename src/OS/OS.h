@@ -11,6 +11,19 @@
 #ifndef __OS_KERNEL_H__
 #define __OS_KERNEL_H__
 
+#include "Std_Types.h"
+
+
+/*************************************************************
+ * Description: Structure of an OS task.
+ * 
+ *************************************************************/
+typedef struct {
+    void (*fptr)(void);
+    void *args;
+    uint32_t *stackPtr;
+} OS_task;
+
 
 /*************************************************************
  * Description: Initialize the OS.
