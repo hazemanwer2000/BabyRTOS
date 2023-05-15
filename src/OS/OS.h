@@ -21,9 +21,10 @@
 typedef struct {
         /* Must be first, for easy stack pointer switching. */
     uint32_t *stackPtr;
-
+    
     void (*fptr)(void *);
     void *args;
+    uint8_t priority;
 } OS_task;
 
 

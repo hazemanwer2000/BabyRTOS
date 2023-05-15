@@ -37,6 +37,13 @@
 #define BIT_ENABLE	        0
 #define BIT_TICKINT	        1
 
+#define AIRCR							(*(volatile uint32_t *) 0xE000ED0C)
+#define AIRCR_DEF                       0x05FA0000
+#define AIRCR_DEF_MSK                   0xFFFF0000
+#define PRIGROUP0						8
+#define PRIGROUPN						10
+#define PRIGROUP_NO_PREMPT              0x0700
+
 
 /*************************************************************
  * Description: Macro functions.
@@ -126,11 +133,7 @@ static void OS_stackInit(OS_task *task);
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
-SysTick_Handler (void) {
-    prevTask = nextTask;
-    nextTask = &idleTask;
-    PENDSV();
-}
+SysTick_Handler (void) {}
 
 
 /*************************************************************
@@ -163,7 +166,6 @@ __asm("save:");
     __asm("SUB R0, R0, #32");
 
         /* Save registers. */
-    __asm("LDR R4, =#0x12345678");
     __asm("STMIA R0, {R4-R11}");
 
         /* Store 'PSP' in task-related info. */
@@ -187,7 +189,6 @@ __asm("restore:");
 
     __asm("BX LR");
 }
-
 
 /*************************************************************
  * Description: (task) Idle task of the OS.
@@ -248,6 +249,7 @@ static void OS_stackInit(OS_task *task) {
 void OS_init(void) {
     SYSTICK_CTRL |= (1 << BIT_TICKINT);             /* Enable 'SysTick' interrupt. */
     SHPR3 |= MSK_I2J(PRI_14_0, PRI_14_N);           /* Set 'PendSV' interrupt with least priority. */
+    AIRCR = (AIRCR & ~(MSK_I2J(PRIGROUP0, PRIGROUPN) | AIRCR_DEF_MSK)) | AIRCR_DEF | PRIGROUP_NO_PREMPT;
 
     OS_setupTask(&idleTask, OS_idleTask, NULL, PRIORITY_LOWEST, idleStack, IDLE_STACK_SIZE);
 }
@@ -267,8 +269,8 @@ void OS_init(void) {
  *************************************************************/
 void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, 
         uint8_t priority, uint8_t *stackBegin, uint32_t stackSize) {
-    uint8_t bit_group = priority / 8;
-    uint8_t bit_task = priority % 8;
+    uint8_t bit_group = priority >> 3;             /* Div 8. */
+    uint8_t bit_task = priority & 0b111;           /* Mod 8. */
 
     groups |= (1 << bit_group);
     group[bit_group] |= (1 << bit_task);
@@ -277,6 +279,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
     task->fptr = fptr;
     task->args = args;
     task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
+    task->priority = priority;
 
     OS_stackInit(task);
 }
@@ -304,4 +307,16 @@ void OS_start(void) {
 
     nextTask = OS_getHighestPriorityTask();
     PENDSV();
+}
+
+
+/*************************************************************
+ * Description: Put a task in the waiting state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      Error Status.
+ *************************************************************/
+void OS_wait(OS_task *task) {
+       
 }
