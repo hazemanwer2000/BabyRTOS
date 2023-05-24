@@ -59,6 +59,32 @@
     /* Set 'SYSTICK' interrupt as pending. */
 #define PEND_SYSTICK()      ICSR |= (1 << PENDSTSET); SYNC()
 
+    /* Set 'PendSV' interrupt as pending. */  
+#define SVC()               __asm("SVC #0"); SYNC()
+
+
+/*************************************************************
+ * Description: OS request type-ids'.
+ * 
+ *************************************************************/
+typedef enum {
+    OS_REQ_id_WAIT = 0
+} OS_REQ_id_t;
+
+
+/*************************************************************
+ * Description: OS request argument types.
+ * 
+ *************************************************************/
+typedef struct {
+    OS_REQ_id_t id;
+} OS_REQ_base_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+} OS_REQ_wait_t;
+
 
 /*************************************************************
  * Description: Priority mapping-related variables.
@@ -137,6 +163,23 @@ SysTick_Handler (void) {}
 
 
 /*************************************************************
+ * Description: (interrupt) Interrupt handler, supervisory call.
+ * 
+ *************************************************************/
+void __attribute__ ((section(".after_vectors")))
+SVC_Handler (void *args) {
+    OS_REQ_base_t *base = (OS_REQ_base_t *) args;
+    
+    switch (base->id) {
+        case OS_REQ_id_WAIT:
+            OS_REQ_wait_t *wait = (OS_REQ_wait_t *) args;
+            
+            break;
+    }
+}
+
+
+/*************************************************************
  * Description: (interrupt) Interrupt handler, responsible for context-switching.
  *                  Note: Must be the least priority in the whole system.
  * 
@@ -190,6 +233,7 @@ __asm("restore:");
     __asm("BX LR");
 }
 
+
 /*************************************************************
  * Description: (task) Idle task of the OS.
  * 
@@ -214,6 +258,29 @@ static OS_task * OS_getHighestPriorityTask(void) {
 }
 
 
+/*************************************************************
+ * Description: (static) Task into wait/ready state.
+ * Parameters:
+ *      [1] Task.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_makeTaskWait(OS_task *task) {
+    
+}
+
+static void OS_makeTaskReady(OS_task *task) {
+
+}
+
+
+/*************************************************************
+ * Description: (static) Initialize stack.
+ * Parameters:
+ *      [1] Task.
+ * Return:
+ *      None.
+ *************************************************************/
 static void OS_stackInit(OS_task *task) {
     uint32_t *stackPtr = task->stackPtr;
 
@@ -318,5 +385,14 @@ void OS_start(void) {
  *      Error Status.
  *************************************************************/
 void OS_wait(OS_task *task) {
-       
+    OS_REQ_wait_t req = {
+        .base.id = OS_REQ_id_WAIT,
+        .task = task
+    };
+
+    __asm("PUSH R0");
+    __asm("LDR R0, =task");
+    __asm("LDR R0, [ R0 ]");
+    SVC();
+    __asm("POP R0");
 }
