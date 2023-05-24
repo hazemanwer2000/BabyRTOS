@@ -68,7 +68,9 @@
  * 
  *************************************************************/
 typedef enum {
-    OS_REQ_id_WAIT = 0
+    OS_REQ_id_WAIT = 0,
+    OS_REQ_id_READY,
+    OS_REQ_id_DELAY
 } OS_REQ_id_t;
 
 
@@ -84,6 +86,17 @@ typedef struct {
     OS_REQ_base_t base;
     OS_task *task;
 } OS_REQ_wait_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+} OS_REQ_ready_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+    uint32_t delay;
+} OS_REQ_delay_t;
 
 
 /*************************************************************
@@ -147,10 +160,20 @@ static OS_task* prevTask;
 
 
 /*************************************************************
+ * Description: Request-related variables.
+ * 
+ *************************************************************/
+static OS_REQ_base_t *request;
+
+
+/*************************************************************
  * Description: Static function declarations.
  * 
  *************************************************************/
 static OS_task * OS_getHighestPriorityTask(void);
+static void OS_makeTaskWait(OS_task *task);
+static void OS_makeTaskReady(OS_task *task);
+static void OS_schedule(void);
 static void OS_stackInit(OS_task *task);
 
 
@@ -159,7 +182,24 @@ static void OS_stackInit(OS_task *task);
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
-SysTick_Handler (void) {}
+SysTick_Handler (void) {
+    uint32_t i = 0;
+    OS_task *task = NULL;
+
+    for (i = 0; i < 64; i++) {
+        task = tasks[i];
+        if (task != NULL) {
+            if (task->delay > 0) {
+                task->delay--;
+                if (task->delay == 0) {
+                    OS_makeTaskReady(task);
+                }
+            }
+        }
+    }
+
+    OS_schedule();
+ }
 
 
 /*************************************************************
@@ -167,13 +207,13 @@ SysTick_Handler (void) {}
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
-SVC_Handler (void *args) {
-    OS_REQ_base_t *base = (OS_REQ_base_t *) args;
-    
-    switch (base->id) {
+SVC_Handler (void) {
+    switch (request->id) {
         case OS_REQ_id_WAIT:
-            OS_REQ_wait_t *wait = (OS_REQ_wait_t *) args;
-            
+            OS_ISR_wait(((OS_REQ_wait_t *) request)->task);
+            break;
+        case OS_REQ_id_READY:
+            OS_ISR_ready(((OS_REQ_ready_t *) request)->task);
             break;
     }
 }
@@ -259,6 +299,23 @@ static OS_task * OS_getHighestPriorityTask(void) {
 
 
 /*************************************************************
+ * Description: (static) Schedule task.
+ * Parameters:
+ *      [X]
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_schedule(void) {
+    OS_task *task = OS_getHighestPriorityTask();
+    if (task != nextTask) {
+        prevTask = nextTask;
+        nextTask = task;
+        PENDSV();
+    }
+}
+
+
+/*************************************************************
  * Description: (static) Task into wait/ready state.
  * Parameters:
  *      [1] Task.
@@ -266,11 +323,23 @@ static OS_task * OS_getHighestPriorityTask(void) {
  *      None.
  *************************************************************/
 static void OS_makeTaskWait(OS_task *task) {
-    
+    uint8_t group_index = task->priority >> 3;
+    uint8_t task_index = task->priority & 0b111;
+
+    group[group_index] &= ~(1 << task_index);
+    if (group[group_index] == 0) {
+        groups &= ~(1 << group_index);
+    }
 }
 
 static void OS_makeTaskReady(OS_task *task) {
+    uint8_t group_index = task->priority >> 3;
+    uint8_t task_index = task->priority & 0b111;
 
+    if (group[group_index] == 0) {
+        groups |= (1 << group_index);
+    }
+    group[group_index] |= (1 << task_index);
 }
 
 
@@ -347,6 +416,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
     task->args = args;
     task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
     task->priority = priority;
+    task->delay = 0;
 
     OS_stackInit(task);
 }
@@ -382,7 +452,7 @@ void OS_start(void) {
  * Parameters:
  *      [1] Pointer to task.
  * Return:
- *      Error Status.
+ *      None.
  *************************************************************/
 void OS_wait(OS_task *task) {
     OS_REQ_wait_t req = {
@@ -390,9 +460,83 @@ void OS_wait(OS_task *task) {
         .task = task
     };
 
-    __asm("PUSH R0");
-    __asm("LDR R0, =task");
-    __asm("LDR R0, [ R0 ]");
+    request = (OS_REQ_base_t *) &req;
     SVC();
-    __asm("POP R0");
+}
+
+
+/*************************************************************
+ * Description: (ISR-specific) Put a task in the waiting state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_wait(OS_task *task) {
+    OS_makeTaskWait(task);
+    OS_schedule();
+}
+
+
+/*************************************************************
+ * Description: Put a task in the ready state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ready(OS_task *task) {
+    OS_REQ_ready_t req = {
+        .base.id = OS_REQ_id_READY,
+        .task = task
+    };
+
+    request = (OS_REQ_base_t *) &req;
+    SVC();
+}
+
+
+/*************************************************************
+ * Description: (ISR-specific) Put a task in the ready state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_ready(OS_task *task) {
+    OS_makeTaskReady(task);
+    OS_schedule();
+}
+
+
+/*************************************************************
+ * Description: Delay the execution of a task.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Delay (in ticks).
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_delay(OS_task *task, uint32_t delay) {
+    OS_REQ_delay_t req = {
+        .base.id = OS_REQ_id_DELAY,
+        .task = task,
+        .delay = delay
+    };
+
+    request = (OS_REQ_base_t *) &req;
+    SVC();
+}
+
+
+/*************************************************************
+ * Description: Delay the execution of a task.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Delay (in ticks).
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_delay(OS_task *task, uint32_t delay) {
+    
 }

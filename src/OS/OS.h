@@ -25,6 +25,7 @@ typedef struct {
     void (*fptr)(void *);
     void *args;
     uint8_t priority;
+    uint32_t delay;
 } OS_task;
 
 
@@ -62,6 +63,46 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
  *      Error Status.
  *************************************************************/
 void OS_start(void);
+
+
+/*************************************************************
+ * Description: Put a task in the waiting state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_wait(OS_task *task);
+
+
+/*************************************************************
+ * Description: (ISR-specific) Put a task in the waiting state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_wait(OS_task *task);
+
+
+/*************************************************************
+ * Description: Put a task in the ready state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ready(OS_task *task);
+
+
+/*************************************************************
+ * Description: (ISR-specific) Put a task in the ready state.
+ * Parameters:
+ *      [1] Pointer to task.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_ready(OS_task *task);
 
 
 #endif /* __OS_KERNEL_H__ */

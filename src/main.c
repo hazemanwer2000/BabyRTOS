@@ -42,12 +42,24 @@ OS_task lowTask;
 uint8_t highStack[STACK_SIZE];
 uint8_t lowStack[STACK_SIZE];
 
+volatile uint32_t counter = 0;
+
 void highTask_Handler(void *args) {
-	while (1);
+	while (1) {
+		for (uint32_t i = 1; i <= 3; i++) {
+			counter = i;
+		}
+
+		OS_wait(&highTask);
+	}
 }
 
 void lowTask_Handler(void *args) {
-	while (1);
+	while (1) {
+		counter = 0;
+
+		OS_ready(&highTask);
+	}
 }
 
 void main(void) {
