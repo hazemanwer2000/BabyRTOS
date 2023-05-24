@@ -538,5 +538,7 @@ void OS_delay(OS_task *task, uint32_t delay) {
  *      None.
  *************************************************************/
 void OS_ISR_delay(OS_task *task, uint32_t delay) {
-    
+    task->delay = delay;
+    OS_makeTaskWait(task);
+    OS_schedule();
 }
