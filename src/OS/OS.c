@@ -106,7 +106,7 @@ typedef struct {
  *************************************************************/
 static uint8_t groups = 0;
 static uint8_t group[8] = {0};
-static OS_task *tasks[64];
+static LL_list tasks[64];
 
 static uint8_t bitmap[256] = {
     -1, 0, 1, 0, 2, 0, 1, 0, 
@@ -165,6 +165,7 @@ static OS_task* prevTask;
  * 
  *************************************************************/
 static OS_task * OS_getHighestPriorityTask(void);
+static LL_list * OS_getHighestPriorityTasks(void);
 static void OS_makeTaskWait(OS_task *task);
 static void OS_makeTaskReady(OS_task *task);
 static void OS_schedule(void);
@@ -177,6 +178,22 @@ static void OS_stackInit(OS_task *task);
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
 SysTick_Handler (void) {
+    LL_list *list;
+    OS_task *task;
+
+        /* Time-sharing between tasks of similar priority. */
+
+    list = OS_getHighestPriorityTasks();
+    LL_enqueue(list, LL_dequeue(list));
+    task = (OS_task *) list->head->data;
+
+    if (task != nextTask) {
+        prevTask = nextTask;
+        nextTask = task;
+        PENDSV();
+    }
+
+    /*
     uint32_t i = 0;
     OS_task *task = NULL;
 
@@ -193,6 +210,7 @@ SysTick_Handler (void) {
     }
 
     OS_schedule();
+    */
  }
 
 
@@ -290,11 +308,15 @@ static void OS_idleTask(void *args) {
  * Return:
  *      Pointer to 'OS_task'.
  *************************************************************/
-static OS_task * OS_getHighestPriorityTask(void) {
+static LL_list * OS_getHighestPriorityTasks(void) {
     uint8_t group_index = bitmap[groups];
     uint8_t task_index = bitmap[group[group_index]];
 
-    return tasks[8 * group_index + task_index];
+    return &tasks[8 * group_index + task_index];
+}
+
+static OS_task * OS_getHighestPriorityTask(void) {
+    return (OS_task *) (OS_getHighestPriorityTasks()->head->data);
 }
 
 
@@ -410,13 +432,14 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
 
     groups |= (1 << bit_group);
     group[bit_group] |= (1 << bit_task);
-    tasks[priority] = task;
+    LL_enqueue(&tasks[priority], &task->node);
 
     task->fptr = fptr;
     task->args = args;
     task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
     task->priority = priority;
     task->delay = 0;
+    task->node.data = (void *) task;
 
     OS_stackInit(task);
 }

@@ -10,8 +10,7 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include "stdio.h"
-#include "stdint.h"
+#include "Std_Types.h"
 
 
 /*************************************************************

@@ -10,8 +10,7 @@
 #ifndef __HEAP_H__
 #define __HEAP_H__
 
-#include <stdint.h>
-#include <stdio.h>
+#include "Std_Types.h"
 
 typedef uint8_t (*Heap_comparator_t)(void *, void *);          /* if '1', first argument is prioritized. */
 

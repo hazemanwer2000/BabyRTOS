@@ -37,17 +37,25 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 #define STACK_SIZE						256
 
 OS_task highTask;
+OS_task high2Task;
 OS_task lowTask;
 
 uint8_t highStack[STACK_SIZE];
+uint8_t high2Stack[STACK_SIZE];
 uint8_t lowStack[STACK_SIZE];
 
 volatile uint32_t counter = 0;
+volatile uint32_t counter2 = 0;
 
 void highTask_Handler(void *args) {
 	while (1) {
-		counter++;		
-		OS_delay(&highTask, 1000);
+		counter++;
+	}
+}
+
+void high2Task_Handler(void *args) {
+	while (1) {
+		counter2++;		
 	}
 }
 
@@ -63,6 +71,9 @@ void main(void) {
 
 	OS_setupTask(&highTask, &highTask_Handler, (void *) HIGH_TASK_PRIORITY,
 		HIGH_TASK_PRIORITY, highStack, STACK_SIZE);
+
+	OS_setupTask(&high2Task, &high2Task_Handler, (void *) HIGH_TASK_PRIORITY,
+		HIGH_TASK_PRIORITY, high2Stack, STACK_SIZE);
 
 	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
 		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);

@@ -10,8 +10,7 @@
 #ifndef __LINKED_LIST_H__
 #define __LINKED_LIST_H__
 
-#include <stdint.h>
-#include <stdio.h>
+#include "Std_Types.h"
 
 #define LL_dequeue              LL_pop
 

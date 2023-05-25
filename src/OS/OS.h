@@ -12,6 +12,7 @@
 #define __OS_KERNEL_H__
 
 #include "Std_Types.h"
+#include "LinkedList.h"
 
 
 /*************************************************************
@@ -26,6 +27,8 @@ typedef struct {
     void *args;
     uint8_t priority;
     uint32_t delay;
+
+    LL_node node;
 } OS_task;
 
 
