@@ -61,6 +61,7 @@
 
     /* Set 'PendSV' interrupt as pending. */  
 #define SVC()               __asm("SVC #0"); SYNC()
+#define SVC_CALL()          __asm("MOV R0, SP"); SVC()
 
 
 /*************************************************************
@@ -138,7 +139,7 @@ static uint8_t bitmap[256] = {
     3, 0, 1, 0, 2, 0, 1, 0, 
     5, 0, 1, 0, 2, 0, 1, 0, 
     3, 0, 1, 0, 2, 0, 1, 0, 
-    4, 0, 1, 0, 2, 0, 1, 0, 
+    4, 0, 1, 0, 2, 0, 1, 0,
     3, 0, 1, 0, 2, 0, 1, 0
 };
 
@@ -157,13 +158,6 @@ static uint8_t idleStack[IDLE_STACK_SIZE];
  *************************************************************/
 static OS_task* nextTask;
 static OS_task* prevTask;
-
-
-/*************************************************************
- * Description: Request-related variables.
- * 
- *************************************************************/
-static OS_REQ_base_t *request;
 
 
 /*************************************************************
@@ -207,13 +201,19 @@ SysTick_Handler (void) {
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
-SVC_Handler (void) {
+SVC_Handler (OS_REQ_base_t *request) {
     switch (request->id) {
         case OS_REQ_id_WAIT:
             OS_ISR_wait(((OS_REQ_wait_t *) request)->task);
             break;
         case OS_REQ_id_READY:
             OS_ISR_ready(((OS_REQ_ready_t *) request)->task);
+            break;
+        case OS_REQ_id_DELAY:
+            OS_ISR_delay(
+                ((OS_REQ_delay_t *) request)->task,
+                ((OS_REQ_delay_t *) request)->delay
+            );
             break;
     }
 }
@@ -460,8 +460,7 @@ void OS_wait(OS_task *task) {
         .task = task
     };
 
-    request = (OS_REQ_base_t *) &req;
-    SVC();
+    SVC_CALL();
 }
 
 
@@ -491,8 +490,7 @@ void OS_ready(OS_task *task) {
         .task = task
     };
 
-    request = (OS_REQ_base_t *) &req;
-    SVC();
+    SVC_CALL();
 }
 
 
@@ -518,14 +516,13 @@ void OS_ISR_ready(OS_task *task) {
  *      None.
  *************************************************************/
 void OS_delay(OS_task *task, uint32_t delay) {
-    OS_REQ_delay_t req = {
+    volatile OS_REQ_delay_t req = {
         .base.id = OS_REQ_id_DELAY,
         .task = task,
         .delay = delay
     };
 
-    request = (OS_REQ_base_t *) &req;
-    SVC();
+    SVC_CALL();
 }
 
 

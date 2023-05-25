@@ -30,6 +30,16 @@ typedef struct {
 
 
 /*************************************************************
+ * Description: Structure of an OS semaphore.
+ * 
+ *************************************************************/
+typedef struct {
+    uint8_t count;
+} OS_semaphore;
+
+
+
+/*************************************************************
  * Description: Initialize the OS.
  * Parameters:
  *      [X]
@@ -103,6 +113,28 @@ void OS_ready(OS_task *task);
  *      None.
  *************************************************************/
 void OS_ISR_ready(OS_task *task);
+
+
+/*************************************************************
+ * Description: Delay the execution of a task.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Delay (in ticks).
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_delay(OS_task *task, uint32_t delay);
+
+
+/*************************************************************
+ * Description: Delay the execution of a task.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Delay (in ticks).
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_delay(OS_task *task, uint32_t delay);
 
 
 #endif /* __OS_KERNEL_H__ */

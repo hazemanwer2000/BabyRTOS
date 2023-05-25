@@ -46,20 +46,13 @@ volatile uint32_t counter = 0;
 
 void highTask_Handler(void *args) {
 	while (1) {
-		for (uint32_t i = 1; i <= 3; i++) {
-			counter = i;
-		}
-
-		OS_wait(&highTask);
+		counter++;		
+		OS_delay(&highTask, 1000);
 	}
 }
 
 void lowTask_Handler(void *args) {
-	while (1) {
-		counter = 0;
-
-		OS_ready(&highTask);
-	}
+	while (1) {}
 }
 
 void main(void) {
