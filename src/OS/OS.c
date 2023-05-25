@@ -145,6 +145,14 @@ static uint8_t bitmap[256] = {
 
 
 /*************************************************************
+ * Description: List of tasks.
+ * 
+ *************************************************************/
+static LL_list tasks_delayed;
+static LL_list tasks_waiting;
+
+
+/*************************************************************
  * Description: Idle-Task variables.
  * 
  *************************************************************/
@@ -168,6 +176,9 @@ static OS_task * OS_getHighestPriorityTask(void);
 static LL_list * OS_getHighestPriorityTasks(void);
 static void OS_makeTaskWait(OS_task *task);
 static void OS_makeTaskReady(OS_task *task);
+static void OS_makeTaskDelay(OS_task *task, uint32_t delay);
+static void OS_priorityOn(uint8_t priority);
+static void OS_priorityOff(uint8_t priority);
 static void OS_schedule(void);
 static void OS_stackInit(OS_task *task);
 
@@ -179,7 +190,29 @@ static void OS_stackInit(OS_task *task);
 void __attribute__ ((section(".after_vectors")))
 SysTick_Handler (void) {
     LL_list *list;
+    LL_node *node, *node_tmp;
     OS_task *task;
+
+        /* Count-down for delayed tasks. */
+    
+    node = tasks_delayed.head;
+    while (node != NULL) {
+        task = (OS_task *) node->data;
+        task->delay--;
+
+        if (task->delay == 0) {       /* Dispatch again. */
+            node_tmp = node->next;
+            
+            LL_remove(&tasks_delayed, node);
+            LL_enqueue(&tasks[task->priority], node);
+
+            OS_priorityOn(task->priority);
+
+            node = node_tmp;
+        } else {
+            node = node->next;
+        }
+    }
 
         /* Time-sharing between tasks of similar priority. */
 
@@ -192,25 +225,6 @@ SysTick_Handler (void) {
         nextTask = task;
         PENDSV();
     }
-
-    /*
-    uint32_t i = 0;
-    OS_task *task = NULL;
-
-    for (i = 0; i < 64; i++) {
-        task = tasks[i];
-        if (task != NULL) {
-            if (task->delay > 0) {
-                task->delay--;
-                if (task->delay == 0) {
-                    OS_makeTaskReady(task);
-                }
-            }
-        }
-    }
-
-    OS_schedule();
-    */
  }
 
 
@@ -302,7 +316,7 @@ static void OS_idleTask(void *args) {
 
 
 /*************************************************************
- * Description: (static) Get highest priority task.
+ * Description: (static) Get highest priority task(s).
  * Parameters:
  *      [X]
  * Return:
@@ -338,30 +352,92 @@ static void OS_schedule(void) {
 
 
 /*************************************************************
- * Description: (static) Task into wait/ready state.
+ * Description: (static) Task into delayed state.
+ * Parameters:
+ *      [1] Task.
+ *      [2] Delay.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_makeTaskDelay(OS_task *task, uint32_t delay) {
+    task->delay = delay;
+
+    LL_remove(&tasks[task->priority], &task->node);
+    LL_enqueue(&tasks_delayed, &task->node);
+
+    if (tasks[task->priority].length == 0) {
+        OS_priorityOff(task->priority);
+    }
+}
+
+
+/*************************************************************
+ * Description: (static) Task into wait state.
  * Parameters:
  *      [1] Task.
  * Return:
  *      None.
  *************************************************************/
 static void OS_makeTaskWait(OS_task *task) {
-    uint8_t group_index = task->priority >> 3;
-    uint8_t task_index = task->priority & 0b111;
+    LL_remove(&tasks[task->priority], &task->node);
+    LL_enqueue(&tasks_waiting, &task->node);
+
+    if (tasks[task->priority].length == 0) {
+        OS_priorityOff(task->priority);
+    }
+}
+
+
+/*************************************************************
+ * Description: (static) Task into ready state.
+ * Parameters:
+ *      [1] Task.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_makeTaskReady(OS_task *task) {
+    LL_remove(&tasks_waiting, &task->node);
+    LL_enqueue(&tasks[task->priority], &task->node);
+
+    OS_priorityOn(task->priority);
+}
+
+
+/*************************************************************
+ * Description: (static) Turns a specific priority on.
+ * Parameters:
+ *      [1] Priority.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_priorityOn(uint8_t priority) {
+    uint8_t group_index, task_index;
+
+    group_index = priority >> 3;
+    task_index = priority & 0b111;
+
+    groups |= (1 << group_index);
+    group[group_index] |= (1 << task_index);
+}
+
+
+/*************************************************************
+ * Description: (static) Turns a specific priority off.
+ * Parameters:
+ *      [1] Priority.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_priorityOff(uint8_t priority) {
+    uint8_t group_index, task_index;
+
+    group_index = priority >> 3;
+    task_index = priority & 0b111;
 
     group[group_index] &= ~(1 << task_index);
     if (group[group_index] == 0) {
         groups &= ~(1 << group_index);
     }
-}
-
-static void OS_makeTaskReady(OS_task *task) {
-    uint8_t group_index = task->priority >> 3;
-    uint8_t task_index = task->priority & 0b111;
-
-    if (group[group_index] == 0) {
-        groups |= (1 << group_index);
-    }
-    group[group_index] |= (1 << task_index);
 }
 
 
@@ -558,7 +634,6 @@ void OS_delay(OS_task *task, uint32_t delay) {
  *      None.
  *************************************************************/
 void OS_ISR_delay(OS_task *task, uint32_t delay) {
-    task->delay = delay;
-    OS_makeTaskWait(task);
+    OS_makeTaskDelay(task, delay);
     OS_schedule();
 }

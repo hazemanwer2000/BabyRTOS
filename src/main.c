@@ -6,6 +6,7 @@
 #include "OS.h"
 
 #define TICK_US								1000
+#define SECOND								1000
 
 RCC_status_t quickly_RCC(void) {
 	RCC_status_t status = RCC_status_Ok;
@@ -44,23 +45,50 @@ uint8_t highStack[STACK_SIZE];
 uint8_t high2Stack[STACK_SIZE];
 uint8_t lowStack[STACK_SIZE];
 
-volatile uint32_t counter = 0;
-volatile uint32_t counter2 = 0;
+typedef struct {
+	uint32_t high;
+	uint32_t high2;
+	uint32_t low;
+} counter_t;
+
+counter_t counter;
 
 void highTask_Handler(void *args) {
 	while (1) {
-		counter++;
+		counter.high++;
+
+		if (counter.high == 1000) {
+			OS_wait(&highTask);
+		}
+
+		if (counter.high > 1000) {
+			OS_delay(&highTask, 1000);
+		}
 	}
 }
 
 void high2Task_Handler(void *args) {
 	while (1) {
-		counter2++;		
+		counter.high2++;
+
+		if (counter.high2 == 10) {
+			OS_wait(&high2Task);
+		}
 	}
 }
 
 void lowTask_Handler(void *args) {
-	while (1) {}
+	while (1) {
+		if (counter.low < 1000000) {
+			counter.low++;
+		} else {
+			OS_wait(&lowTask);
+		}
+
+		if (counter.low == 999999) {
+			OS_ready(&highTask);
+		}
+	}
 }
 
 void main(void) {
