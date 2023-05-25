@@ -10,7 +10,8 @@
 #ifndef __UTILS_H__
 #define __UTILS_H__
 
-#include "Std_Types.h"
+#include "stdio.h"
+#include "stdint.h"
 
 
 /*************************************************************
@@ -25,6 +26,13 @@
  *
  *************************************************************/
 uint16_t strlen(const char * const ptr);
+
+
+/*************************************************************
+ * Description: Swap void args.
+ *
+ *************************************************************/
+void swap(void **args1, void **args2);
 
 
 #endif /* __UTILS_H__ */

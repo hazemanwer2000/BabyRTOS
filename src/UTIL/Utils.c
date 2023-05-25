@@ -7,7 +7,6 @@
  *
  *************************************************************/
 
-#include "Std_Types.h"
 #include "Utils.h"
 
 
@@ -23,4 +22,15 @@ uint16_t strlen(const char * const ptr) {
     }
 
     return i;
+}
+
+
+/*************************************************************
+ * Description: Swap void args.
+ *
+ *************************************************************/
+void swap(void **args1, void **args2) {
+    void *tmp = *args1;
+    *args1 = *args2;
+    *args2 = tmp;
 }
