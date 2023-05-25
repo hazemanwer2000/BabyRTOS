@@ -54,3 +54,34 @@ void LL_enqueue(LL_list *list, LL_node *node) {
 
     list->length++;
 }
+
+void LL_remove(LL_list *list, LL_node *node) {
+    LL_node *tmp = list->head;
+
+    while (tmp != NULL) {
+        if (tmp == node) {
+            if (list->length == 1) {
+                list->head = NULL;
+                list->tail = NULL;
+            } else if (list->head == node) {
+                list->head = node->next;
+                list->head->prev = NULL;
+                node->next = NULL;
+            } else if (list->tail == node) {
+                list->tail = node->prev;
+                list->tail->next = NULL;
+                node->prev = NULL;
+            } else {
+                node->next->prev = node->prev;
+                node->prev->next = node->next;
+                node->next = NULL;
+                node->prev = NULL;
+            }
+
+            list->length--;
+            break;
+        } else {
+            tmp = tmp->next;
+        }
+    }
+}

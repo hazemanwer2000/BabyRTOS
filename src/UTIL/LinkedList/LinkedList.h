@@ -10,7 +10,8 @@
 #ifndef __LINKED_LIST_H__
 #define __LINKED_LIST_H__
 
-#include "Std_Types.h"
+#include <stdint.h>
+#include <stdio.h>
 
 #define LL_dequeue              LL_pop
 
@@ -29,5 +30,6 @@ typedef struct {
 LL_node * LL_pop(LL_list *list);
 void LL_push(LL_list *list, LL_node *node);
 void LL_enqueue(LL_list *list, LL_node *node);
+void LL_remove(LL_list *list, LL_node *node);
 
 #endif      /* __LINKED_LIST_H__ */
