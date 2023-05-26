@@ -39,55 +39,56 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 
 OS_task highTask;
 OS_task high2Task;
+OS_task high3Task;
 OS_task lowTask;
 
 uint8_t highStack[STACK_SIZE];
 uint8_t high2Stack[STACK_SIZE];
+uint8_t high3Stack[STACK_SIZE];
 uint8_t lowStack[STACK_SIZE];
+
+OS_semaphore sem;
 
 typedef struct {
 	uint32_t high;
 	uint32_t high2;
+	uint32_t high3;
 	uint32_t low;
+	uint32_t sync;
 } counter_t;
 
 counter_t counter;
 
 void highTask_Handler(void *args) {
 	while (1) {
+		OS_delay(&highTask, SECOND);
 		counter.high++;
+		OS_give(&sem);
+		OS_give(&sem);
 
-		if (counter.high == 1000) {
-			OS_wait(&highTask);
-		}
-
-		if (counter.high > 1000) {
-			OS_delay(&highTask, 1000);
-		}
+		// counter.high++;
 	}
 }
 
 void high2Task_Handler(void *args) {
 	while (1) {
-		counter.high2++;
+		OS_take(&high2Task, &sem);
+		counter.sync++;
+		// counter.high2++;
+	}
+}
 
-		if (counter.high2 == 10) {
-			OS_wait(&high2Task);
-		}
+void high3Task_Handler(void *args) {
+	while (1) {
+		OS_take(&high3Task, &sem);
+		counter.sync++;
+		// counter.high3++;
 	}
 }
 
 void lowTask_Handler(void *args) {
 	while (1) {
-		if (counter.low < 1000000) {
-			counter.low++;
-		} else {
-			OS_wait(&lowTask);
-		}
-
-		if (counter.low == 999999) {
-			OS_ready(&highTask);
-		}
+		// counter.low++;
 	}
 }
 
@@ -103,8 +104,13 @@ void main(void) {
 	OS_setupTask(&high2Task, &high2Task_Handler, (void *) HIGH_TASK_PRIORITY,
 		HIGH_TASK_PRIORITY, high2Stack, STACK_SIZE);
 
+	OS_setupTask(&high3Task, &high3Task_Handler, (void *) HIGH_TASK_PRIORITY,
+		HIGH_TASK_PRIORITY, high3Stack, STACK_SIZE);
+
 	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
 		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
+
+	OS_setupSemaphore(&sem, 0);
 
 	OS_start();
 }

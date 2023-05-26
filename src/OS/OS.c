@@ -727,13 +727,15 @@ void OS_give(OS_semaphore *sem) {
  *      None.
  *************************************************************/
 void OS_ISR_give(OS_semaphore *sem) {
-    sem->current++;
-
     if (sem->wait_heap.length > 0) {
         OS_task *task = (OS_task *) Heap_remove(&sem->wait_heap);
         LL_enqueue(&tasks[task->priority], &task->node);
 
+        OS_priorityOn(task->priority);
+
         OS_schedule();
+    } else {
+        sem->current++;
     }
 }
 
@@ -771,6 +773,10 @@ void OS_ISR_take(OS_task *task, OS_semaphore *sem) {
     } else {
         LL_remove(&tasks[task->priority], &task->node);
         Heap_insert(&sem->wait_heap, (void *) task);
+
+        if (tasks[task->priority].length == 0) {
+            OS_priorityOff(task->priority);
+        }
 
         OS_schedule();
     }
