@@ -13,6 +13,14 @@
 
 #include "Std_Types.h"
 #include "LinkedList.h"
+#include "Heap.h"
+
+
+/*************************************************************
+ * Description: Configuration.
+ * 
+ *************************************************************/
+#define OS_MAX_WAITING_TASKS_PER_SEMAPHORE              10
 
 
 /*************************************************************
@@ -37,9 +45,10 @@ typedef struct {
  * 
  *************************************************************/
 typedef struct {
-    uint8_t count;
+    uint32_t current;
+    Heap_t wait_heap;
+    void *wait_array[OS_MAX_WAITING_TASKS_PER_SEMAPHORE];
 } OS_semaphore;
-
 
 
 /*************************************************************
@@ -66,6 +75,17 @@ void OS_init(void);
  *************************************************************/
 void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, 
         uint8_t priority, uint8_t *stackBegin, uint32_t stackSize);
+
+
+/*************************************************************
+ * Description: Setup semaphore.
+ * Parameters:
+ *      [1] Pointer to 'OS_semaphore'.
+ *      [2] Initial value.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial);
 
 
 /*************************************************************
@@ -138,6 +158,48 @@ void OS_delay(OS_task *task, uint32_t delay);
  *      None.
  *************************************************************/
 void OS_ISR_delay(OS_task *task, uint32_t delay);
+
+
+/*************************************************************
+ * Description: Increase semaphore's value.
+ * Parameters:
+ *      [1] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_give(OS_semaphore *sem);
+
+
+/*************************************************************
+ * Description: Increase semaphore's value.
+ * Parameters:
+ *      [1] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_give(OS_semaphore *sem);
+
+
+/*************************************************************
+ * Description: Decrease semaphore's value.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_take(OS_task *task, OS_semaphore *sem);
+
+
+/*************************************************************
+ * Description: Decrease semaphore's value.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_take(OS_task *task, OS_semaphore *sem);
 
 
 #endif /* __OS_KERNEL_H__ */

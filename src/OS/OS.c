@@ -71,7 +71,16 @@
 typedef enum {
     OS_REQ_id_WAIT = 0,
     OS_REQ_id_READY,
-    OS_REQ_id_DELAY
+    OS_REQ_id_DELAY,
+
+    OS_REQ_id_GIVE,
+    OS_REQ_id_TAKE,
+    
+    OS_REQ_id_LOCK,
+    OS_REQ_id_UNLOCK,
+    
+    OS_REQ_id_ENQUEUE,
+    OS_REQ_id_DEQUEUE
 } OS_REQ_id_t;
 
 
@@ -98,6 +107,17 @@ typedef struct {
     OS_task *task;
     uint32_t delay;
 } OS_REQ_delay_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_semaphore *sem;
+} OS_REQ_give_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+    OS_semaphore *sem;
+} OS_REQ_take_t;
 
 
 /*************************************************************
@@ -179,6 +199,7 @@ static void OS_makeTaskReady(OS_task *task);
 static void OS_makeTaskDelay(OS_task *task, uint32_t delay);
 static void OS_priorityOn(uint8_t priority);
 static void OS_priorityOff(uint8_t priority);
+static uint8_t OS_comparator(void *arg1, void *arg2);
 static void OS_schedule(void);
 static void OS_stackInit(OS_task *task);
 
@@ -245,6 +266,15 @@ SVC_Handler (OS_REQ_base_t *request) {
             OS_ISR_delay(
                 ((OS_REQ_delay_t *) request)->task,
                 ((OS_REQ_delay_t *) request)->delay
+            );
+            break;
+        case OS_REQ_id_GIVE:
+            OS_ISR_give(((OS_REQ_give_t *) request)->sem);
+            break;
+        case OS_REQ_id_TAKE:
+            OS_ISR_take(
+                ((OS_REQ_take_t *) request)->task,
+                ((OS_REQ_take_t *) request)->sem
             );
             break;
     }
@@ -442,6 +472,25 @@ static void OS_priorityOff(uint8_t priority) {
 
 
 /*************************************************************
+ * Description: (static) Compare two tasks, which has higher priority.
+ * Parameters:
+ *      [1] Pointer to task 'A'.
+ *      [2] Pointer to task 'B'.
+ * Return:
+ *      '1' if Task 'A' has higher priority, else '0'.
+ *************************************************************/
+static uint8_t OS_comparator(void *arg1, void *arg2) {
+    uint8_t res = 0;
+
+    if (((OS_task *) arg1)->priority < ((OS_task *) arg2)->priority) {
+        res = 1;
+    }
+
+    return res;
+}
+
+
+/*************************************************************
  * Description: (static) Initialize stack.
  * Parameters:
  *      [1] Task.
@@ -492,7 +541,7 @@ void OS_init(void) {
 /*************************************************************
  * Description: Setup task.
  * Parameters:
- *      [1] Pointer to 'OS_Task'.
+ *      [1] Pointer to 'OS_task'.
  *      [2] Pointer to function, accepts argument as 'void *'.
  *      [3] Argument, as 'void *'.
  *      [4] Task priority.
@@ -518,6 +567,20 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
     task->node.data = (void *) task;
 
     OS_stackInit(task);
+}
+
+
+/*************************************************************
+ * Description: Setup semaphore.
+ * Parameters:
+ *      [1] Pointer to 'OS_semaphore'.
+ *      [2] Initial value.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial) {
+    sem->current = initial;
+    Heap_init(&sem->wait_heap, sem->wait_array, &OS_comparator);
 }
 
 
@@ -636,4 +699,79 @@ void OS_delay(OS_task *task, uint32_t delay) {
 void OS_ISR_delay(OS_task *task, uint32_t delay) {
     OS_makeTaskDelay(task, delay);
     OS_schedule();
+}
+
+
+/*************************************************************
+ * Description: Increase semaphore's value.
+ * Parameters:
+ *      [1] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_give(OS_semaphore *sem) {
+    volatile OS_REQ_give_t req = {
+        .base.id = OS_REQ_id_GIVE,
+        .sem = sem
+    };
+
+    SVC_CALL();
+}
+
+
+/*************************************************************
+ * Description: Increase semaphore's value.
+ * Parameters:
+ *      [1] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_give(OS_semaphore *sem) {
+    sem->current++;
+
+    if (sem->wait_heap.length > 0) {
+        OS_task *task = (OS_task *) Heap_remove(&sem->wait_heap);
+        LL_enqueue(&tasks[task->priority], &task->node);
+
+        OS_schedule();
+    }
+}
+
+
+/*************************************************************
+ * Description: Decrease semaphore's value.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_take(OS_task *task, OS_semaphore *sem) {
+    volatile OS_REQ_take_t req = {
+        .base.id = OS_REQ_id_TAKE,
+        .task = task,
+        .sem = sem
+    };
+
+    SVC_CALL();
+}
+
+
+/*************************************************************
+ * Description: Decrease semaphore's value.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to semaphore.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_ISR_take(OS_task *task, OS_semaphore *sem) {
+    if (sem->current > 0) {
+        sem->current--;
+    } else {
+        LL_remove(&tasks[task->priority], &task->node);
+        Heap_insert(&sem->wait_heap, (void *) task);
+
+        OS_schedule();
+    }
 }
