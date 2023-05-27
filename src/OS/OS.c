@@ -779,6 +779,8 @@ OS_REQ_status_t OS_ISR_give(OS_semaphore *sem) {
         OS_task *task = (OS_task *) Heap_remove(&sem->wait_heap);
         LL_enqueue(&tasks[task->priority], &task->node);
 
+        task->state = OS_task_state_READY;
+
         OS_priorityOn(task->priority);
 
         OS_schedule();
@@ -825,6 +827,8 @@ OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem) {
     if (sem->current > 0) {
         sem->current--;
     } else {
+        task->state = OS_task_state_WAITING_ON_SEMAPHORE;
+
         LL_remove(&tasks[task->priority], &task->node);
         Heap_insert(&sem->wait_heap, (void *) task);
 
@@ -834,4 +838,6 @@ OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem) {
 
         OS_schedule();
     }
+
+    return OS_REQ_status_OK;
 }
