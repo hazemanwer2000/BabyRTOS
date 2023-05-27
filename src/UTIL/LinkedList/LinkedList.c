@@ -85,3 +85,26 @@ void LL_remove(LL_list *list, LL_node *node) {
         }
     }
 }
+
+void LL_priority_enqueue(LL_list *list, LL_node *node, uint8_t (*compare)(void *, void *)) {
+    LL_node *traverse = list->tail;
+    
+    while (traverse != NULL) {
+        if (compare(node->data, traverse->data)) {
+            traverse = traverse->prev;
+        } else {
+            break;
+        }
+    }
+
+    if (traverse == NULL) {
+        LL_push(list, node);
+    } else if (traverse == list->tail) {
+        LL_enqueue(list, node);
+    } else {
+        node->next = traverse->next;
+        node->prev = traverse;
+        traverse->next = node;
+        node->next->prev = node;
+    }
+}

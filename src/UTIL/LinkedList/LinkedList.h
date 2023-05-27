@@ -30,5 +30,6 @@ LL_node * LL_pop(LL_list *list);
 void LL_push(LL_list *list, LL_node *node);
 void LL_enqueue(LL_list *list, LL_node *node);
 void LL_remove(LL_list *list, LL_node *node);
+void LL_priority_enqueue(LL_list *list, LL_node *node, uint8_t (*compare)(void *, void *));
 
 #endif      /* __LINKED_LIST_H__ */
