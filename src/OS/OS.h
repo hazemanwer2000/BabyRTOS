@@ -13,14 +13,6 @@
 
 #include "Std_Types.h"
 #include "LinkedList.h"
-#include "Heap.h"
-
-
-/*************************************************************
- * Description: Configuration.
- * 
- *************************************************************/
-#define OS_MAX_WAITING_TASKS_PER_SEMAPHORE              10
 
 
 /*************************************************************
@@ -72,9 +64,19 @@ typedef struct {
 typedef struct {
     uint32_t current;
     uint32_t max;
-    Heap_t wait_heap;
-    void *wait_array[OS_MAX_WAITING_TASKS_PER_SEMAPHORE];
+    LL_list waiting;
 } OS_semaphore;
+
+
+/*************************************************************
+ * Description: Structure of an OS semaphore.
+ * 
+ *************************************************************/
+typedef struct {
+    LL_list content;
+    LL_list waiting_enqueue;
+    LL_list waiting_dequeue;
+} OS_queue;
 
 
 /*************************************************************

@@ -594,7 +594,6 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
 void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum) {
     sem->current = initial;
     sem->max = maximum;
-    Heap_init(&sem->wait_heap, sem->wait_array, &OS_comparator);
 }
 
 
@@ -775,8 +774,8 @@ OS_REQ_status_t OS_give(OS_semaphore *sem) {
 OS_REQ_status_t OS_ISR_give(OS_semaphore *sem) {
     OS_REQ_status_t status = OS_REQ_status_OK;
 
-    if (sem->wait_heap.length > 0) {
-        OS_task *task = (OS_task *) Heap_remove(&sem->wait_heap);
+    if (sem->waiting.length > 0) {
+        OS_task *task = (OS_task *) LL_pop(&sem->waiting)->data;
         LL_enqueue(&tasks[task->priority], &task->node);
 
         task->state = OS_task_state_READY;
@@ -830,7 +829,7 @@ OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem) {
         task->state = OS_task_state_WAITING_ON_SEMAPHORE;
 
         LL_remove(&tasks[task->priority], &task->node);
-        Heap_insert(&sem->wait_heap, (void *) task);
+        LL_priority_enqueue(&sem->waiting, &task->node, &OS_comparator);
 
         if (tasks[task->priority].length == 0) {
             OS_priorityOff(task->priority);
