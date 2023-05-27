@@ -24,6 +24,28 @@
 
 
 /*************************************************************
+ * Description: Enumeration of task states.
+ * 
+ *************************************************************/
+typedef enum {
+    OS_task_state_READY = 0,
+    OS_task_state_WAITING,
+    OS_task_state_DELAYED,
+    OS_task_state_WAITING_ON_SEMAPHORE
+} OS_task_state_t;
+
+
+/*************************************************************
+ * Description: Enumeration of request responses.
+ * 
+ *************************************************************/
+typedef enum {
+    OS_REQ_status_OK = 0,
+    OS_REQ_status_NOK
+} OS_REQ_status_t;
+
+
+/*************************************************************
  * Description: Structure of an OS task.
  * 
  *************************************************************/
@@ -34,9 +56,12 @@ typedef struct {
     void (*fptr)(void *);
     void *args;
     uint8_t priority;
-    uint32_t delay;
+    OS_task_state_t state;
 
     LL_node node;
+
+        /* Request-related. */
+    uint32_t delay;
 } OS_task;
 
 
@@ -46,6 +71,7 @@ typedef struct {
  *************************************************************/
 typedef struct {
     uint32_t current;
+    uint32_t max;
     Heap_t wait_heap;
     void *wait_array[OS_MAX_WAITING_TASKS_PER_SEMAPHORE];
 } OS_semaphore;
@@ -85,7 +111,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
  * Return:
  *      None.
  *************************************************************/
-void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial);
+void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum);
 
 
 /*************************************************************
@@ -105,7 +131,7 @@ void OS_start(void);
  * Return:
  *      None.
  *************************************************************/
-void OS_wait(OS_task *task);
+OS_REQ_status_t OS_wait(OS_task *task);
 
 
 /*************************************************************
@@ -115,7 +141,7 @@ void OS_wait(OS_task *task);
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_wait(OS_task *task);
+OS_REQ_status_t OS_ISR_wait(OS_task *task);
 
 
 /*************************************************************
@@ -125,7 +151,7 @@ void OS_ISR_wait(OS_task *task);
  * Return:
  *      None.
  *************************************************************/
-void OS_ready(OS_task *task);
+OS_REQ_status_t OS_ready(OS_task *task);
 
 
 /*************************************************************
@@ -135,7 +161,7 @@ void OS_ready(OS_task *task);
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_ready(OS_task *task);
+OS_REQ_status_t OS_ISR_ready(OS_task *task);
 
 
 /*************************************************************
@@ -146,7 +172,7 @@ void OS_ISR_ready(OS_task *task);
  * Return:
  *      None.
  *************************************************************/
-void OS_delay(OS_task *task, uint32_t delay);
+OS_REQ_status_t OS_delay(OS_task *task, uint32_t delay);
 
 
 /*************************************************************
@@ -157,7 +183,7 @@ void OS_delay(OS_task *task, uint32_t delay);
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_delay(OS_task *task, uint32_t delay);
+OS_REQ_status_t OS_ISR_delay(OS_task *task, uint32_t delay);
 
 
 /*************************************************************
@@ -167,7 +193,7 @@ void OS_ISR_delay(OS_task *task, uint32_t delay);
  * Return:
  *      None.
  *************************************************************/
-void OS_give(OS_semaphore *sem);
+OS_REQ_status_t OS_give(OS_semaphore *sem);
 
 
 /*************************************************************
@@ -177,7 +203,7 @@ void OS_give(OS_semaphore *sem);
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_give(OS_semaphore *sem);
+OS_REQ_status_t OS_ISR_give(OS_semaphore *sem);
 
 
 /*************************************************************
@@ -188,7 +214,7 @@ void OS_ISR_give(OS_semaphore *sem);
  * Return:
  *      None.
  *************************************************************/
-void OS_take(OS_task *task, OS_semaphore *sem);
+OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem);
 
 
 /*************************************************************
@@ -199,7 +225,7 @@ void OS_take(OS_task *task, OS_semaphore *sem);
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_take(OS_task *task, OS_semaphore *sem);
+OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem);
 
 
 #endif /* __OS_KERNEL_H__ */

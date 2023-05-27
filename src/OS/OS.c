@@ -90,6 +90,7 @@ typedef enum {
  *************************************************************/
 typedef struct {
     OS_REQ_id_t id;
+    OS_REQ_status_t status;
 } OS_REQ_base_t;
 
 typedef struct {
@@ -222,6 +223,8 @@ SysTick_Handler (void) {
         task->delay--;
 
         if (task->delay == 0) {       /* Dispatch again. */
+            task->state = OS_task_state_READY;
+
             node_tmp = node->next;
             
             LL_remove(&tasks_delayed, node);
@@ -255,29 +258,33 @@ SysTick_Handler (void) {
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
 SVC_Handler (OS_REQ_base_t *request) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     switch (request->id) {
         case OS_REQ_id_WAIT:
-            OS_ISR_wait(((OS_REQ_wait_t *) request)->task);
+            status = OS_ISR_wait(((OS_REQ_wait_t *) request)->task);
             break;
         case OS_REQ_id_READY:
-            OS_ISR_ready(((OS_REQ_ready_t *) request)->task);
+            status = OS_ISR_ready(((OS_REQ_ready_t *) request)->task);
             break;
         case OS_REQ_id_DELAY:
-            OS_ISR_delay(
+            status = OS_ISR_delay(
                 ((OS_REQ_delay_t *) request)->task,
                 ((OS_REQ_delay_t *) request)->delay
             );
             break;
         case OS_REQ_id_GIVE:
-            OS_ISR_give(((OS_REQ_give_t *) request)->sem);
+            status = OS_ISR_give(((OS_REQ_give_t *) request)->sem);
             break;
         case OS_REQ_id_TAKE:
-            OS_ISR_take(
+            status = OS_ISR_take(
                 ((OS_REQ_take_t *) request)->task,
                 ((OS_REQ_take_t *) request)->sem
             );
             break;
     }
+
+    request->status = status;
 }
 
 
@@ -382,26 +389,6 @@ static void OS_schedule(void) {
 
 
 /*************************************************************
- * Description: (static) Task into delayed state.
- * Parameters:
- *      [1] Task.
- *      [2] Delay.
- * Return:
- *      None.
- *************************************************************/
-static void OS_makeTaskDelay(OS_task *task, uint32_t delay) {
-    task->delay = delay;
-
-    LL_remove(&tasks[task->priority], &task->node);
-    LL_enqueue(&tasks_delayed, &task->node);
-
-    if (tasks[task->priority].length == 0) {
-        OS_priorityOff(task->priority);
-    }
-}
-
-
-/*************************************************************
  * Description: (static) Task into wait state.
  * Parameters:
  *      [1] Task.
@@ -409,6 +396,8 @@ static void OS_makeTaskDelay(OS_task *task, uint32_t delay) {
  *      None.
  *************************************************************/
 static void OS_makeTaskWait(OS_task *task) {
+    task->state = OS_task_state_WAITING;
+
     LL_remove(&tasks[task->priority], &task->node);
     LL_enqueue(&tasks_waiting, &task->node);
 
@@ -426,10 +415,33 @@ static void OS_makeTaskWait(OS_task *task) {
  *      None.
  *************************************************************/
 static void OS_makeTaskReady(OS_task *task) {
+    task->state = OS_task_state_READY;
+
     LL_remove(&tasks_waiting, &task->node);
     LL_enqueue(&tasks[task->priority], &task->node);
 
     OS_priorityOn(task->priority);
+}
+
+
+/*************************************************************
+ * Description: (static) Task into delayed state.
+ * Parameters:
+ *      [1] Task.
+ *      [2] Delay.
+ * Return:
+ *      None.
+ *************************************************************/
+static void OS_makeTaskDelay(OS_task *task, uint32_t delay) {
+    task->state = OS_task_state_DELAYED;
+    task->delay = delay;
+
+    LL_remove(&tasks[task->priority], &task->node);
+    LL_enqueue(&tasks_delayed, &task->node);
+
+    if (tasks[task->priority].length == 0) {
+        OS_priorityOff(task->priority);
+    }
 }
 
 
@@ -565,6 +577,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
     task->priority = priority;
     task->delay = 0;
     task->node.data = (void *) task;
+    task->state = OS_task_state_READY;
 
     OS_stackInit(task);
 }
@@ -578,8 +591,9 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
  * Return:
  *      None.
  *************************************************************/
-void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial) {
+void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum) {
     sem->current = initial;
+    sem->max = maximum;
     Heap_init(&sem->wait_heap, sem->wait_array, &OS_comparator);
 }
 
@@ -616,13 +630,15 @@ void OS_start(void) {
  * Return:
  *      None.
  *************************************************************/
-void OS_wait(OS_task *task) {
+OS_REQ_status_t OS_wait(OS_task *task) {
     OS_REQ_wait_t req = {
         .base.id = OS_REQ_id_WAIT,
         .task = task
     };
 
     SVC_CALL();
+
+    return req.base.status;
 }
 
 
@@ -633,9 +649,17 @@ void OS_wait(OS_task *task) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_wait(OS_task *task) {
-    OS_makeTaskWait(task);
-    OS_schedule();
+OS_REQ_status_t OS_ISR_wait(OS_task *task) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
+    if (task->state != OS_task_state_READY) {
+        status = OS_REQ_status_NOK;
+    } else {
+        OS_makeTaskWait(task);
+        OS_schedule();
+    }
+
+    return status;
 }
 
 
@@ -646,13 +670,15 @@ void OS_ISR_wait(OS_task *task) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ready(OS_task *task) {
+OS_REQ_status_t OS_ready(OS_task *task) {
     OS_REQ_ready_t req = {
         .base.id = OS_REQ_id_READY,
         .task = task
     };
 
     SVC_CALL();
+
+    return req.base.status;
 }
 
 
@@ -663,9 +689,17 @@ void OS_ready(OS_task *task) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_ready(OS_task *task) {
-    OS_makeTaskReady(task);
-    OS_schedule();
+OS_REQ_status_t OS_ISR_ready(OS_task *task) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
+    if (task->state != OS_task_state_WAITING) {
+        status = OS_REQ_status_NOK;
+    } else {
+        OS_makeTaskReady(task);
+        OS_schedule();
+    }
+
+    return status;
 }
 
 
@@ -677,7 +711,7 @@ void OS_ISR_ready(OS_task *task) {
  * Return:
  *      None.
  *************************************************************/
-void OS_delay(OS_task *task, uint32_t delay) {
+OS_REQ_status_t OS_delay(OS_task *task, uint32_t delay) {
     volatile OS_REQ_delay_t req = {
         .base.id = OS_REQ_id_DELAY,
         .task = task,
@@ -685,6 +719,8 @@ void OS_delay(OS_task *task, uint32_t delay) {
     };
 
     SVC_CALL();
+
+    return req.base.status;
 }
 
 
@@ -696,9 +732,17 @@ void OS_delay(OS_task *task, uint32_t delay) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_delay(OS_task *task, uint32_t delay) {
-    OS_makeTaskDelay(task, delay);
-    OS_schedule();
+OS_REQ_status_t OS_ISR_delay(OS_task *task, uint32_t delay) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
+    if (task->state != OS_task_state_READY) {
+        status = OS_REQ_status_NOK;
+    } else {
+        OS_makeTaskDelay(task, delay);
+        OS_schedule();
+    }
+
+    return status;
 }
 
 
@@ -709,13 +753,15 @@ void OS_ISR_delay(OS_task *task, uint32_t delay) {
  * Return:
  *      None.
  *************************************************************/
-void OS_give(OS_semaphore *sem) {
+OS_REQ_status_t OS_give(OS_semaphore *sem) {
     volatile OS_REQ_give_t req = {
         .base.id = OS_REQ_id_GIVE,
         .sem = sem
     };
 
     SVC_CALL();
+
+    return req.base.status;
 }
 
 
@@ -726,7 +772,9 @@ void OS_give(OS_semaphore *sem) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_give(OS_semaphore *sem) {
+OS_REQ_status_t OS_ISR_give(OS_semaphore *sem) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     if (sem->wait_heap.length > 0) {
         OS_task *task = (OS_task *) Heap_remove(&sem->wait_heap);
         LL_enqueue(&tasks[task->priority], &task->node);
@@ -734,9 +782,13 @@ void OS_ISR_give(OS_semaphore *sem) {
         OS_priorityOn(task->priority);
 
         OS_schedule();
-    } else {
+    } else if (sem->current < sem->max) {
         sem->current++;
+    } else {
+        status = OS_REQ_status_NOK;
     }
+
+    return status;
 }
 
 
@@ -748,7 +800,7 @@ void OS_ISR_give(OS_semaphore *sem) {
  * Return:
  *      None.
  *************************************************************/
-void OS_take(OS_task *task, OS_semaphore *sem) {
+OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem) {
     volatile OS_REQ_take_t req = {
         .base.id = OS_REQ_id_TAKE,
         .task = task,
@@ -756,6 +808,8 @@ void OS_take(OS_task *task, OS_semaphore *sem) {
     };
 
     SVC_CALL();
+
+    return req.base.status;
 }
 
 
@@ -767,7 +821,7 @@ void OS_take(OS_task *task, OS_semaphore *sem) {
  * Return:
  *      None.
  *************************************************************/
-void OS_ISR_take(OS_task *task, OS_semaphore *sem) {
+OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem) {
     if (sem->current > 0) {
         sem->current--;
     } else {

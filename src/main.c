@@ -88,7 +88,8 @@ void high3Task_Handler(void *args) {
 
 void lowTask_Handler(void *args) {
 	while (1) {
-		// counter.low++;
+		OS_delay(&lowTask, 1000);
+		counter.low++;
 	}
 }
 
@@ -97,7 +98,7 @@ void main(void) {
 	if (quickly_SYSTICK() != SYSTICK_status_Ok) return;
 
 	OS_init();
-
+/*
 	OS_setupTask(&highTask, &highTask_Handler, (void *) HIGH_TASK_PRIORITY,
 		HIGH_TASK_PRIORITY, highStack, STACK_SIZE);
 
@@ -106,11 +107,12 @@ void main(void) {
 
 	OS_setupTask(&high3Task, &high3Task_Handler, (void *) HIGH_TASK_PRIORITY,
 		HIGH_TASK_PRIORITY, high3Stack, STACK_SIZE);
+*/
 
 	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
 		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
 
-	OS_setupSemaphore(&sem, 0);
+	OS_setupSemaphore(&sem, 0, 2);
 
 	OS_start();
 }
