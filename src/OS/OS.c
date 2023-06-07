@@ -898,11 +898,11 @@ OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args) {
     task->args = args;
 
     if (q->waiting_dequeue.length > 0) {
-        OS_task *task_deq = (OS_task *) LL_dequeue(&q->waiting_dequeue)->data;
-        OS_makeTaskReady(task_deq);
+        OS_task *task_x = (OS_task *) LL_dequeue(&q->waiting_dequeue)->data;
+        OS_makeTaskReady(task_x);
 
-        task_deq->state = OS_task_state_READY;
-        *((void **) task_deq->args) = task->args;
+        task_x->state = OS_task_state_READY;
+        *((void **) task_x->args) = task->args;
 
         OS_schedule();
     } else {
@@ -967,11 +967,11 @@ OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args) {
 
         OS_schedule();
     } else if (q->waiting_enqueue.length > 0) {
-        OS_task *task_deq = (OS_task *) LL_dequeue(&q->waiting_enqueue)->data;
-        OS_makeTaskReady(task_deq);
+        OS_task *task_x = (OS_task *) LL_dequeue(&q->waiting_enqueue)->data;
+        OS_makeTaskReady(task_x);
 
-        task_deq->state = OS_task_state_READY;
-        Queue_enqueue(&q->queue, task_deq->args);
+        task_x->state = OS_task_state_READY;
+        Queue_enqueue(&q->queue, task_x->args);
 
         OS_schedule();
     }

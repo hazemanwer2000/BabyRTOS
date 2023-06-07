@@ -49,7 +49,7 @@ uint8_t lowStack[STACK_SIZE];
 
 OS_semaphore sem;
 
-#define QUEUE_CAP		1
+#define QUEUE_CAP		20
 
 OS_queue queue;
 void *array[QUEUE_CAP];
@@ -80,7 +80,7 @@ void high2Task_Handler(void *args) {
 
 void high3Task_Handler(void *args) {
 	while (1) {
-		OS_delay(&high3Task, SECOND * 3);
+		OS_delay(&high3Task, SECOND);
 		OS_dequeue(&high3Task, &queue, &args);
 		counter.high3 = (uint32_t) args;
 	}
