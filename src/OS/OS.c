@@ -881,18 +881,22 @@ OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem) {
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     if (sem->current > 0) {
         sem->current--;
-    } else {
+    } else if (task->state == OS_task_state_READY) {
         task->state = OS_task_state_WAITING_ON_SEMAPHORE;
 
         OS_makeTaskWait(task);
         LL_priority_enqueue(&sem->waiting, &task->node, &OS_comparator);
 
         OS_schedule();
+    } else {
+        status = OS_REQ_status_NOK;
     }
 
-    return OS_REQ_status_OK;
+    return status;
 }
 
 
@@ -929,6 +933,8 @@ OS_REQ_status_t OS_enqueue(OS_task *task, OS_queue *queue, void *args) {
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     task->args = args;
 
     if (q->waiting_dequeue.length > 0) {
@@ -940,19 +946,23 @@ OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args) {
 
         OS_schedule();
     } else {
-        Queue_status_t status = Queue_enqueue(&q->queue, task->args);
+        Queue_status_t op_status = Queue_enqueue(&q->queue, task->args);
         
-        if (status == Queue_status_Full) {
-            task->state = OS_task_state_WAITING_TO_ENQUEUE;
+        if (op_status == Queue_status_Full) {
+            if (task->state == OS_task_state_READY) {
+                task->state = OS_task_state_WAITING_TO_ENQUEUE;
 
-            OS_makeTaskWait(task);
-            LL_priority_enqueue(&q->waiting_enqueue, &task->node, &OS_comparator);
+                OS_makeTaskWait(task);
+                LL_priority_enqueue(&q->waiting_enqueue, &task->node, &OS_comparator);
 
-            OS_schedule();
+                OS_schedule();
+            } else {
+                status = OS_REQ_status_NOK;
+            }
         }
     }
 
-    return OS_REQ_status_OK;
+    return status;
 }
 
 
@@ -989,17 +999,23 @@ OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args) {
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     task->args = (void *) args;
 
-    Queue_status_t status = Queue_dequeue(&q->queue, (void **) task->args);
+    Queue_status_t op_status = Queue_dequeue(&q->queue, (void **) task->args);
 
-    if (status == Queue_status_Empty) {
-        task->state = OS_task_state_WAITING_TO_DEQUEUE;
-        
-        OS_makeTaskWait(task);
-        LL_priority_enqueue(&q->waiting_dequeue, &task->node, &OS_comparator);
+    if (op_status == Queue_status_Empty) {
+        if (task->state == OS_task_state_READY) {
+            task->state = OS_task_state_WAITING_TO_DEQUEUE;
+            
+            OS_makeTaskWait(task);
+            LL_priority_enqueue(&q->waiting_dequeue, &task->node, &OS_comparator);
 
-        OS_schedule();
+            OS_schedule();
+        } else {
+            status = OS_REQ_status_NOK;
+        }
     } else if (q->waiting_enqueue.length > 0) {
         OS_task *task_x = (OS_task *) LL_dequeue(&q->waiting_enqueue)->data;
         OS_makeTaskReady(task_x);
@@ -1010,7 +1026,7 @@ OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args) {
         OS_schedule();
     }
 
-    return OS_REQ_status_OK;
+    return status;
 }
 
 
@@ -1044,9 +1060,11 @@ OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m) {
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
     if (m->task == NULL) {
         m->task = task;
-    } else {
+    } else if (task->state == OS_task_state_READY) {
         task->state = OS_task_state_WAITING_ON_MUTEX;
 
         OS_makeTaskWait(task);
@@ -1059,9 +1077,11 @@ OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m) {
         }
 
         OS_schedule();
+    } else {
+        status = OS_REQ_status_NOK;
     }
 
-    return OS_REQ_status_OK;
+    return status;
 }
 
 
