@@ -33,63 +33,52 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 	return status;
 }
 
-#define HIGH_TASK_PRIORITY				11
-#define LOW_TASK_PRIORITY				23
+#define HIGH_TASK_PRIORITY				0
+#define MED_TASK_PRIORITY				1
+#define LOW_TASK_PRIORITY				2
 #define STACK_SIZE						256
 
 OS_task highTask;
-OS_task high2Task;
-OS_task high3Task;
+OS_task medTask;
 OS_task lowTask;
 
 uint8_t highStack[STACK_SIZE];
-uint8_t high2Stack[STACK_SIZE];
-uint8_t high3Stack[STACK_SIZE];
+uint8_t medStack[STACK_SIZE];
 uint8_t lowStack[STACK_SIZE];
 
 OS_semaphore sem;
-
+OS_mutex m;
 #define QUEUE_CAP		20
-
 OS_queue queue;
 void *array[QUEUE_CAP];
 
 typedef struct {
 	uint32_t high;
-	uint32_t high2;
-	uint32_t high3;
+	uint32_t med;
 	uint32_t low;
-	uint32_t sync;
 } counter_t;
 
 counter_t counter;
 
 void highTask_Handler(void *args) {
 	while (1) {
-		OS_enqueue(&highTask, &queue, (void *) ++counter.high);
+		OS_lock(&highTask, &m);
+		OS_delay(&highTask, 1000);
+		OS_unlock(&highTask, &m);
 	}
 }
 
-void high2Task_Handler(void *args) {
+void medTask_Handler(void *args) {
 	while (1) {
-		OS_delay(&high2Task, SECOND);
-		OS_dequeue(&high2Task, &queue, &args);
-		counter.high2 = (uint32_t) args;
-	}
-}
-
-void high3Task_Handler(void *args) {
-	while (1) {
-		OS_delay(&high3Task, SECOND);
-		OS_dequeue(&high3Task, &queue, &args);
-		counter.high3 = (uint32_t) args;
+		OS_lock(&medTask, &m);
+		counter.med++;
+		OS_unlock(&medTask, &m);
 	}
 }
 
 void lowTask_Handler(void *args) {
 	while (1) {
-		// OS_delay(&lowTask, 1000);
-		// counter.low++;
+
 	}
 }
 
@@ -102,18 +91,15 @@ void main(void) {
 	OS_setupTask(&highTask, &highTask_Handler, (void *) HIGH_TASK_PRIORITY,
 		HIGH_TASK_PRIORITY, highStack, STACK_SIZE);
 
-	OS_setupTask(&high2Task, &high2Task_Handler, (void *) HIGH_TASK_PRIORITY,
-		HIGH_TASK_PRIORITY, high2Stack, STACK_SIZE);
-
-	OS_setupTask(&high3Task, &high3Task_Handler, (void *) HIGH_TASK_PRIORITY,
-		HIGH_TASK_PRIORITY, high3Stack, STACK_SIZE);
+	OS_setupTask(&medTask, &medTask_Handler, (void *) MED_TASK_PRIORITY,
+		MED_TASK_PRIORITY, medStack, STACK_SIZE);
 
 	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
 		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
 
 	OS_setupSemaphore(&sem, 0, 2);
-
 	OS_setupQueue(&queue, array, QUEUE_CAP);
+	OS_setupMutex(&m);
 
 	OS_start();
 }

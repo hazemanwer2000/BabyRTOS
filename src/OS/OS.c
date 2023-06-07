@@ -134,6 +134,18 @@ typedef struct {
     void **args;
 } OS_REQ_dequeue_t;
 
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+    OS_mutex *m;
+} OS_REQ_lock_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    OS_task *task;
+    OS_mutex *m;
+} OS_REQ_unlock_t;
+
 
 /*************************************************************
  * Description: Priority mapping-related variables.
@@ -307,6 +319,18 @@ SVC_Handler (OS_REQ_base_t *request) {
                 ((OS_REQ_dequeue_t *) request)->task,
                 ((OS_REQ_dequeue_t *) request)->queue,
                 ((OS_REQ_enqueue_t *) request)->args
+            );
+            break;
+        case OS_REQ_id_LOCK:
+            status = OS_ISR_lock(
+                ((OS_REQ_lock_t *) request)->task,
+                ((OS_REQ_lock_t *) request)->m
+            );
+            break;
+        case OS_REQ_id_UNLOCK:
+            status = OS_ISR_unlock(
+                ((OS_REQ_unlock_t *) request)->task,
+                ((OS_REQ_unlock_t *) request)->m
             );
             break;
     }
@@ -573,7 +597,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
 
     task->fptr = fptr;
     task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
-    task->priority = priority;
+    task->priority = task->saved_priority = priority;
     task->delay = 0;
     task->node.data = (void *) task;
     task->state = OS_task_state_READY;
@@ -608,6 +632,16 @@ void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum) {
 void OS_setupQueue(OS_queue *q, void **array, uint32_t length) {
     Queue_init(&q->queue, array, length);
 }
+
+
+/*************************************************************
+ * Description: Setup mutex.
+ * Parameters:
+ *      [1] Pointer to 'OS_mutex'.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupMutex(OS_mutex *m) {}
 
 
 /*************************************************************
@@ -977,4 +1011,114 @@ OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args) {
     }
 
     return OS_REQ_status_OK;
+}
+
+
+/*************************************************************
+ * Description: Lock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m) {
+    volatile OS_REQ_lock_t req = {
+        .base.id = OS_REQ_id_LOCK,
+        .task = task,
+        .m = m
+    };
+
+    SVC_CALL();
+
+    return req.base.status;
+}
+
+
+/*************************************************************
+ * Description: Lock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m) {
+    if (m->task == NULL) {
+        m->task = task;
+    } else {
+        task->state = OS_task_state_WAITING_ON_MUTEX;
+
+        OS_makeTaskWait(task);
+        LL_priority_enqueue(&m->waiting, &task->node, &OS_comparator);
+
+        if (task->priority < m->task->priority) {
+            OS_makeTaskWait(m->task);
+            m->task->priority = task->priority;
+            OS_makeTaskReady(m->task);
+        }
+
+        OS_schedule();
+    }
+
+    return OS_REQ_status_OK;
+}
+
+
+/*************************************************************
+ * Description: Unlock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m) {
+    volatile OS_REQ_unlock_t req = {
+        .base.id = OS_REQ_id_UNLOCK,
+        .task = task,
+        .m = m
+    };
+
+    SVC_CALL();
+
+    return req.base.status;
+}
+
+
+/*************************************************************
+ * Description: Unlock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_unlock(OS_task *task, OS_mutex *m) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
+    if (task != m->task) {
+        status = OS_REQ_status_NOK;
+    } else {
+        m->task = NULL;
+        
+        if (task->priority != task->saved_priority) {
+            OS_makeTaskWait(task);
+            task->priority = task->saved_priority;
+            OS_makeTaskReady(task);
+        }
+
+        if (m->waiting.length != 0) {
+            OS_task *task_x = (OS_task *) LL_dequeue(&m->waiting)->data;
+            OS_makeTaskReady(task_x);
+
+            task_x->state = OS_task_state_READY;
+
+            m->task = task_x;
+        }
+
+        OS_schedule();
+    }
+
+    return status;
 }

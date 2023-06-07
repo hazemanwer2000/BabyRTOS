@@ -26,7 +26,8 @@ typedef enum {
     OS_task_state_DELAYED,
     OS_task_state_WAITING_ON_SEMAPHORE,
     OS_task_state_WAITING_TO_ENQUEUE,
-    OS_task_state_WAITING_TO_DEQUEUE
+    OS_task_state_WAITING_TO_DEQUEUE,
+    OS_task_state_WAITING_ON_MUTEX
 } OS_task_state_t;
 
 
@@ -57,6 +58,7 @@ typedef struct {
         /* Request-related. */
     uint32_t delay;
     void *args;
+    uint8_t saved_priority;
 } OS_task;
 
 
@@ -80,6 +82,16 @@ typedef struct {
     LL_list waiting_enqueue;
     LL_list waiting_dequeue;
 } OS_queue;
+
+
+/*************************************************************
+ * Description: Structure of an OS mutex.
+ * 
+ *************************************************************/
+typedef struct {
+    OS_task *task;
+    LL_list waiting;
+} OS_mutex;
 
 
 /*************************************************************
@@ -129,6 +141,16 @@ void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum);
  *      None.
  *************************************************************/
 void OS_setupQueue(OS_queue *q, void **array, uint32_t length);
+
+
+/*************************************************************
+ * Description: Setup mutex.
+ * Parameters:
+ *      [1] Pointer to 'OS_mutex'.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupMutex(OS_mutex *m);
 
 
 /*************************************************************
@@ -291,6 +313,50 @@ OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args);
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args);
+
+
+/*************************************************************
+ * Description: Lock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m);
+
+
+/*************************************************************
+ * Description: Lock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m);
+
+
+/*************************************************************
+ * Description: Unlock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m);
+
+
+/*************************************************************
+ * Description: Unlock mutex.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to mutex.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_unlock(OS_task *task, OS_mutex *m);
 
 
 #endif /* __OS_KERNEL_H__ */
