@@ -7,8 +7,7 @@
  * 
  *************************************************************/
 
-#include "stdint.h"
-#include "stdio.h"
+#include "Std_Types.h"
 
 typedef struct {
     uint32_t length, capacity;

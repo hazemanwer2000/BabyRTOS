@@ -49,6 +49,11 @@ uint8_t lowStack[STACK_SIZE];
 
 OS_semaphore sem;
 
+#define QUEUE_CAP		1
+
+OS_queue queue;
+void *array[QUEUE_CAP];
+
 typedef struct {
 	uint32_t high;
 	uint32_t high2;
@@ -61,28 +66,23 @@ counter_t counter;
 
 void highTask_Handler(void *args) {
 	while (1) {
-		OS_delay(&highTask, SECOND);
-		counter.high++;
-		OS_give(&sem);
-		OS_give(&sem);
-
-		// counter.high++;
+		OS_enqueue(&highTask, &queue, (void *) ++counter.high);
 	}
 }
 
 void high2Task_Handler(void *args) {
 	while (1) {
-		OS_take(&high2Task, &sem);
-		counter.sync++;
-		// counter.high2++;
+		OS_delay(&high2Task, SECOND);
+		OS_dequeue(&high2Task, &queue, &args);
+		counter.high2 = (uint32_t) args;
 	}
 }
 
 void high3Task_Handler(void *args) {
 	while (1) {
-		OS_take(&high3Task, &sem);
-		counter.sync++;
-		// counter.high3++;
+		OS_delay(&high3Task, SECOND * 3);
+		OS_dequeue(&high3Task, &queue, &args);
+		counter.high3 = (uint32_t) args;
 	}
 }
 
@@ -112,6 +112,8 @@ void main(void) {
 		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
 
 	OS_setupSemaphore(&sem, 0, 2);
+
+	OS_setupQueue(&queue, array, QUEUE_CAP);
 
 	OS_start();
 }

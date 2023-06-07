@@ -13,6 +13,7 @@
 
 #include "Std_Types.h"
 #include "LinkedList.h"
+#include "Queue.h"
 
 
 /*************************************************************
@@ -23,7 +24,9 @@ typedef enum {
     OS_task_state_READY = 0,
     OS_task_state_WAITING,
     OS_task_state_DELAYED,
-    OS_task_state_WAITING_ON_SEMAPHORE
+    OS_task_state_WAITING_ON_SEMAPHORE,
+    OS_task_state_WAITING_TO_ENQUEUE,
+    OS_task_state_WAITING_TO_DEQUEUE
 } OS_task_state_t;
 
 
@@ -46,7 +49,6 @@ typedef struct {
     uint32_t *stackPtr;
     
     void (*fptr)(void *);
-    void *args;
     uint8_t priority;
     OS_task_state_t state;
 
@@ -54,6 +56,7 @@ typedef struct {
 
         /* Request-related. */
     uint32_t delay;
+    void *args;
 } OS_task;
 
 
@@ -69,11 +72,11 @@ typedef struct {
 
 
 /*************************************************************
- * Description: Structure of an OS semaphore.
+ * Description: Structure of an OS queue.
  * 
  *************************************************************/
 typedef struct {
-    LL_list content;
+    Queue_t queue;
     LL_list waiting_enqueue;
     LL_list waiting_dequeue;
 } OS_queue;
@@ -114,6 +117,18 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
  *      None.
  *************************************************************/
 void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum);
+
+
+/*************************************************************
+ * Description: Setup queue.
+ * Parameters:
+ *      [1] Pointer to 'OS_queue'.
+ *      [2] Array of 'void *'.
+ *      [3] Array length.
+ * Return:
+ *      None.
+ *************************************************************/
+void OS_setupQueue(OS_queue *q, void **array, uint32_t length);
 
 
 /*************************************************************
@@ -228,6 +243,54 @@ OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem);
  *      None.
  *************************************************************/
 OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem);
+
+
+/*************************************************************
+ * Description: Enqueue.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to queue.
+ *      [3] Argument, as 'void *'.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_enqueue(OS_task *task, OS_queue *queue, void *args);
+
+
+/*************************************************************
+ * Description: Enqueue.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to queue.
+ *      [3] Argument, as 'void *'.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args);
+
+
+/*************************************************************
+ * Description: Dequeue.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to queue.
+ *      [3] Argument to return, as 'void **'.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args);
+
+
+/*************************************************************
+ * Description: Dequeue.
+ * Parameters:
+ *      [1] Pointer to task.
+ *      [2] Pointer to queue.
+ *      [3] Argument to return, as 'void **'.
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args);
 
 
 #endif /* __OS_KERNEL_H__ */
