@@ -9,7 +9,7 @@ Major features of the implementation includes,
 * Priority inheritance by mutex-locking tasks, by ceiling all waiting tasks.
 
 *Notes:*
-* Under */src* is a sample application, based on the STM32F401CC micro-controller. 
+* Under [*/src*](/src) is a sample application, based on the STM32F401CC micro-controller. 
 * The implementation resides under,
   * [*/src/OS/OS.c*](/src/OS/OS.c) and,
   * [*/src/OS/OS.h*](/src/OS/OS.h).
