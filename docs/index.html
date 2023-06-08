@@ -96,15 +96,16 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
   <div class="headertitle"><div class="title">BabyRTOS </div></div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md__c_1_2_users_2hazem_2_desktop_2_baby_r_t_o_s_2_r_e_a_d_m_e"></a><img src="icon.png" alt="Icon" class="inline"/></p>
-<p>A pre-emptive priority-based Real-Time Operating System (RTOS), based on the ARM Cortex-M4 processor.</p>
+<div class="textblock"><p><a class="anchor" id="md__c_1_2_users_2hazem_2_desktop_2_baby_r_t_o_s_2_r_e_a_d_m_e"></a><img src="icon.png" alt="Icon" class="inline"/> A pre-emptive priority-based Real-Time Operating System (RTOS), based on the ARM Cortex-M4 processor.</p>
 <p>Major features of the implementation includes,</p><ul>
 <li>Up to 63 task priorities.</li>
 <li>Time-sharing (i.e, round-robin scheduling) between tasks of equal priority.</li>
 <li>Support for multiple OS resources, including <code><a class="el" href="struct_o_s__mutex.html" title="A struct that the OS manages, to track a registered mutex in the system.">OS_mutex</a></code>, <code><a class="el" href="struct_o_s__semaphore.html" title="A struct that the OS manages, to track a registered semaphore in the system.">OS_semaphore</a></code>, and <code><a class="el" href="struct_o_s__queue.html" title="A struct that the OS manages, to track a registered queue in the system.">OS_queue</a></code>.</li>
 <li>Priority inheritance by mutex-locking tasks, by ceiling all waiting tasks.</li>
 </ul>
-<p><b>Notes</b></p>
+<blockquote class="doxtable">
+<p>&zwj;Notes </p>
+</blockquote>
 <ul>
 <li>Under <code>/src</code> is a sample application, based on the STM32F401CC micro-controller.</li>
 <li>The implementation resides under,<ul>
@@ -125,11 +126,14 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 </ul>
 </li>
 <li>Interrupt pre-emption in the system is automatically disabled by <code>OS_init</code>.</li>
+<li>All system resources (i.e, tasks, mutexes, semaphores, queues) must be zero-initialized (i.e, defined as global variables).</li>
 </ul>
-<p><b>Links</b></p>
+<blockquote class="doxtable">
+<p>&zwj;Links </p>
+</blockquote>
 <ul>
-<li><a href="https://github.com/hazemanwer2000/BabyRTOS">Codebase</a>.</li>
-<li><a href="https://hazemanwer2000.github.io/BabyRTOS">Documentation</a>. </li>
+<li><a href="https://github.com/hazemanwer2000/BabyRTOS">Codebase</a></li>
+<li><a href="https://hazemanwer2000.github.io/BabyRTOS">Documentation</a> </li>
 </ul>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
