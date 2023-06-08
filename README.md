@@ -1,5 +1,5 @@
 # BabyRTOS
-![Icon](doxygen/icon.png)
+![Icon](icon.png)
 
 A pre-emptive priority-based Real-Time Operating System (RTOS), based on the ARM Cortex-M4 processor.
 
