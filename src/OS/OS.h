@@ -41,15 +41,27 @@ typedef enum {
 } OS_REQ_status_t;
 
 
-/*************************************************************
- * Description: Structure of an OS task.
- * 
- *************************************************************/
+/** @struct OS_task
+ *  @brief A struct that the OS manages, to track a registered task in the system.
+ *  @var stackPtr 
+ *  (Internal use only).
+ *  @var priority
+ *  Current task priority in the system.
+ *  @var state
+ *  Current task state in the system.
+ *  @var node
+ *  (Internal use only).
+ *  @var delay
+ *  (Internal use only).
+ *  @var args
+ *  (Internal use only).
+ *  @var saved_priority
+ *  (Internal use only).
+ */
 typedef struct {
         /* Must be first, for easy stack pointer switching. */
     uint32_t *stackPtr;
     
-    void (*fptr)(void *);
     uint8_t priority;
     OS_task_state_t state;
 

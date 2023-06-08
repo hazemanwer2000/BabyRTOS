@@ -227,7 +227,7 @@ static void OS_priorityOn(uint8_t priority);
 static void OS_priorityOff(uint8_t priority);
 static uint8_t OS_comparator(void *arg1, void *arg2);
 static void OS_schedule(void);
-static void OS_stackInit(OS_task *task, void *args);
+static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void));
 
 
 /*************************************************************
@@ -530,14 +530,16 @@ static uint8_t OS_comparator(void *arg1, void *arg2) {
  * Description: (static) Initialize stack.
  * Parameters:
  *      [1] Task.
+ *      [2] Initial arguments.
+ *      [3] Function pointer.
  * Return:
  *      None.
  *************************************************************/
-static void OS_stackInit(OS_task *task, void *args) {
+static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void)) {
     uint32_t *stackPtr = task->stackPtr;
 
 	*--stackPtr = (uint32_t) (1 << 24);		// xPSR (Thumb-State Enabled)
-	*--stackPtr = (uint32_t) task->fptr;	// Return Address
+	*--stackPtr = (uint32_t) fptr;	        // Return Address
 	*--stackPtr = (uint32_t) 14;			// LR (Note: Never returns from task.)
 	*--stackPtr = (uint32_t) 12;			// R12
 	*--stackPtr = (uint32_t) 3;				// R3
@@ -595,14 +597,12 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
     group[bit_group] |= (1 << bit_task);
     LL_enqueue(&tasks[priority], &task->node);
 
-    task->fptr = fptr;
     task->stackPtr = (uint32_t *) ALIGN_8((uint32_t) (stackBegin + stackSize));
     task->priority = task->saved_priority = priority;
-    task->delay = 0;
     task->node.data = (void *) task;
     task->state = OS_task_state_READY;
 
-    OS_stackInit(task, args);
+    OS_stackInit(task, args, fptr);
 }
 
 
