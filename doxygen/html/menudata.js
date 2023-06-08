@@ -24,6 +24,6 @@
 */
 var menudata={children:[
 {text:"Structs",url:"annotated.html",children:[
-{text:"All",url:"annotated.html"}]},
+{text:"...",url:"annotated.html"}]},
 {text:"Files",url:"files.html",children:[
-{text:"All",url:"files.html"}]}]}
+{text:"...",url:"files.html"}]}]}

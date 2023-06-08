@@ -1,12 +1,13 @@
 var indexSectionsWithContent =
 {
-  0: "acdmnopqstw",
+  0: "abcdmnopqrstw",
   1: "o",
-  2: "o",
+  2: "or",
   3: "o",
   4: "acdmnpqstw",
   5: "o",
-  6: "o"
+  6: "o",
+  7: "b"
 };
 
 var indexSectionNames =
@@ -17,7 +18,8 @@ var indexSectionNames =
   3: "functions",
   4: "variables",
   5: "enums",
-  6: "enumvalues"
+  6: "enumvalues",
+  7: "pages"
 };
 
 var indexSectionLabels =
@@ -28,6 +30,7 @@ var indexSectionLabels =
   3: "Functions",
   4: "Variables",
   5: "Enumerations",
-  6: "Enumerator"
+  6: "Enumerator",
+  7: "Pages"
 };
 

@@ -26,10 +26,10 @@ var NAVTREE =
 [
   [ "BabyRTOS", "index.html", [
     [ "Structs", "annotated.html", [
-      [ "All", "annotated.html", "annotated_dup" ]
+      [ "...", "annotated.html", "annotated_dup" ]
     ] ],
     [ "Files", "files.html", [
-      [ "All", "files.html", "files_dup" ]
+      [ "...", "files.html", "files_dup" ]
     ] ]
   ] ]
 ];

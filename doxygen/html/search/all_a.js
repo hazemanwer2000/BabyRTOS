@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['waiting_0',['waiting',['../struct_o_s__semaphore.html#a97dc86338bc0e3b88931c53998bb4b18',1,'OS_semaphore::waiting'],['../struct_o_s__mutex.html#a95dda9b1fe1ae3533dfde2e25121b648',1,'OS_mutex::waiting']]],
-  ['waiting_5fdequeue_1',['waiting_dequeue',['../struct_o_s__queue.html#a8cf4954bfca1705a608ef4d4a98ad34e',1,'OS_queue']]],
-  ['waiting_5fenqueue_2',['waiting_enqueue',['../struct_o_s__queue.html#a3557324887291840d93dc830d1a90e7b',1,'OS_queue']]]
+  ['saved_5fpriority_0',['saved_priority',['../struct_o_s__task.html#a3ae2dd76c0efe7f340f0c7fe9ca86d02',1,'OS_task']]],
+  ['stackptr_1',['stackPtr',['../struct_o_s__task.html#a97e25d48dd2587adabc03bc627ff6c92',1,'OS_task']]],
+  ['state_2',['state',['../struct_o_s__task.html#a6def4d5457e3873debda4ea3939e9e39',1,'OS_task']]]
 ];
