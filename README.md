@@ -1,6 +1,6 @@
 # BabyRTOS
 
-A priority-based Real-Time Operating System (RTOS), based on the ARM Cortex-M4 processor.
+A pre-emptive priority-based Real-Time Operating System (RTOS), based on the ARM Cortex-M4 processor.
 
 Major features of the implementation includes,
 * Up to 63 task priorities.
