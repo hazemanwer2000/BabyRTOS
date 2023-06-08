@@ -9,7 +9,7 @@ Major features of the implementation includes,
 * Support for multiple OS resources, including `OS_mutex`, `OS_semaphore`, and `OS_queue`.
 * Priority inheritance by mutex-locking tasks, by ceiling all waiting tasks.
 
-** Notes **
+> Notes
 
 * Under `/src` is a sample application, based on the STM32F401CC micro-controller. 
 * The implementation resides under,
