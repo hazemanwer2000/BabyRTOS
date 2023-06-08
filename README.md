@@ -17,4 +17,7 @@ Major features of the implementation includes,
   * [*/src/MCAL/UTIL/Std_Types.h*](/src/MCAL/UTIL/Std_Types.h), 
   * [*/src/UTIL/LinkedList*](/src/UTIL/LinkedList) and,
   * [*/src/UTIL/Queue*](/src/UTIL/Queue).
-* The implementation uses the *SysTick* ISR for tracking OS ticks. Its configuration is the responsibility of the Application.
+* The implementation uses the *SysTick* ISR for tracking OS ticks. 
+  * Its clock configuration is the responsibility of the Application.
+  * The interrupt is automatically enabled by *OS_init*. 
+  * The timer is automatically started by *OS_start*.
