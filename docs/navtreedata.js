@@ -26,6 +26,8 @@ var NAVTREE =
 [
   [ "BabyRTOS", "index.html", [
     [ "Structs", "annotated.html", [
+      [ "Notes", "index.html#autotoc_md1", null ],
+      [ "Links", "index.html#autotoc_md2", null ],
       [ "...", "annotated.html", "annotated_dup" ]
     ] ],
     [ "Files", "files.html", [
