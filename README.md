@@ -27,5 +27,5 @@ Major features of the implementation includes,
 
 ### Links
 
-* [Codebase](https://github.com/hazemanwer2000/BabyRTOS/edit/main/README.md).
+* [Codebase](https://github.com/hazemanwer2000/BabyRTOS).
 * [Documentation](https://hazemanwer2000.github.io/BabyRTOS).
