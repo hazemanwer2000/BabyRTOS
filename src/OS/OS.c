@@ -208,7 +208,7 @@ static uint8_t idleStack[IDLE_STACK_SIZE];
 
 
 /*************************************************************
- * Description: Idle-Task variables.
+ * Description: Next/Previous task variables, used for context-switching.
  * 
  *************************************************************/
 static OS_task* nextTask;
