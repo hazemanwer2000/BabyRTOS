@@ -21,3 +21,4 @@ Major features of the implementation includes,
   * Its clock configuration is the responsibility of the Application.
   * The interrupt is automatically enabled by *OS_init*. 
   * The timer is automatically started by *OS_start*.
+* Interrupt pre-emption in the system is automatically disabled by *OS_init*.
