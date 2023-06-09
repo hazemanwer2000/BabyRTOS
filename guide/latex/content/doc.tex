@@ -15,7 +15,7 @@
 		\xls Support for two stack pointers, \texttt{MSP} (main) and \texttt{PSP} (process), shadowed behind \texttt{SP}, utilized by the OS and the application, respectively.
 	}
 	\xpara{
-		As prerequisites to this text, familiarty with the ARM architecture and the C programming language is a must, and previous exposure to Real-Time Operating System (RTOS) concepts, from the perspective of a user, is recommended.
+		As prerequisites to this text, familiarty with the C programming language and Real-Time Operating System Concepts (RTOS) is a must, and previous exposure to the ARM architecture is recommended.
 	}
 	\xpara{
 		Also, check out the author's implementation of a similarly minimalistic pre-emptive RTOS kernel, with support for many OS resources (e.g: mutexes, semaphores and queues).
@@ -28,7 +28,7 @@
 	}
 	\xsection{The \texttt{PendSV} exception}{section:pendsv}
 		\xpara{
-			According to the Application Binary Interface (\texttt{ABI}) of the Cortex-M4 architecture, a function must save any values residing in the \texttt{R0-R3, R12, LR} range of registers, called \textit{caller-saved registers}, onto the stack, before making a function call, if any of the values is required unmodified after the function call. The function restores the values into their respective registers, after the functions call. \texttt{LR} is always saved, however, since it contains the return address a function shall return to upon termination. After saving \texttt{LR}, the return address is loaded into the register before branching. At the end of every function call, the following assembly instruction must be present,
+			According to the Application Binary Interface (\texttt{ABI}) of the Cortex-M4 architecture, a function must save any values residing in the \texttt{R0-R3, R12, LR} range of registers, called \textit{caller-saved registers}, onto the stack, before making a function call, if any of the values is required unmodified after the function call. The function restores the values into their respective registers, after the function call. \texttt{LR} is always saved, however, since it contains the return address a function shall return to upon termination. After saving \texttt{LR}, the return address is loaded into the register before branching. At the end of every function call, the following assembly instruction must be present,
 		}
 		\xcode{C}{code/branch.c}
 		\xpara{
@@ -50,7 +50,7 @@
 		}
 	\xsection{\texttt{MSP} versus \texttt{PSP}}{section:using-psp}
 		\xpara{
-			In many processors, there is a single stack pointer register. If an interrupt occurs, the stacking of caller-saved registers and operation within the interrupt handler itself all employ the stack of the task. This implies, that all tasks must accomodate extra space for the maximum depth an interrupt may require. If interrupt pre-emption is supported and enabled, more space is required. This is, obviously, wastes much memory.
+			In many processors, there is a single stack pointer register. If an interrupt occurs, the stacking of caller-saved registers and operation within the interrupt handler itself all employ the stack of the task. This implies, that all tasks must accomodate extra space for the maximum depth an interrupt may require. If interrupt pre-emption is supported and enabled, more space is required. This, obviously, wastes much memory.
 		}
 		\xpara{
 			The Cortex-M4 provides two stack pointers. \texttt{MSP} is always used in \textit{handler mode} (i.e, when handling interrupts), while \texttt{MSP} or \texttt{PSP} may be used in \textit{thread mode}. Before triggering \texttt{PendSV} for the first time, \texttt{PSP} is switched to, by setting a specific bit in the \texttt{CONTROL} special register,
@@ -60,7 +60,7 @@
 			Thereafter, when interrupting an executing task, hardware stacking and unstacking employs the \texttt{PSP}. Within the handler itself, and any pre-empting interrupt, \texttt{MSP} is used. This saves memory, because only a single stack, the stack the OS employs, needs to handle the extra space required. Additionally, a level of security is added, by making it difficult for a task to sniff the value of a previously local variable in a handler, on the stack of the OS, upon return from, for example, a system call.
 		}
 		\xpara{
-			Switching to \texttt{PSP} must occur in thread mode, before triggering \texttt{PendSV}. The specific bit in the \texttt{CONTROL} special register may not be modified in handler mode. If it was permissible, then an alteration to the \texttt{LR} register before returning from \texttt{PendSV} would be due, since the hardware sets a specific bit in the \texttt{LR} before interrupt entry, to indicate whether it should return (i.e, unstack saved registers) using \texttt{MSP} or \texttt{PSP}.
+			Switching to \texttt{PSP} must occur in thread mode, before triggering \texttt{PendSV}. The specific bit in the \texttt{CONTROL} special register may not be modified in handler mode. If it was permissible, then an alteration to the \texttt{LR} register before returning from \texttt{PendSV} would be due, since the hardware sets a specific bit in \texttt{LR} before interrupt entry, to indicate whether it should return (i.e, unstack saved registers) using \texttt{MSP} or \texttt{PSP}.
 		}
 		\xpara{
 			Usually, the initial value of \texttt{PSP} is that of the stack of the \textit{idle task} of the OS. Hence, it is not required to counterfeit any register values for the stack of the idle task.
@@ -110,7 +110,7 @@
 		}
 	\xsection{The \texttt{SysTick} timer}{section:systick-timer}
 		\xpara{
-			All Cortex-M processors contain a hardware timer peripheral, called the \texttt{SysTick} timer. It is usually used by an OS for time-keeping, and to implement various timeout mechanisms (e.g: the \texttt{OS\_delay} system call). The benefit of having a timer perihperal, memory-mapped to the same region for a family of processors, is easy porting of the OS to multiple processors, since the dependency is on the architecture, as opposed to using a vendor-specific hardware timer peripheral, which would imply dependency on a family of micro-controllers instead (i.e, lower portability).
+			All Cortex-M processors contain a hardware timer peripheral, called the \texttt{SysTick} timer. It is usually used by an OS for time-keeping, and to implement various timeout mechanisms (e.g: the \texttt{OS\_delay} system call). The benefit of having a timer peripheral, memory-mapped to the same region for a family of processors, is easy porting of the OS to multiple processors, since the dependency is on the architecture, as opposed to using a vendor-specific hardware timer peripheral, which would imply dependency on a family of micro-controllers instead (i.e, lower portability).
 		}
 \xcitations{
 	\xct{cite:arm-cortex-m3-m4-guide} Yiu, J. (2014) The Definitive Guide to ARM Cortex-M3 and Cortex-M4 processors. Oxford, UK.
