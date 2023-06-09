@@ -63,7 +63,7 @@
 			Switching to \texttt{PSP} must occur in thread mode, before triggering \texttt{PendSV}. The specific bit in the \texttt{CONTROL} special register may not be modified in handler mode. If it was permissible, then an alteration to the \texttt{LR} register before returning from \texttt{PendSV} would be due, since the hardware sets a specific bit in \texttt{LR} before interrupt entry, to indicate whether it should return (i.e, unstack saved registers) using \texttt{MSP} or \texttt{PSP}.
 		}
 		\xpara{
-			Usually, the initial value of \texttt{PSP} is that of the stack of the \textit{idle task} of the OS. Hence, it is not required to counterfeit any register values for the stack of the idle task.
+			Usually, the initial value of \texttt{PSP} is that of the stack of the \textit{idle task} of the OS.
 		}
 	\xsection{Special Considerations}{section:context-switching-special-considerations}
 		\xpara{
