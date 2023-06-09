@@ -1,0 +1,80 @@
+%
+% Command: 		Remove header from page.
+%
+\newcommand{\xpgnohead}{\thispagestyle{empty}}
+%
+% Command: 		Write paragraphs, of different kinds.
+% Parameters: 	[empty, to indent] {content}
+%
+\newcommand{\xpara}[2][0]{{\ifthenelse{\equal{#1}{\xtoindent}}{\noindent \ignorespaces}{} #2} \par}
+%
+% Command:		Related to partitions of a document.
+% Parameters: 	[TOC_title] {title} {label}
+%
+\newcommand{\xpart}[3][0]{\ifthenelse{\equal{#1}{0}}{\part{#2}}{\part[#1]{#2}} \label{#3}}
+\newcommand{\xchapter}[3][0]{\ifthenelse{\equal{#1}{0}}{\chapter{#2}}{\chapter[#1]{#2}} \label{#3}}
+\newcommand{\xsection}[3][0]{\ifthenelse{\equal{#1}{0}}{\section{#2}}{\section[#1]{#2}} \label{#3}}
+\newcommand{\xsubsec}[3][0]{\ifthenelse{\equal{#1}{0}}{\subsection{#2}}{\subsection[#1]{#2}} \label{#3}}
+%
+% Command:		Unnumbered partition of a document.
+% Parameters: 	[TOC_title] {title}
+%
+\newcommand{\xtitle}[2][0]{
+	\chapter*{#2}
+	\ifthenelse{\equal{#1}{0}}{
+		\addcontentsline{toc}{chapter}{#2}
+	}{
+		\addcontentsline{toc}{chapter}{#1}
+	}
+}
+%
+% Command:		No header wrap of a title.
+% Parameters:	{title} {content}
+%
+\newcommand{\xtitlewrap}[2]{\xtitle{#1} {\pagestyle{empty} #2 \thispagestyle{empty}}}
+%
+% Command:		Unnumbered partition of a document.
+% Parameters: 	{title}
+%
+\newcommand{\xheading}[1]{\section*{#1} \medskip}
+\newcommand{\xsubhead}[1]{\subsection*{#1} \medskip}
+%
+% Command:		Start/End of book lists.
+%
+\newcommand{\xlistcontents}{{\pagestyle{empty} \tableofcontents \thispagestyle{empty}}}
+\newcommand{\xlistfigures}{\clearpage \addcontentsline{toc}{chapter}{\listfigurename} \listoffigures}
+\newcommand{\xlisttables}{\clearpage \addcontentsline{toc}{chapter}{\listtablename} \listoftables}
+\newcommand{\xlistlistings}{\clearpage \addcontentsline{toc}{chapter}{\lstlistlistingname} \lstlistoflistings}
+\newcommand{\xlistindex}{\ifthenelse{\equal{\xtoindex}{1}}{\clearpage \addcontentsline{toc}{chapter}{\indexname} \printindex}{}}
+%
+% Command:		Citations.
+%
+\ifthenelse{\equal{\xcitenobrackets}{1}}{
+	\newcommand{\xcitesize}{\large}
+}{
+	\newcommand{\xcitesize}{\small}}
+%
+\newcommand{\xcite}[1]{{\xcitesize\textsuperscript{\cite{#1}}}}
+%
+\ifthenelse{\equal{\xformat}{extbook} \AND \equal{\xcolumns}{twocolumn}}{
+	\newcommand{\xcitationscolumns}[1]{\onecolumn{#1}}
+}{
+	\newcommand{\xcitationscolumns}[1]{#1}
+}
+%
+\newcommand{\xcitations}[1]{
+	\ifthenelse{\equal{\xformat}{extreport} \AND \equal{\xcolumns}{twocolumn}}{}{\clearpage}
+	\addcontentsline{toc}{chapter}{\bibname}
+	\xcitationscolumns{
+		\begin{thebibliography}{0}
+			#1
+		\end{thebibliography}
+	}
+	\thispagestyle{empty}
+}
+%
+\newcommand{\xct}[1]{\bibitem{#1}}
+%
+% Command:		Index.
+%
+\newcommand{\xindex}[1]{\ifthenelse{\equal{\xtoindex}{1}}{\index{#1}}{#1}}

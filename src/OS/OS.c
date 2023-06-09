@@ -573,6 +573,7 @@ void OS_init(void) {
     AIRCR = (AIRCR & ~(MSK_I2J(PRIGROUP0, PRIGROUPN) | AIRCR_DEF_MSK)) | AIRCR_DEF | PRIGROUP_NO_PREMPT;
 
     OS_setupTask(&idleTask, OS_idleTask, NULL, PRIORITY_LOWEST, idleStack, IDLE_STACK_SIZE);
+    idleTask.stackPtr += 16;
 }
 
 
@@ -653,18 +654,24 @@ void OS_setupMutex(OS_mutex *m) {}
  *************************************************************/
 void OS_start(void) {
     SYSTICK_CTRL |= (1 << BIT_ENABLE);      /* Enable 'SysTick' timer. */
-    
+
+    nextTask = OS_getHighestPriorityTask();
+
         /* Set 'PSP' to stack pointer of idle task. */
     __asm("LDR R0, =idleTask");
     __asm("LDR R0, [ R0 ]");
     __asm("MSR PSP, R0");
 
+        /* Ensure MSP is double-word aligned. */
+    __asm("MRS R0, MSP");
+    __asm("AND R0, R0, #0xFFFFFFFC");
+    __asm("MSR MSP, R0");
+
         /* PSP selected. */
     __asm("MRS R0, CONTROL");
     __asm("ORR R0, R0, #0x2");
     __asm("MSR CONTROL, R0");
-
-    nextTask = OS_getHighestPriorityTask();
+    
     PENDSV();
 }
 

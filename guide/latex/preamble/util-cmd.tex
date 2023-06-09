@@ -1,0 +1,288 @@
+%
+% Command:		 Referencing.
+%
+\newcommand{\xrefraw}[1]{\ref{#1}}					% Referencing, number only
+%
+\newcommand{\xref}[1]{\Cref{#1}}					% Referencing, in general
+\newcommand{\xrefrange}[2]{\Crefrange{#1}{#2}}		% Referencing, range
+\newcommand{\xrefpage}[1]{\cpageref{#1}}			% Page referencing
+%
+%
+%
+%
+%
+%
+% Command:		Footnote.
+% Parameters:	{content}
+%
+\newcommand{\xnote}[1]{\footnote{#1}}
+%
+%
+%
+%
+%
+%
+% Command: 		Add extra lines to column, affects single columns in multi-column pages.
+% Parameters: 	{num_of_lines}
+%
+\newcommand{\xcolmore}[1]{\enlargethispage{#1\baselineskip}}
+%
+% Command: 		Break to the next page/column.
+%
+\newcommand{\xpgbreak}{\clearpage}
+\newcommand{\xcolbreak}{\newpage}
+%
+%
+%
+%
+%
+%
+% Command: 		Include an image.
+% Parameters 	[position, b or t] {path} {size} {label} {caption}
+%
+% Usage:		\ximg [b] {example-image} {0.7} {example_img} {An example of a caption.}
+%
+\newcommand{\ximg}[5][0]{
+	\ifthenelse{\equal{#1}{0}}{
+		\bigskip
+		\begin{center}
+			\includegraphics[width=#3\linewidth]{#2}
+			\captionof{figure}{#5}
+			\label{#4}
+		\end{center}
+		\bigskip
+		\par
+	}{
+		\begin{figure}[#1]
+			\centering
+			\includegraphics[width=#3\linewidth]{#2}
+			\caption{#5}
+			\label{#4}
+		\end{figure}
+	}
+}
+%
+% Command: 		Background image.
+% Parameters:	[opacity] {path} {width, 0 to 1} {anchor; e.g: north east, center} {x} {y}
+%
+\newcommand{\ximgoverlay}[6][1]{
+	\tikz[remember picture, overlay, anchor=#4, blend mode=multiply]
+	\node[opacity=#1, xshift=#5\paperwidth, yshift=#6\paperheight] at (current page.#4)
+	{\includegraphics[width=#3\paperwidth]{#2}};
+}
+%
+\newcommand{\xcover}[1]{
+	\tikz[remember picture, overlay, anchor=center]
+	\node[opacity=1] at (current page.center)
+	{\includegraphics[width=\paperwidth]{#1}};
+%	
+	\thispagestyle{empty} \clearpage
+}
+%
+%
+%
+%
+%
+% Environment: 	List items, bulleted or enumerated.
+% Parameters: 	[leave empty, for larger spacing] {style} {content}
+%
+% Usage:		\xlist [] {\xlsdef} {
+%					\xls Jim, James, Jimothy!
+%					\xls Dwight Schrute!
+%					\xls Pamela Anderson!
+%					\xls Call, me, later!
+%				}
+%
+\newcommand{\xlist}[3][nolistsep]{
+	\ifthenelse{\equal{#1}{nolistsep}}{
+		\begin{enumerate}[#1, label=#2]
+	}{
+		\begin{enumerate}[label=#2]
+	}
+	#3
+	\end{enumerate}
+	\par
+}
+%
+\newcommand{\xlsnum}{\arabic*} 									% 1, 2, ..
+\newcommand{\xlsrm}{\roman*} 									% i, ii, ..
+\newcommand{\xlsrmcap}{\Roman*} 								% I, II, ..
+\newcommand{\xlsen}{\alph*} 									% a, b, ..
+\newcommand{\xlsencap}{\Alph*} 									% A, B, ..
+\newcommand{\xlsencircle}{\textcircled{\scriptsize\Alph*}}
+%
+\newcommand{\xlsbullet}{$\bullet$}								% bullets
+\newcommand{\xlsarrow}{\adfbullet{40}}							% arrows
+\newcommand{\xlssquare}{\adfbullet{29}}							% squares
+%
+\newcommand{\xls}{\item}										% list-item
+%
+%
+%
+%
+%
+%
+% Command:		Tabulated data.
+% Parameters:	[position, b or t] {structure} {label} {caption} {content}
+%
+% Usage:		\xtable [b] {lL{0.6}} {table_1} {Oh, a table!} {
+%					\xtbh{Day} & \xtbh{Summary} \\
+%					\xtbline
+%					Tuesday & Just a summary! \\
+%					\xtbx{2}{c}{Multi-column!} \\
+%					\xtby{2}{Multi-row!} & Just a summary! \\
+%					& Just a summary!
+%				}
+%
+\newcommand{\xtable}[5][0]{
+	\ifthenelse{\equal{#1}{0}}{
+		\bigskip
+		\begin{center}
+		\begin{tabular}{#2}
+		#5
+		\end{tabular}
+		\captionof{table}{#4}
+		\label{#3}
+		\end{center}
+		\bigskip
+		\par
+	}{
+		\begin{table}[#1]
+		\centering
+		\begin{tabular}{#2}
+		#5
+		\end{tabular}
+		\caption{#4}
+		\label{#3}
+		\end{table}
+	}
+}
+%
+% Command: 		Horizonal line in table.
+%
+\newcommand{\xtbline}{\hline}
+%
+% Command: 		Used in header row of table, consistent justification.
+% Parameters: 	{content}
+%
+\newcommand{\xtbh}[1]{\multicolumn{1}{c}{#1}}
+%
+% Command: 		Used in single-cells of table to justify.
+% Parameters: 	{justification} {content}
+%
+\newcommand{\xtbj}[2]{\multicolumn{1}{#1}{#2}}
+%
+% Command: 		Used to span multiple cells horizontally in a table.
+% Parameters: 	{num_of_cells} {justification} {content}
+%
+\newcommand{\xtbx}[3]{\multicolumn{#1}{#2}{#3}}
+%
+% Command: 		Used to span multiple cells vertically in a table.
+% Parameters: 	{num_of_cells} {content}
+%
+\newcommand{\xtby}[2]{\multirow{#1}{*}{#2}}
+%
+%
+%
+%
+%
+%
+% Command:		Equations.
+% Parameters:	{content}
+%
+\newcommand{\xequ}[1]{\begin{gather} #1 \end{gather} \par}
+%
+% Command:		Equation
+% Parameters:	{label} {content}
+%
+\newcommand{\xeq}[2]{#2 \label{#1}}
+%
+% Command:		In-line equation.
+% Parameters:	{content}
+%
+\newcommand{\xe}[1]{\( #1 \)}
+%
+%
+%
+%
+%
+%
+% Command:		Quote.
+% Parameters:	[author] {content}
+%
+\newcommand{\xquote}[2][0]{
+	\ifthenelse{\equal{#1}{0}}{
+		\begin{displayquote} ``\ignorespaces#2\unskip'' \end{displayquote}
+	}{
+		\epigraph{\texttt{`\ignorespaces#2\unskip'}}{\texttt{#1}} \bigskip
+	}
+	\par
+}
+%
+% Command: 		In-line quote.
+% Parameters:	{content}
+%
+\newcommand{\xsay}[1]{``#1''}
+%
+% Command: 		Narration.
+% Parameters:	{content}
+%
+\newcommand{\xnarrate}[1]{\begin{displayquote} \ignorespaces#1\unskip \end{displayquote}}
+%
+% Command:		Page-filled quote.
+% Parameters:	[author] {content}
+%
+\newcommand{\xpgquote}[2][0]{
+	\clearpage
+	\thispagestyle{empty}
+	\null\vfill
+	\ifthenelse{\equal{#1}{0}}{
+		\epigraph{\large\texttt{`\ignorespaces#2\unskip'}}{}
+	}{
+		\epigraph{\large\texttt{`\ignorespaces#2\unskip'}}{\texttt{#1}}
+	}
+	\vfill
+}
+%
+%
+%
+%
+%
+%
+% Command:		Code.
+% Parameters:	{language} {path}
+%
+\newcommand{\xcode}[2]{\medskip \lstinputlisting[language=#1]{#2} \par}
+%
+% Command:		Code.
+% Parameters:	{language} {path} {label} {caption}
+%
+\ifthenelse{\equal{\xcolumns}{onecolumn}}{
+	\newcommand{\xlistingpostskip}{\medskip}
+}{
+	\newcommand{\xlistingpostskip}{\smallskip}	
+}
+%
+\newcommand{\xlisting}[4]{
+	\bigskip
+	\lstinputlisting[language=#1, label={#3}, caption={#4}, abovecaptionskip=8pt]{#2}
+	\xlistingpostskip
+	\par
+}
+%
+%
+%
+%
+%
+%
+% Command: 		Link.
+% Parameters:	[description] {link}
+%
+\newcommand{\xlink}[2][0]{
+	\ifthenelse{\equal{#1}{0}}{
+		\url{#2}
+	}{
+		\href{#2}{#1}
+	}
+}
+%

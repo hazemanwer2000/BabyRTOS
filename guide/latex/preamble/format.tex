@@ -1,0 +1,162 @@
+\documentclass[a4paper,\xfontsize,\xcolumns,openany,twoside]{\xformat}
+%
+% Command: Comment out.
+%
+\newcommand{\neglect}{}
+%
+% Package: Allows the usage of conditional statements.
+%
+\usepackage{ifthen}
+%
+% Package: Allows font at arbitrary sizes.
+%
+\usepackage{lmodern}
+%
+% Setting: Removes 0.1 in sections, when writing articles.
+%
+\ifthenelse{\equal{\xformat}{extreport}}{
+     \renewcommand{\thesection}{\arabic{section}}
+}{}
+%
+% Package/Setting: Indexing (before babel).
+%
+\ifthenelse{\equal{\xtoindex}{1}}{
+     \usepackage{index}
+     \makeindex
+}{}
+%
+% Package: Improve hyphenation and typography.
+%
+\usepackage[english]{babel}
+\usepackage{microtype}
+%
+% Package: Generate random text for testing.
+% Use '\blindtext'
+%
+\usepackage{blindtext}
+%
+% Setting: Adjust column separation in multi-column pages.
+%
+\columnsep=0.5cm
+%
+% Package: Set page margins.
+%
+\ifthenelse{\equal{\xcolumns}{onecolumn}}{
+     \usepackage[inner=2.6cm, outer=2.6cm, top=2.5cm, bottom=3cm]{geometry}
+}{
+     \usepackage[inner=2cm, outer=2cm, top=2.5cm, bottom=3cm]{geometry}
+}
+%
+% Package/Setting: Adjust spacing between paragraphs, and more.
+%
+\usepackage[parfill]{parskip}
+\setlength{\parskip}{0.5\baselineskip plus 2pt}
+%
+% Package/Setting: Indent first line in paragraphs.
+%
+\usepackage{indentfirst}
+\ifthenelse{\equal{\xcolumns}{onecolumn}}{
+     \setlength{\parindent}{1.5em}    
+}{
+     \setlength{\parindent}{1em}
+}
+%
+% Package: Single-line spacing between lines.
+%
+\usepackage[singlespacing]{setspace}
+%
+% Package: Set custom h/f to most pages, used in book.
+%
+\ifthenelse{\equal{\xformat}{extbook}}{
+     \usepackage{fancyhdr}
+     \fancyhf{}
+     \fancyhead[LE]{\scshape\nouppercase{\leftmark}}
+     \fancyhead[RO]{\scshape\nouppercase{\rightmark}}
+     \fancyhead[RE,LO]{\thepage}
+     \pagestyle{fancy}
+}{}
+%
+% Setting: No head rule.
+%
+%\renewcommand{\headrulewidth}{0pt}
+%
+% Setting: Removes 'headheight' warning for higher font size.
+%
+\setlength{\headheight}{17pt}    
+%
+% Setting: Remove h/f to other pages.
+%
+\makeatletter
+\let\ps@plain\ps@empty
+\makeatother
+%
+% Setting: Alter bibliography name, to references.
+%
+\addto{\captionsenglish}{\renewcommand{\bibname}{References}}
+%
+% Setting: Bibliography as a section, not a chapter.
+%
+\ifthenelse{\equal{\xformat}{extreport} \AND \equal{\xcolumns}{twocolumn}}{
+     \newcommand{\xtemp}{\section*{\bibname}}
+}{
+     \newcommand{\xtemp}{\chapter*{\bibname}}
+}
+%
+\makeatletter
+\renewenvironment{thebibliography}[1]
+     {\chapter*{\bibname}   % <-- this line was changed from \chapter* to \section*
+      \@mkboth{\MakeUppercase\bibname}{\MakeUppercase\bibname}%
+      \list{\@biblabel{\@arabic\c@enumiv}}%
+           {\settowidth\labelwidth{\@biblabel{#1}}%
+            \leftmargin\labelwidth
+            \advance\leftmargin\labelsep
+            \@openbib@code
+            \usecounter{enumiv}%
+            \let\p@enumiv\@empty
+            \renewcommand\theenumiv{\@arabic\c@enumiv}}%
+      \sloppy
+      \clubpenalty4000
+      \@clubpenalty \clubpenalty
+      \widowpenalty4000%
+      \sfcode`\.\@m}
+     {\def\@noitemerr
+       {\@latex@warning{Empty `thebibliography' environment}}%
+      \endlist}
+\makeatother
+%
+% Package/Setting: Allows editing of titles' style.
+%
+\usepackage{titlesec}
+%
+\ifthenelse{\equal{\xnovel}{1}}{
+     \titleformat{\chapter}[display]
+     {\normalfont\large\ttfamily\filcenter}
+     {Chapter \thechapter:}
+     {20pt}
+     {\Large}
+}{
+     \titleformat{\chapter}[display]
+     {\normalfont\Large\bfseries}
+     {Chapter \thechapter}
+     {20pt}
+     {\Huge}
+%
+     \titleformat*{\section}{\Large\bfseries}
+     \titleformat*{\subsection}{\large\bfseries}
+}
+%
+% Setting: Sets the maximum TOC depth.
+%
+\setcounter{tocdepth}{\xTOCdepth}
+%
+% Setting: Remove square brackets from citations.
+%
+\ifthenelse{\equal{\xcitenobrackets}{1}}{
+     \renewcommand{\xtemp}[1]{#1}
+}{
+     \renewcommand{\xtemp}[1]{[#1]}
+}
+%
+\makeatletter
+\renewcommand\@cite[2]{\xtemp{#1}\ifthenelse{\boolean{@tempswa}}{, \nolinebreak[3] #2}{}}
+\makeatother

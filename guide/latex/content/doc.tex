@@ -1,0 +1,117 @@
+\xcover{img/cover.png}
+\xlistcontents
+\xtitlewrap{Preface}{
+	\xpara{
+		This report deep-dives into the implementation of a minimal pre-emptive RTOS kernel, from scratch.
+		The implementation is based on the ARM Cortex-M4 processor, using a GNU C toolchain,
+			and utilizes all OS-specific features built into the hardware.
+		These include,
+	}
+	\xlist[]{\xlsbullet}{
+		\xls The \texttt{PendSV} exception handler, usually employed for context switching.
+		\xls The \texttt{SVC} (i.e, Supervisor Call) assembly instruction, and its associated exception handler.
+		\xls The \texttt{SysTick} timer peripheral, and its associated exception handler.
+		\xls Support for privileged and unprivileged operation modes.
+		\xls Support for two stack pointers, \texttt{MSP} (main) and \texttt{PSP} (process), shadowed behind \texttt{SP}, utilized by the OS and the application, respectively.
+	}
+	\xpara{
+		As prerequisites to this text, familiarty with the ARM architecture and the C programming language is a must, and previous exposure to Real-Time Operating System (RTOS) concepts, from the perspective of a user, is recommended.
+	}
+	\xpara{
+		Also, check out the author's implementation of a similarly minimalistic pre-emptive RTOS kernel, with support for many OS resources (e.g: mutexes, semaphores and queues).
+	}
+	\xnarrate{\xe{>} \xlink{https://github.com/hazemanwer2000/BabyRTOS}}
+}
+\xchapter{Context Switching}{chapter:context-switching}
+	\xpara{
+		This chapter elaborates on how context switching may be implemented, utilizing built-in hardware features such as the \texttt{PendSV} exception, and the \texttt{PSP} stack pointer.
+	}
+	\xsection{The \texttt{PendSV} exception}{section:pendsv}
+		\xpara{
+			According to the Application Binary Interface (\texttt{ABI}) of the Cortex-M4 architecture, a function must save any values residing in the \texttt{R0-R3, R12, LR} range of registers, called \textit{caller-saved registers}, onto the stack, before making a function call, if any of the values is required unmodified after the function call. The function restores the values into their respective registers, after the functions call. \texttt{LR} is always saved, however, since it contains the return address a function shall return to upon termination. After saving \texttt{LR}, the return address is loaded into the register before branching. At the end of every function call, the following assembly instruction must be present,
+		}
+		\xcode{C}{code/branch.c}
+		\xpara{
+			When handling an interrupt, the Cortex-M4 hardware saves all caller-saved registers onto the stack, automatically, in addition to the status register, \texttt{xPSR}, and the return address (i.e, \texttt{PC}). A special address, reserved in the Cortex-M4 memory map, is placed in \texttt{LR} to indicate to the hardware when a return from interrupt is due, for it to perform unstacking of all saved registers automatically.
+		}
+		\xpara{
+			To perform context switching, the interrupt stacking and unstacking hardware mechanism is hijacked. The \texttt{PendSV} handler is triggered, and the hardware automatically performs stacking. Within the handler, the remaining processor registers, called \textit{callee-saved registers}, are pushed onto the stack. Having saved the full context of the processor, prior to the interrupt, the stack pointer of the previous task is saved, and the stack pointer of the next task is loaded. Callee-saved registers are popped from the stack of the next task and upon return from the handler, the hardware restores all saved registers, successfully restoring the full context of the next task.
+		}
+		\xcode{C}{code/load_store_multiple.c}
+		\xpara{
+			The writing above implies that the \texttt{PendSV} handler must be written in assembly. In GNU C, use the \texttt{naked} compiler directive to tell the compiler not to inject any assembly instructions in the function. Accordingly, a naked function should be composed of assembly directives only. It is unsafe to write \texttt{C} code in naked functions.
+		}
+		\xcode{C}{code/naked.c}
+		\xpara{
+			Initially, when restoring context of the stack of a task, there must be a set of \textit{counterfeit} register values, placed there explicitly, with the \texttt{PC} value being the address of the task handler.
+		}
+		\xpara{
+			Note that if interrupt pre-emption is enabled, the \texttt{PendSV} exception should never pre-empt another interrupt, to perform context switching successfully. Hence, it must be the least priority interrupt in the system.
+		}
+	\xsection{\texttt{MSP} versus \texttt{PSP}}{section:using-psp}
+		\xpara{
+			In many processors, there is a single stack pointer register. If an interrupt occurs, the stacking of caller-saved registers and operation within the interrupt handler itself all employ the stack of the task. This implies, that all tasks must accomodate extra space for the maximum depth an interrupt may require. If interrupt pre-emption is supported and enabled, more space is required. This is, obviously, wastes much memory.
+		}
+		\xpara{
+			The Cortex-M4 provides two stack pointers. \texttt{MSP} is always used in \textit{handler mode} (i.e, when handling interrupts), while \texttt{MSP} or \texttt{PSP} may be used in \textit{thread mode}. Before triggering \texttt{PendSV} for the first time, \texttt{PSP} is switched to, by setting a specific bit in the \texttt{CONTROL} special register,
+		}
+		\xcode{C}{code/os_start_psp.c}
+		\xpara{
+			Thereafter, when interrupting an executing task, hardware stacking and unstacking employs the \texttt{PSP}. Within the handler itself, and any pre-empting interrupt, \texttt{MSP} is used. This saves memory, because only a single stack, the stack the OS employs, needs to handle the extra space required. Additionally, a level of security is added, by making it difficult for a task to sniff the value of a previously local variable in a handler, on the stack of the OS, upon return from, for example, a system call.
+		}
+		\xpara{
+			Switching to \texttt{PSP} must occur in thread mode, before triggering \texttt{PendSV}. The specific bit in the \texttt{CONTROL} special register may not be modified in handler mode. If it was permissible, then an alteration to the \texttt{LR} register before returning from \texttt{PendSV} would be due, since the hardware sets a specific bit in the \texttt{LR} before interrupt entry, to indicate whether it should return (i.e, unstack saved registers) using \texttt{MSP} or \texttt{PSP}.
+		}
+		\xpara{
+			Usually, the initial value of \texttt{PSP} is that of the stack of the \textit{idle task} of the OS. Hence, it is not required to counterfeit any register values for the stack of the idle task.
+		}
+	\xsection{Special Considerations}{section:context-switching-special-considerations}
+		\xpara{
+			The Cortex-M4 architecture requires that the stack pointer is 4-byte aligned at any time. Additionally, there is a memory-mapped register that determines whether \texttt{SP} should be 8-byte aligned at interrupt handler entry and exit. This is usually enabled by default by most vendors, due to compatibility with the \texttt{ABI} that most toolchains conform to.
+		}
+		\xpara{
+			If when handling an interrupt the hardware determines that the stack pointer is not 8-byte aligned, a padding word is appended to the stack, and a specific bit is set in the saved \texttt{xPSR} register, to be used when unstacking to determine whether padding occured. Accordingly, ensure that all saved task stack pointers are initially 8-byte aligned, and the counterfeit \texttt{xPSR} value matches that requirement. Additionally, before switching to \texttt{PSP}, ensure \texttt{MSP} is 8-byte aligned,
+		}
+		\xcode{C}{code/msp_8_aligned.c}
+\xchapter{System Calls}{chapter:system-calls}
+	\xpara{
+		This chapter elaborates on how system calls may be implemented, utilizing built-in hardware features such as unprivileged mode, and the \texttt{SVC} assembly instruction and its associated exception handler.
+	}
+	\xsection{Unprivileged mode and \texttt{SVC} calls}{section:unprivileged-svc}
+		\xpara{
+			The Cortex-M4 has privileged and unprivileged operations modes in thread mode. Usually, for security purposes, tasks run in unprivileged mode. For example, a task in unprivileged mode may not switch to using \texttt{MSP}. Additionally, in unprivileged mode, the \texttt{PendSV} exception may not be triggered. 
+		}
+		\xpara{
+			To request a privileged operation from the OS, a special assembly instruction must be executed, called \texttt{SVC}, which triggers the execution of the \texttt{SVC} exception handler. A special number may be passed along with the instruction, to indicate the type of system call to be executed. Alternatively, a pointer to arguments may be passed in \texttt{R0}, as a first argument to the handler.
+		}
+		\xcode{C}{code/system_call.c}
+		\xpara{
+			Note that the \texttt{SVC} exception may not be pending, otherwise a \textit{hard fault} exception is triggered. This means that \texttt{SVC} should usually be the highest priority interrupt in the system. 
+		}
+		\xpara{
+			To gurantee that the system call is atomic, several actions might be taken. The easiest choice is to disable interrupt pre-emption system-wide. A harder action would be to only disable \textit{OS-aware interrupts}, those interrupts that make calls to the OS, and re-enable them at interrupt exit.
+		}
+		\xpara{
+			Once the atomicity of all system calls is guranteed, it is easy to envision an implementation of all common system calls and resources, some of which are shown in \xref{table:system-calls}.
+		}
+		\xtable{ll}{table:system-calls}{Common system calls.}{
+			\xtbh{System Call} & \xtbh{Operation} \\
+			\xtbline
+			\texttt{OS\_wait}  & Make \texttt{OS\_task} wait. \\
+			\texttt{OS\_ready} & Make \texttt{OS\_task} ready. \\
+			\texttt{OS\_delay} & Delay an \texttt{OS\_task}. \\
+			\texttt{OS\_lock} & Lock an \texttt{OS\_mutex}. \\
+			\texttt{OS\_unlock} & Unlock an \texttt{OS\_mutex}. \\
+			\texttt{OS\_give} & Increase an \texttt{OS\_semaphore}. \\
+			\texttt{OS\_take} & Decrease an \texttt{OS\_semaphore}. \\
+			\texttt{OS\_enqueue} & Enqueue to an \texttt{OS\_queue}. \\
+			\texttt{OS\_dequeue} & Dequeue from an \texttt{OS\_queue}. \\
+			... & ...
+		}
+	\xsection{The \texttt{SysTick} timer}{section:systick-timer}
+		\xpara{
+			All Cortex-M processors contain a hardware timer peripheral, called the \texttt{SysTick} timer. It is usually used by an OS for time-keeping, and to implement various timeout mechanisms (e.g: the \texttt{OS\_delay} system call). The benefit of having a timer perihperal, memory-mapped to the same region for a family of processors, is easy porting of the OS to multiple processors, since the dependency is on the architecture, as opposed to using a vendor-specific hardware timer peripheral, which would imply dependency on a family of micro-controllers instead (i.e, lower portability).
+		}
+\xcitations{
+	\xct{cite:arm-cortex-m3-m4-guide} Yiu, J. (2014) The Definitive Guide to ARM Cortex-M3 and Cortex-M4 processors. Oxford, UK.
+}

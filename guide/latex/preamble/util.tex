@@ -1,0 +1,146 @@
+%
+% Package: Enhanced math.
+%
+\usepackage{amsmath}
+%
+% Package: More customizable lists.
+%
+\usepackage{enumitem}
+%
+% Package: Custom item shapes in lists.
+%
+\usepackage{adfbullets}
+%
+% Package: More customizable images.
+%
+\usepackage{graphicx}
+%
+% Package: Place caption outside of 'figure' or 'table' environment.
+%
+\usepackage{capt-of}
+%
+% Package/Setting: Enlarge row height in tables.
+%
+\usepackage{array}
+\setlength{\extrarowheight}{3pt}
+%
+% Package: Enable spanning multiple rows in tables.
+%
+\usepackage{multirow}
+%
+% Setting: New column types, for tables.
+%
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1\linewidth}}
+\newcolumntype{R}[1]{>{\raggedleft\arraybackslash}p{#1\linewidth}}
+\newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1\linewidth}}
+\newcolumntype{P}[1]{p{#1\linewidth}}
+%
+% Packages: Clever and faster cross-referencing, with hyperlinks.
+%
+\usepackage{hyperref}
+\usepackage{cleveref}
+%
+% Setting: No footnote rule.
+%
+\renewcommand{\footnoterule}{}
+%
+% Packages/Setting:	Quotes.
+%
+\usepackage{csquotes}
+\usepackage{epigraph}
+\setlength{\epigraphrule}{0pt}
+%
+% Package: Colors, mainly used in code listings.
+%
+\usepackage{xcolor}
+%
+% Package: Code Listings.
+%
+\usepackage{listings}
+%
+% Setting: Code listing style.
+%
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{codebackground}{rgb}{1,1,0.95}
+%
+\ifthenelse{\equal{\xcodingcolor}{1}}{  
+    \lstdefinestyle{lststyle}{
+        backgroundcolor=\color{codebackground},
+        commentstyle=\color{codegreen},
+        keywordstyle=\color{magenta},
+        numberstyle=\tiny\color{codegray},
+        stringstyle=\color{codepurple},
+        basicstyle=\ttfamily\xcodingsize,
+        breakatwhitespace=false,
+        breaklines=true,                 
+        captionpos=b,                    
+        keepspaces=true,                 
+        numbers=left,
+        numbersep=5pt,                  
+        showspaces=false,            
+        showstringspaces=false,
+        showtabs=false,                  
+        tabsize=2
+    }
+}{
+    \lstdefinestyle{lststyle}{
+        commentstyle=\color{codegreen},
+        keywordstyle=\color{magenta},
+        numberstyle=\tiny\color{codegray},
+        stringstyle=\color{codepurple},
+        basicstyle=\ttfamily\xcodingsize,
+        breakatwhitespace=false,
+        breaklines=true,                 
+        captionpos=b,                    
+        keepspaces=true,                 
+        numbers=left,
+        numbersep=5pt,                  
+        showspaces=false,            
+        showstringspaces=false,
+        showtabs=false,                  
+        tabsize=2
+    }
+}
+%
+\lstset{style=lststyle}
+%
+% Command: Alter listing name.
+%
+\renewcommand{\lstlistingname}{Listing}
+\crefname{lstlisting}{listing}{listings}
+\Crefname{lstlisting}{Listing}{Listings}
+\renewcommand{\lstlistlistingname}{List of Listings}
+%
+% Package: Icons.
+%
+\usepackage{fontawesome}
+%
+% Packages: Saving repeated background image, printing it on every page, altering its opacity, and extra calc.
+%
+\ifthenelse{\equal{\xBGimage}{1}}{
+    \usepackage{xsavebox}
+    \usepackage{atbegshi}
+    \usepackage{transparent}
+    \usepackage{calc}
+
+    \xsavebox{PageBGPicture}{
+        \raisebox{-\xBGoffsetY\height}{\includegraphics[width=\xBGwidth\paperwidth]{\xBGpath}}
+    }
+
+    \newlength{\xBGsumX}
+    \setlength{\xBGsumX}{\xBGwidth\paperwidth}    % extra-step
+    \setlength{\xBGsumX}{\xBGposX\paperwidth - \xBGoffsetX\xBGsumX}
+
+    \newlength{\xBGsumY}    
+    \setlength{\xBGsumY}{\xBGposY\paperheight - \paperheight}
+
+    \AtBeginShipout{
+      \AtBeginShipoutUpperLeft{\put(\xBGsumX,\xBGsumY){\transparent{\xBGopacity}\xusebox{PageBGPicture}}}
+    }
+}{}
+%
+% Package: For absolute positioning.
+%
+\usepackage{tikz}
