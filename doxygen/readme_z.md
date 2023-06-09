@@ -28,3 +28,4 @@ Major features of the implementation includes,
 
 * [Codebase](https://github.com/hazemanwer2000/BabyRTOS)
 * [Documentation](https://hazemanwer2000.github.io/BabyRTOS)
+* [Implementation Guide](guide/RTOS_from_scratch.pdf)
