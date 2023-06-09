@@ -79,7 +79,7 @@
 	}
 	\xsection{Unprivileged mode and \texttt{SVC} calls}{section:unprivileged-svc}
 		\xpara{
-			The Cortex-M4 has privileged and unprivileged operations modes in thread mode. Usually, for security purposes, tasks run in unprivileged mode. For example, a task in unprivileged mode may not switch to using \texttt{MSP}. Additionally, in unprivileged mode, the \texttt{PendSV} exception may not be triggered. 
+			The Cortex-M4 has privileged and unprivileged operations modes in thread mode. Usually, for security purposes, tasks run in unprivileged mode. For example, a task in unprivileged mode may not switch to using \texttt{MSP}. Additionally, in unprivileged mode, the \texttt{PendSV} exception may not be triggered. Hence, context switching itself is a privileged operation, which is logical, and may be performed through the OS, using OS requests, usually called \textit{system calls}.
 		}
 		\xpara{
 			To request a privileged operation from the OS, a special assembly instruction must be executed, called \texttt{SVC}, which triggers the execution of the \texttt{SVC} exception handler. A special number may be passed along with the instruction, to indicate the type of system call to be executed. Alternatively, a pointer to arguments may be passed in \texttt{R0}, as a first argument to the handler.
