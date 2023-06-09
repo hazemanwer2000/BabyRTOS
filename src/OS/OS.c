@@ -227,7 +227,7 @@ static void OS_priorityOn(uint8_t priority);
 static void OS_priorityOff(uint8_t priority);
 static uint8_t OS_comparator(void *arg1, void *arg2);
 static void OS_schedule(void);
-static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void));
+static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void *));
 
 
 /*************************************************************
@@ -535,7 +535,7 @@ static uint8_t OS_comparator(void *arg1, void *arg2) {
  * Return:
  *      None.
  *************************************************************/
-static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void)) {
+static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void *)) {
     uint32_t *stackPtr = task->stackPtr;
 
 	*--stackPtr = (uint32_t) (1 << 24);		// xPSR (Thumb-State Enabled)
