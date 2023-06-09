@@ -78,7 +78,7 @@ void medTask_Handler(void *args) {
 
 void lowTask_Handler(void *args) {
 	while (1) {
-
+		OS_wait(&lowTask);
 	}
 }
 
