@@ -40,7 +40,7 @@ _BEGIN_STD_C
 #endif
 
 #ifndef SSD1306_BUFFER_SIZE
-#define SSD1306_BUFFER_SIZE   SSD1306_WIDTH * SSD1306_HEIGHT / 8
+#define SSD1306_BUFFER_SIZE   (SSD1306_WIDTH * SSD1306_HEIGHT) / 8
 #endif
 
 // Enumeration for screen colors
@@ -112,5 +112,7 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size);
 SSD1306_Error_t ssd1306_FillBuffer(uint8_t* buf, uint32_t len);
 
 _END_STD_C
+
+/* Custom code. */
 
 #endif // __SSD1306_H__

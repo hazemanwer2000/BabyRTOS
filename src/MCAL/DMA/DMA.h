@@ -74,7 +74,7 @@
 #define DMA_channel_USART6_RX                   DMA_channel_5
 #define DMA_channel_USART6_TX                   DMA_channel_5
 
-#define DMA_stream_I2C1_TX                      DMA_stream_6
+#define DMA_channel_I2C1_TX                     DMA_channel_1
 
 
 /*************************************************************

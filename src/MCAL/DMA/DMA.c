@@ -34,6 +34,17 @@ static void (*DMA_callbacks[DMA_module_Count][DMA_stream_Count])(void);
  * 
  *************************************************************/
 void __attribute__ ((section(".after_vectors")))
+DMA1_Stream6_IRQHandler(void) {
+    const DMA_module_t module = DMA_module_1;
+    const DMA_stream_t stream = DMA_stream_6;
+
+    DMA_clearInterruptFlags(module, stream);
+    if (DMA_callbacks[module][stream] != NULL) {
+        DMA_callbacks[module][stream]();
+    }
+}
+
+void __attribute__ ((section(".after_vectors")))
 DMA2_Stream2_IRQHandler(void) {
     const DMA_module_t module = DMA_module_2;
     const DMA_stream_t stream = DMA_stream_2;

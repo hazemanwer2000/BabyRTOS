@@ -7,18 +7,20 @@
 
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
-    uint8_t dataAddress = 0x00;
-    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR,
-        &dataAddress, 1, &byte, 1);
-    // HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x00, 1, &byte, 1, HAL_MAX_DELAY);
+    uint8_t memAdd = 0x00;
+    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+        (uint8_t *) &memAdd, 1,
+        (uint8_t *) &byte, 1
+    );
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
-    uint8_t dataAddress = 0x40;
-    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR,
-        &dataAddress, 1, buffer, buff_size);
-    // HAL_I2C_Mem_Write(&SSD1306_I2C_PORT, SSD1306_I2C_ADDR, 0x40, 1, buffer, buff_size, HAL_MAX_DELAY);
+    uint8_t memAdd = 0x40;
+    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+        (uint8_t *) &memAdd, 1,
+        (uint8_t *) buffer, buff_size
+    );
 }
 
 // Screenbuffer
@@ -122,7 +124,7 @@ void ssd1306_Init(void) {
     ssd1306_SetDisplayOn(1); //--turn on SSD1306 panel
 
     // Clear screen
-    ssd1306_Fill(Black);
+    ssd1306_Fill(White);
     
     // Flush buffer to screen
     ssd1306_UpdateScreen();
@@ -155,7 +157,7 @@ void ssd1306_UpdateScreen(void) {
         ssd1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
         ssd1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
         ssd1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
-        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i],SSD1306_WIDTH);
+        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i], SSD1306_WIDTH);
     }
 }
 

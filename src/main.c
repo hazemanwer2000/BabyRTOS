@@ -24,6 +24,7 @@ RCC_status_t quickly_RCC(void) {
 				/* Peripherals */
 			RCC_setPeripheralClockState(RCC_peripheral_GPIOB, RCC_clockState_On);
 			RCC_setPeripheralClockState(RCC_peripheral_I2C1, RCC_clockState_On);
+			RCC_setPeripheralClockState(RCC_peripheral_DMA1, RCC_clockState_On);
 		}
 	}
 
@@ -37,6 +38,10 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 	status = SYSTICK_setPeriod_us(TICK_US);
 
 	return status;
+}
+
+void quickly_NVIC(void) {
+	NVIC_enableInterrupt(NVIC_interruptNumber_DMA1_Stream6);
 }
 
 void quickly_GPIO(void) {
@@ -105,12 +110,24 @@ void lowTask_Handler(void *args) {
 	}
 }
 
+volatile uint8_t flag = 1;
+
+void I2C1_TX_Handler(void) {
+	//I2C_stop(I2C1);
+	//flag = 1;
+}
+
 void main(void) {
 	if (quickly_RCC() != RCC_status_Ok) return;
 	if (quickly_SYSTICK() != SYSTICK_status_Ok) return;
+	
 	quickly_GPIO();
+	// quickly_NVIC();
+
 	I2C_init(I2C1);
-	I2C_initDMAMode(I2C1);
+	// I2C_initDMAMode(I2C1);
+	// I2C_setCallbackTX(I2C1, &I2C1_TX_Handler);
+
 	ssd1306_Init();
 
 	const uint8_t xlimit = 128 - 1, ylimit = 64 - 1;
@@ -121,6 +138,7 @@ void main(void) {
 	int16_t xdir = rate, ydir = rate;
 
 	while (1) {
+
 		x1 += xdir; x2 += xdir;
 		y1 += ydir; y2 += ydir;
 
@@ -146,10 +164,9 @@ void main(void) {
 
 		ssd1306_FillRectangle(0, 0, xlimit, ylimit, White);
 		ssd1306_FillRectangle(x1, y1, x2, y2, Black);
+
 		ssd1306_UpdateScreen();
 	}
-
-	while (1);
 
 /*
 	OS_init();
