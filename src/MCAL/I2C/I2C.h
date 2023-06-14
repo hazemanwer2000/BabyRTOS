@@ -47,15 +47,9 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
  * Description: Master-Write (DMA).
  * 
  *************************************************************/
-void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
-        uint8_t *buffer, uint32_t bufferSize);
-
-
-/*************************************************************
- * Description: Stop CONDITION.
- * 
- *************************************************************/
-void I2C_stop(I2C_module_t mod);
+void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,      
+            uint8_t *memAdd, uint32_t memAddSize,
+            uint8_t *buffer, uint32_t bufferSize);
 
 
 #endif /* __I2C_H__ */

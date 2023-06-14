@@ -113,8 +113,7 @@ void lowTask_Handler(void *args) {
 volatile uint8_t flag = 1;
 
 void I2C1_TX_Handler(void) {
-	//I2C_stop(I2C1);
-	//flag = 1;
+	flag = 1;
 }
 
 void main(void) {
@@ -122,17 +121,17 @@ void main(void) {
 	if (quickly_SYSTICK() != SYSTICK_status_Ok) return;
 	
 	quickly_GPIO();
-	// quickly_NVIC();
+	quickly_NVIC();
 
 	I2C_init(I2C1);
-	// I2C_initDMAMode(I2C1);
-	// I2C_setCallbackTX(I2C1, &I2C1_TX_Handler);
+	I2C_initDMAMode(I2C1);
+	I2C_setCallbackTX(I2C1, &I2C1_TX_Handler);
 
 	ssd1306_Init();
 
 	const uint8_t xlimit = 128 - 1, ylimit = 64 - 1;
 	const uint8_t xdim = 10, ydim = 10;
-	const uint8_t rate = 3;
+	const uint8_t rate = 1;
 
 	int16_t x1 = 0, x2 = xdim, y1 = 0, y2 = ydim;
 	int16_t xdir = rate, ydir = rate;

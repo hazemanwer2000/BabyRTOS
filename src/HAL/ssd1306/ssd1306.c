@@ -5,10 +5,16 @@
 #include <string.h>  // For memcpy
 #include "I2C.h"
 
+extern volatile uint8_t flag;
+
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
     uint8_t memAdd = 0x00;
-    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+
+    while (flag == 0);
+    flag = 0;
+
+    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) &byte, 1
     );
@@ -17,7 +23,11 @@ void ssd1306_WriteCommand(uint8_t byte) {
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
     uint8_t memAdd = 0x40;
-    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+
+    while (flag == 0);
+    flag = 0;
+
+    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) buffer, buff_size
     );

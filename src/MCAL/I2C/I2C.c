@@ -40,32 +40,26 @@ void (*I2C_callbackTX[])(void) = {
 
 
 /*************************************************************
- * Description: Start CONDITION.
+ * Description: (ISR) Callback.
  * 
  *************************************************************/
-static void I2C_start(I2C_module_t mod)
+static void I2C1_TX_DMA_Wrapper(void)
 {
-    volatile I2C_t *instance = I2C_numberToModule[mod];
+    volatile I2C_t *instance = I2C_numberToModule[I2C1];
 
-        /* Start CONDITION. */
-    instance->CR1 |= (1 << I2C_BIT_START);
-    while (GET_BIT(instance->SR1, I2C_BIT_SB) == 0);
-}
+        /* I2C-DMA disable. */
+    instance->CR2 &= ~(1 << I2C_BIT_DMAEN);
 
-volatile uint32_t tmp;
+        /* Wait ... before stopping. */
+    while (GET_BIT(instance->SR1, I2C_BIT_BTF) == 0);
 
-/*************************************************************
- * Description: Write device's address.
- * 
- *************************************************************/
-static void I2C_writeAddress(I2C_module_t mod, uint8_t deviceAddress)
-{
-    volatile I2C_t *instance = I2C_numberToModule[mod];
+        /* Stop CONDITION. */
+    instance->CR1 |= (1 << I2C_BIT_STOP);
 
-        /* Write DEVICE ADDRESS. */
-    instance->DR = deviceAddress << 1;
-    while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
-    tmp = instance->SR1 | instance->SR2;
+        /* Callback ... */
+    if (I2C_callbackTX[I2C1] != NULL) {
+        I2C_callbackTX[I2C1]();    
+    }
 }
 
 
@@ -73,10 +67,9 @@ static void I2C_writeAddress(I2C_module_t mod, uint8_t deviceAddress)
  * Description: Write buffer.
  * 
  *************************************************************/
-static void I2C_writeBuffer_sync(I2C_module_t mod,
+static void I2C_writeBuffer_sync(volatile I2C_t *instance,
             uint8_t *buffer, uint32_t bufferSize)
 {
-    volatile I2C_t *instance = I2C_numberToModule[mod];
     uint32_t i = 0;
 
     for (i = 0; i < bufferSize; i++) 
@@ -120,9 +113,6 @@ void I2C_initDMAMode(I2C_module_t mod)
     DMA_stream_t streamDMA_TX = I2C_numberToDMAStreamTX[mod];
     DMA_channel_t channelDMA_TX = I2C_numberToDMAChannelTX[mod];
 
-        /* I2C-DMA enable. */
-    instance->CR2 |= (1 << I2C_BIT_DMAEN);
-
         /* Setup DMA module (TX). */
     DMA_enableInterrupt(moduleDMA_TX, streamDMA_TX, DMA_interrupt_TransferComplete);
     DMA_selectChannel(moduleDMA_TX, streamDMA_TX, channelDMA_TX);
@@ -152,11 +142,26 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
             uint8_t *memAdd, uint32_t memAddSize,
             uint8_t *buffer, uint32_t bufferSize)
 {
-    I2C_start(mod);
-    I2C_writeAddress(mod, deviceAddress);
-    I2C_writeBuffer_sync(mod, memAdd, memAddSize);
-    I2C_writeBuffer_sync(mod, buffer, bufferSize);
-    I2C_stop(mod);
+    volatile uint32_t tmp;
+    volatile I2C_t *instance = I2C_numberToModule[mod];
+
+        /* Start CONDITION. */
+    instance->CR1 |= (1 << I2C_BIT_START);
+    while (GET_BIT(instance->SR1, I2C_BIT_SB) == 0);
+
+        /* Write DEVICE ADDRESS. */
+    instance->DR = deviceAddress << 1;
+    while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
+    tmp = instance->SR1 | instance->SR2;
+
+        /* Write DATA ADDRESS. */
+    I2C_writeBuffer_sync(instance, memAdd, memAddSize);
+
+        /* Write DATA BUFFER. */
+    I2C_writeBuffer_sync(instance, buffer, bufferSize);
+
+        /* Stop CONDITION. */
+    instance->CR1 |= (1 << I2C_BIT_STOP);
 }
 
 
@@ -164,27 +169,32 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
  * Description: Master-Write (DMA).
  * 
  *************************************************************/
-void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
-        uint8_t *buffer, uint32_t bufferSize)
+void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,      
+            uint8_t *memAdd, uint32_t memAddSize,
+            uint8_t *buffer, uint32_t bufferSize)
 {
+    volatile uint32_t tmp;
+    volatile I2C_t *instance = I2C_numberToModule[mod];
     DMA_module_t moduleDMA_TX = I2C_numberToDMAModuleTX[mod];
     DMA_stream_t streamDMA_TX = I2C_numberToDMAStreamTX[mod];
 
-    I2C_start(mod);
-    I2C_writeAddress(mod, deviceAddress);
+        /* Start CONDITION. */
+    instance->CR1 |= (1 << I2C_BIT_START);
+    while (GET_BIT(instance->SR1, I2C_BIT_SB) == 0);
+
+        /* I2C-DMA enable. */
+    instance->CR2 |= (1 << I2C_BIT_DMAEN);
+
+        /* Write DEVICE ADDRESS. */
+    instance->DR = deviceAddress << 1;
+    while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
+    tmp = instance->SR1 | instance->SR2;
+
+        /* Write DATA ADDRESS. */
+    I2C_writeBuffer_sync(instance, memAdd, memAddSize);
 
     DMA_setCallback(moduleDMA_TX, streamDMA_TX, I2C_callbackTX[mod]);
     DMA_setMemoryAddress(moduleDMA_TX, streamDMA_TX, buffer);
     DMA_setItemCount(moduleDMA_TX, streamDMA_TX, bufferSize);
     DMA_enable(moduleDMA_TX, streamDMA_TX);
-}
-
-
-/*************************************************************
- * Description: Stop CONDITION.
- * 
- *************************************************************/
-void I2C_stop(I2C_module_t mod)
-{
-    I2C_numberToModule[mod]->CR1 |= (1 << I2C_BIT_STOP);
 }
