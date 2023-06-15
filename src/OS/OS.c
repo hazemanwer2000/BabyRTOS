@@ -80,7 +80,12 @@ typedef enum {
     OS_REQ_id_UNLOCK,
     
     OS_REQ_id_ENQUEUE,
-    OS_REQ_id_DEQUEUE
+    OS_REQ_id_DEQUEUE,
+
+    OS_REQ_id_CRITICAL_ENTER,
+    OS_REQ_id_CRITICAL_EXIT,
+
+    OS_REQ_id_MAX = UINT32_MAX
 } OS_REQ_id_t;
 
 
@@ -333,6 +338,20 @@ SVC_Handler (OS_REQ_base_t *request) {
                 ((OS_REQ_unlock_t *) request)->m
             );
             break;
+        case OS_REQ_id_CRITICAL_ENTER:
+            __asm("PUSH {R0}");
+            __asm("MOVS R0, #1");
+            __asm("MSR BASEPRI, R0");
+            __asm("POP {R0}");
+            status = OS_REQ_status_OK;
+            break;
+        case OS_REQ_id_CRITICAL_EXIT:
+            __asm("PUSH {R0}");
+            __asm("MOVS R0, #0");
+            __asm("MSR BASEPRI, R0");
+            __asm("POP {R0}");
+            status = OS_REQ_status_OK;
+            break;
     }
 
     request->status = status;
@@ -569,7 +588,11 @@ static void OS_stackInit(OS_task *task, void *args, void (*fptr)(void *)) {
  *************************************************************/
 void OS_init(void) {
     SYSTICK_CTRL |= (1 << BIT_TICKINT);             /* Enable 'SysTick' interrupt. */
-    SHPR3 |= MSK_I2J(PRI_14_0, PRI_14_N);           /* Set 'PendSV' interrupt with least priority. */
+
+        /* Set 'PendSV' interrupt with least priority, 'SysTick' as second-least. */
+    SHPR3 = 0xE0F00000;                            
+    
+        /* Disable interrupt pre-emption. */
     AIRCR = (AIRCR & ~(MSK_I2J(PRIGROUP0, PRIGROUPN) | AIRCR_DEF_MSK)) | AIRCR_DEF | PRIGROUP_NO_PREMPT;
 
     OS_setupTask(&idleTask, OS_idleTask, NULL, PRIORITY_LOWEST, idleStack, IDLE_STACK_SIZE);
@@ -688,6 +711,10 @@ OS_REQ_status_t OS_wait(OS_task *task) {
         .task = task
     };
 
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
+
     SVC_CALL();
 
     return req.base.status;
@@ -731,6 +758,10 @@ OS_REQ_status_t OS_ready(OS_task *task) {
         .base.id = OS_REQ_id_READY,
         .task = task
     };
+
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
 
     SVC_CALL();
 
@@ -777,6 +808,10 @@ OS_REQ_status_t OS_delay(OS_task *task, uint32_t delay) {
         .task = task,
         .delay = delay
     };
+
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
 
     SVC_CALL();
 
@@ -872,6 +907,10 @@ OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem) {
         .sem = sem
     };
 
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
+
     SVC_CALL();
 
     return req.base.status;
@@ -922,6 +961,10 @@ OS_REQ_status_t OS_enqueue(OS_task *task, OS_queue *queue, void *args) {
         .queue = queue,
         .args = args
     };
+
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
 
     SVC_CALL();
 
@@ -989,6 +1032,10 @@ OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args) {
         .args = args
     };
 
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
+
     SVC_CALL();
 
     return req.base.status;
@@ -1051,6 +1098,10 @@ OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m) {
         .m = m
     };
 
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
+
     SVC_CALL();
 
     return req.base.status;
@@ -1106,6 +1157,10 @@ OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m) {
         .m = m
     };
 
+    if (req.task == NULL) {
+        req.task = nextTask;
+    }
+
     SVC_CALL();
 
     return req.base.status;
@@ -1147,4 +1202,40 @@ OS_REQ_status_t OS_ISR_unlock(OS_task *task, OS_mutex *m) {
     }
 
     return status;
+}
+
+
+/*************************************************************
+ * Description: Critical section entry.
+ * Parameters:
+ *      [X]
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_criticalEnter() {
+    volatile OS_REQ_base_t req = {
+        .id = OS_REQ_id_CRITICAL_ENTER
+    };
+
+    SVC_CALL();
+
+    return req.status;
+}
+
+
+/*************************************************************
+ * Description: Critical section exit.
+ * Parameters:
+ *      [X]
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_criticalExit() {
+    volatile OS_REQ_base_t req = {
+        .id = OS_REQ_id_CRITICAL_EXIT
+    };
+
+    SVC_CALL();
+
+    return req.status;
 }

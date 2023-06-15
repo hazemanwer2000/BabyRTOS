@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>  // For memcpy
 #include "I2C.h"
+#include "OS.h"
+
+#define I2C_masterWrite_pseudo                I2C_masterWrite_DMA
+
+extern OS_semaphore sem_I2C1;
 
 extern volatile uint8_t flag;
 
@@ -11,21 +16,35 @@ extern volatile uint8_t flag;
 void ssd1306_WriteCommand(uint8_t byte) {
     uint8_t memAdd = 0x00;
 
-    while (flag == 0);
-    flag = 0;
+    if (OS_take(NULL, &sem_I2C1)) {
+        __asm("BKPT 0");
+    }
 
-    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+    // while (flag == 0);
+    // flag = 0;
+
+    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) &byte, 1
     );
+
+    // flag = 1;
+
+    if (OS_give(&sem_I2C1)) {
+        __asm("BKPT 0");
+    }
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
     uint8_t memAdd = 0x40;
 
-    while (flag == 0);
-    flag = 0;
+    if (OS_take(NULL, &sem_I2C1)) {
+        __asm("BKPT 0");
+    }
+
+    // while (flag == 0);
+    // flag = 0;
 
     I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
@@ -34,10 +53,28 @@ void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
 }
 
 // Screenbuffer
-static uint8_t SSD1306_Buffer[SSD1306_BUFFER_SIZE];
+static uint8_t SSD1306_BufferA[SSD1306_BUFFER_SIZE];
+static uint8_t SSD1306_BufferB[SSD1306_BUFFER_SIZE];
+
+static uint8_t *SSD1306_Buffer = NULL;
+static uint8_t *SSD1306_BufferUpdate = NULL;
+static uint8_t SSD1306_Buffer_flag = 0;
 
 // Screen object
 static SSD1306_t SSD1306;
+
+/* Fills the Screenbuffer with values from a given buffer of a fixed length */
+void ssd1306_DoubleBuffer() {
+    if (SSD1306_Buffer_flag) {
+        SSD1306_Buffer = SSD1306_BufferA;
+        SSD1306_BufferUpdate = SSD1306_BufferB;
+    } else {
+        SSD1306_Buffer = SSD1306_BufferB;
+        SSD1306_BufferUpdate = SSD1306_BufferA;
+    }
+
+    SSD1306_Buffer_flag = !SSD1306_Buffer_flag;
+}
 
 /* Fills the Screenbuffer with values from a given buffer of a fixed length */
 SSD1306_Error_t ssd1306_FillBuffer(uint8_t* buf, uint32_t len) {
@@ -51,6 +88,8 @@ SSD1306_Error_t ssd1306_FillBuffer(uint8_t* buf, uint32_t len) {
 
 /* Initialize the oled screen */
 void ssd1306_Init(void) {
+
+    ssd1306_DoubleBuffer();
 
     // Init OLED
     ssd1306_SetDisplayOn(0); //display off
@@ -150,13 +189,15 @@ void ssd1306_Init(void) {
 void ssd1306_Fill(SSD1306_COLOR color) {
     uint32_t i;
 
-    for(i = 0; i < sizeof(SSD1306_Buffer); i++) {
+    for(i = 0; i < SSD1306_BUFFER_SIZE; i++) {
         SSD1306_Buffer[i] = (color == Black) ? 0x00 : 0xFF;
     }
 }
 
 /* Write the screenbuffer with changed to the screen */
 void ssd1306_UpdateScreen(void) {
+    ssd1306_DoubleBuffer();
+
     // Write data to each page of RAM. Number of pages
     // depends on the screen height:
     //
@@ -167,7 +208,7 @@ void ssd1306_UpdateScreen(void) {
         ssd1306_WriteCommand(0xB0 + i); // Set the current RAM page address.
         ssd1306_WriteCommand(0x00 + SSD1306_X_OFFSET_LOWER);
         ssd1306_WriteCommand(0x10 + SSD1306_X_OFFSET_UPPER);
-        ssd1306_WriteData(&SSD1306_Buffer[SSD1306_WIDTH*i], SSD1306_WIDTH);
+        ssd1306_WriteData(&SSD1306_BufferUpdate[SSD1306_WIDTH*i], SSD1306_WIDTH);
     }
 }
 

@@ -41,6 +41,7 @@ SYSTICK_status_t quickly_SYSTICK(void) {
 }
 
 void quickly_NVIC(void) {
+	NVIC_setPriority(NVIC_interruptNumber_DMA1_Stream6, NVIC_priority_1);
 	NVIC_enableInterrupt(NVIC_interruptNumber_DMA1_Stream6);
 }
 
@@ -61,62 +62,75 @@ void quickly_GPIO(void) {
 	GPIO_selectAF(pinCfg.port, pinCfg.pinNumber, GPIO_AF_4);
 }
 
-#define HIGH_TASK_PRIORITY				0
-#define MED_TASK_PRIORITY				1
-#define LOW_TASK_PRIORITY				2
-#define STACK_SIZE						256
+#define GUI_TASK_PRIORITY					0
+#define GUI_STACK_SIZE						4096
 
-OS_task highTask;
-OS_task medTask;
-OS_task lowTask;
+uint8_t GUI_stack[GUI_STACK_SIZE];
 
-uint8_t highStack[STACK_SIZE];
-uint8_t medStack[STACK_SIZE];
-uint8_t lowStack[STACK_SIZE];
+OS_task GUI_task;
 
-OS_semaphore sem;
-OS_mutex m;
-#define QUEUE_CAP		20
-OS_queue queue;
-void *array[QUEUE_CAP];
+void GUI_taskHandler(void *args)
+{
+	OS_delay(&GUI_task, 100);
 
-typedef struct {
-	uint32_t high;
-	uint32_t med;
-	uint32_t low;
-} counter_t;
+	ssd1306_Init();
 
-counter_t counter;
+	const uint8_t xlimit = 128 - 1, ylimit = 64 - 1;
+	const uint8_t dim = 20;
+	const uint8_t rate = 1;
 
-void highTask_Handler(void *args) {
-	while (1) {
-		OS_lock(&highTask, &m);
-		OS_delay(&highTask, 1000);
-		OS_unlock(&highTask, &m);
+	int16_t x1 = 0, x2 = dim, y1 = 0, y2 = dim;
+	int16_t xdir = rate, ydir = rate;
+
+	while (1) 
+	{
+		x1 += xdir; x2 += xdir;
+		y1 += ydir; y2 += ydir;
+
+		if (x2 >= xlimit) {
+			xdir = -1 * rate;
+			x2 = xlimit;
+			x1 = x2 - dim;
+		} else if (x1 <= 0) {
+			xdir = 1 * rate;
+			x1 = 0;
+			x2 = dim;
+		}
+
+		if (y2 >= ylimit) {
+			ydir = -1 * rate;
+			y2 = ylimit;
+			y1 = y2 - dim;
+		} else if (y1 <= 0) {
+			ydir = 1 * rate;
+			y1 = 0;
+			y2 = dim;
+		}
+
+		ssd1306_Fill(White);
+		ssd1306_FillRectangle(x1, y1, x2, y2, Black);
+
+		// OS_delay(NULL, 100);
+
+		ssd1306_UpdateScreen();
 	}
 }
 
-void medTask_Handler(void *args) {
-	while (1) {
-		OS_lock(&medTask, &m);
-		counter.med++;
-		OS_unlock(&medTask, &m);
-	}
-}
-
-void lowTask_Handler(void *args) {
-	while (1) {
-		OS_wait(&lowTask);
-	}
-}
+OS_semaphore sem_I2C1;
 
 volatile uint8_t flag = 1;
 
-void I2C1_TX_Handler(void) {
-	flag = 1;
+void I2C1_TX_Handler(void) 
+{
+    if (OS_ISR_give(&sem_I2C1)) {
+        __asm("BKPT 0");
+    }
+
+	// flag = 1;
 }
 
-void main(void) {
+void main(void)
+{
 	if (quickly_RCC() != RCC_status_Ok) return;
 	if (quickly_SYSTICK() != SYSTICK_status_Ok) return;
 	
@@ -127,63 +141,12 @@ void main(void) {
 	I2C_initDMAMode(I2C1);
 	I2C_setCallbackTX(I2C1, &I2C1_TX_Handler);
 
-	ssd1306_Init();
-
-	const uint8_t xlimit = 128 - 1, ylimit = 64 - 1;
-	const uint8_t xdim = 10, ydim = 10;
-	const uint8_t rate = 1;
-
-	int16_t x1 = 0, x2 = xdim, y1 = 0, y2 = ydim;
-	int16_t xdir = rate, ydir = rate;
-
-	while (1) {
-
-		x1 += xdir; x2 += xdir;
-		y1 += ydir; y2 += ydir;
-
-		if (x2 >= xlimit) {
-			xdir = -1 * rate;
-			x2 = xlimit;
-			x1 = x2 - xdim;
-		} else if (x1 <= 0) {
-			xdir = 1 * rate;
-			x1 = 0;
-			x2 = xdim;
-		}
-
-		if (y2 >= ylimit) {
-			ydir = -1 * rate;
-			y2 = ylimit;
-			y1 = y2 - ydim;
-		} else if (y1 <= 0) {
-			ydir = 1 * rate;
-			y1 = 0;
-			y2 = ydim;
-		}
-
-		ssd1306_FillRectangle(0, 0, xlimit, ylimit, White);
-		ssd1306_FillRectangle(x1, y1, x2, y2, Black);
-
-		ssd1306_UpdateScreen();
-	}
-
-/*
 	OS_init();
 
-	OS_setupTask(&highTask, &highTask_Handler, (void *) HIGH_TASK_PRIORITY,
-		HIGH_TASK_PRIORITY, highStack, STACK_SIZE);
+	OS_setupTask(&GUI_task, &GUI_taskHandler, NULL,
+		GUI_TASK_PRIORITY, GUI_stack, GUI_STACK_SIZE);
 
-	OS_setupTask(&medTask, &medTask_Handler, (void *) MED_TASK_PRIORITY,
-		MED_TASK_PRIORITY, medStack, STACK_SIZE);
-
-	OS_setupTask(&lowTask, &lowTask_Handler, (void *) LOW_TASK_PRIORITY,
-		LOW_TASK_PRIORITY, lowStack, STACK_SIZE);
-
-	OS_setupSemaphore(&sem, 0, 2);
-	OS_setupQueue(&queue, array, QUEUE_CAP);
-	OS_setupMutex(&m);
+	OS_setupSemaphore(&sem_I2C1, 1, 1);
 
 	OS_start();
-*/
-
 }

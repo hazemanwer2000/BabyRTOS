@@ -12,6 +12,7 @@
 #include "I2C.h"
 #include "Bit_Utils.h"
 #include "DMA.h"
+#include "OS.h"
 
 
 /*************************************************************
@@ -145,6 +146,8 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
     volatile uint32_t tmp;
     volatile I2C_t *instance = I2C_numberToModule[mod];
 
+    OS_criticalEnter();
+
         /* Start CONDITION. */
     instance->CR1 |= (1 << I2C_BIT_START);
     while (GET_BIT(instance->SR1, I2C_BIT_SB) == 0);
@@ -153,6 +156,8 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
     instance->DR = deviceAddress << 1;
     while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
     tmp = instance->SR1 | instance->SR2;
+
+    OS_criticalExit();
 
         /* Write DATA ADDRESS. */
     I2C_writeBuffer_sync(instance, memAdd, memAddSize);
@@ -178,6 +183,8 @@ void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
     DMA_module_t moduleDMA_TX = I2C_numberToDMAModuleTX[mod];
     DMA_stream_t streamDMA_TX = I2C_numberToDMAStreamTX[mod];
 
+    OS_criticalEnter();
+
         /* Start CONDITION. */
     instance->CR1 |= (1 << I2C_BIT_START);
     while (GET_BIT(instance->SR1, I2C_BIT_SB) == 0);
@@ -189,6 +196,8 @@ void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
     instance->DR = deviceAddress << 1;
     while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
     tmp = instance->SR1 | instance->SR2;
+
+    OS_criticalExit();
 
         /* Write DATA ADDRESS. */
     I2C_writeBuffer_sync(instance, memAdd, memAddSize);

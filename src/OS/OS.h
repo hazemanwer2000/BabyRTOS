@@ -37,7 +37,9 @@ typedef enum {
  */
 typedef enum {
     OS_REQ_status_OK = 0,
-    OS_REQ_status_NOK
+    OS_REQ_status_NOK,
+
+    OS_REQ_status_MAX = UINT32_MAX
 } OS_REQ_status_t;
 
 
@@ -279,6 +281,26 @@ OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m);
  *  @param m Pointer to 'OS_mutex'.
  */
 OS_REQ_status_t OS_ISR_unlock(OS_task *task, OS_mutex *m);
+
+
+/*************************************************************
+ * Description: Critical section entry.
+ * Parameters:
+ *      [X]
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_criticalEnter();
+
+
+/*************************************************************
+ * Description: Critical section exit.
+ * Parameters:
+ *      [X]
+ * Return:
+ *      None.
+ *************************************************************/
+OS_REQ_status_t OS_criticalExit();
 
 
 #endif /* __OS_KERNEL_H__ */
