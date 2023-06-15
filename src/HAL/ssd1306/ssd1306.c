@@ -6,45 +6,27 @@
 #include "I2C.h"
 #include "OS.h"
 
-#define I2C_masterWrite_pseudo                I2C_masterWrite_DMA
-
-extern OS_semaphore sem_I2C1;
-
-extern volatile uint8_t flag;
+extern volatile OS_semaphore sem_I2C1;
 
 // Send a byte to the command register
 void ssd1306_WriteCommand(uint8_t byte) {
     uint8_t memAdd = 0x00;
 
-    if (OS_take(NULL, &sem_I2C1)) {
-        __asm("BKPT 0");
-    }
-
-    // while (flag == 0);
-    // flag = 0;
+    OS_take(NULL, &sem_I2C1);
 
     I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) &byte, 1
     );
 
-    // flag = 1;
-
-    if (OS_give(&sem_I2C1)) {
-        __asm("BKPT 0");
-    }
+    OS_give(&sem_I2C1);
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
     uint8_t memAdd = 0x40;
 
-    if (OS_take(NULL, &sem_I2C1)) {
-        __asm("BKPT 0");
-    }
-
-    // while (flag == 0);
-    // flag = 0;
+    OS_take(NULL, &sem_I2C1);
 
     I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,

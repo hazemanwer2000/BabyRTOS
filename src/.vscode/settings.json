@@ -5,6 +5,7 @@
         "kernel_priv.h": "c",
         "nvic.h": "c",
         "string.h": "c",
-        "bit_utils.h": "c"
+        "bit_utils.h": "c",
+        "gpio.h": "c"
     }
 }

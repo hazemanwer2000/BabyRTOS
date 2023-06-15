@@ -67,7 +67,7 @@ void quickly_GPIO(void) {
 
 uint8_t GUI_stack[GUI_STACK_SIZE];
 
-OS_task GUI_task;
+volatile OS_task GUI_task;
 
 void GUI_taskHandler(void *args)
 {
@@ -110,23 +110,14 @@ void GUI_taskHandler(void *args)
 		ssd1306_Fill(White);
 		ssd1306_FillRectangle(x1, y1, x2, y2, Black);
 
-		// OS_delay(NULL, 100);
-
 		ssd1306_UpdateScreen();
 	}
 }
 
-OS_semaphore sem_I2C1;
-
-volatile uint8_t flag = 1;
-
+volatile OS_semaphore sem_I2C1;
 void I2C1_TX_Handler(void) 
 {
-    if (OS_ISR_give(&sem_I2C1)) {
-        __asm("BKPT 0");
-    }
-
-	// flag = 1;
+    OS_ISR_give(&sem_I2C1);
 }
 
 void main(void)

@@ -86,7 +86,7 @@ typedef struct {
  *  @brief A struct that the OS manages, to track a registered mutex in the system.
  */
 typedef struct {
-    OS_task *task;                      /**< (Internal use only) Currently locking task. */
+    volatile OS_task *task;             /**< (Internal use only) Currently locking task. */
     LL_list waiting;                    /**< (Internal use only) Waiting tasks, to unlock. */
 } OS_mutex;
 
@@ -106,7 +106,7 @@ void OS_init(void);
  *  @param stackBegin Pointer to stack beginning.
  *  @param stackSize Stack size.
  */
-void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args, 
+void OS_setupTask(volatile OS_task *task, void (*fptr)(void *), void *args, 
         uint8_t priority, uint8_t *stackBegin, uint32_t stackSize);
 
 
@@ -116,7 +116,7 @@ void OS_setupTask(OS_task *task, void (*fptr)(void *), void *args,
  *  @param initial Initial value.
  *  @param maximum Maximum value.
  */
-void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum);
+void OS_setupSemaphore(volatile OS_semaphore *sem, uint32_t initial, uint32_t maximum);
 
 
 /**
@@ -125,14 +125,14 @@ void OS_setupSemaphore(OS_semaphore *sem, uint32_t initial, uint32_t maximum);
  *  @param array Array of 'void *'.
  *  @param length Array of length.
  */
-void OS_setupQueue(OS_queue *q, void **array, uint32_t length);
+void OS_setupQueue(volatile OS_queue *q, void **array, uint32_t length);
 
 
 /**
  *  @brief Register a mutex into the system.
  *  @param m Pointer to 'OS_mutex'.
  */
-void OS_setupMutex(OS_mutex *m);
+void OS_setupMutex(volatile OS_mutex *m);
 
 
 /**
@@ -145,28 +145,28 @@ void OS_start(void);
  *  @brief Request a task to transition into the WAITING state, must be READY before-hand.
  *  @param task Pointer to 'OS_task'.
  */
-OS_REQ_status_t OS_wait(OS_task *task);
+OS_REQ_status_t OS_wait(volatile OS_task *task);
 
 
 /**
  *  @brief (ISR-specific) Request a task to transition into the WAITING state, must be READY before-hand.
  *  @param task Pointer to 'OS_task'.
  */
-OS_REQ_status_t OS_ISR_wait(OS_task *task);
+OS_REQ_status_t OS_ISR_wait(volatile OS_task *task);
 
 
 /**
  *  @brief Request a task to transition into the READY state, must be WAITING before-hand.
  *  @param task Pointer to 'OS_task'.
  */
-OS_REQ_status_t OS_ready(OS_task *task);
+OS_REQ_status_t OS_ready(volatile OS_task *task);
 
 
 /**
  *  @brief (ISR-specific) Request a task to transition into the READY state, must be WAITING before-hand.
  *  @param task Pointer to 'OS_task'.
  */
-OS_REQ_status_t OS_ISR_ready(OS_task *task);
+OS_REQ_status_t OS_ISR_ready(volatile OS_task *task);
 
 
 /**
@@ -174,7 +174,7 @@ OS_REQ_status_t OS_ISR_ready(OS_task *task);
  *  @param task Pointer to 'OS_task'.
  *  @param delay Number of ticks to delay task by.
  */
-OS_REQ_status_t OS_delay(OS_task *task, uint32_t delay);
+OS_REQ_status_t OS_delay(volatile OS_task *task, uint32_t delay);
 
 
 /**
@@ -182,21 +182,21 @@ OS_REQ_status_t OS_delay(OS_task *task, uint32_t delay);
  *  @param task Pointer to 'OS_task'.
  *  @param delay Number of ticks to delay task by.
  */
-OS_REQ_status_t OS_ISR_delay(OS_task *task, uint32_t delay);
+OS_REQ_status_t OS_ISR_delay(volatile OS_task *task, uint32_t delay);
 
 
 /**
  *  @brief Request to increase a semaphore's value, must not be at its maximum.
  *  @param sem Pointer to 'OS_semaphore'.
  */
-OS_REQ_status_t OS_give(OS_semaphore *sem);
+OS_REQ_status_t OS_give(volatile OS_semaphore *sem);
 
 
 /**
  *  @brief (ISR-specific) Request to increase a semaphore's value, must not be at its maximum.
  *  @param sem Pointer to 'OS_semaphore'.
  */
-OS_REQ_status_t OS_ISR_give(OS_semaphore *sem);
+OS_REQ_status_t OS_ISR_give(volatile OS_semaphore *sem);
 
 
 /**
@@ -204,7 +204,7 @@ OS_REQ_status_t OS_ISR_give(OS_semaphore *sem);
  *  @param task Pointer to 'OS_task'.
  *  @param sem Pointer to 'OS_semaphore'.
  */
-OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem);
+OS_REQ_status_t OS_take(volatile OS_task *task, volatile OS_semaphore *sem);
 
 
 /**
@@ -212,7 +212,7 @@ OS_REQ_status_t OS_take(OS_task *task, OS_semaphore *sem);
  *  @param task Pointer to 'OS_task'.
  *  @param sem Pointer to 'OS_semaphore'.
  */
-OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem);
+OS_REQ_status_t OS_ISR_take(volatile OS_task *task, volatile OS_semaphore *sem);
 
 
 /**
@@ -221,7 +221,7 @@ OS_REQ_status_t OS_ISR_take(OS_task *task, OS_semaphore *sem);
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_enqueue(OS_task *task, OS_queue *queue, void *args);
+OS_REQ_status_t OS_enqueue(volatile OS_task *task, volatile OS_queue *queue, void *args);
 
 
 /**
@@ -230,7 +230,7 @@ OS_REQ_status_t OS_enqueue(OS_task *task, OS_queue *queue, void *args);
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args);
+OS_REQ_status_t OS_ISR_enqueue(volatile OS_task *task, volatile OS_queue *q, void *args);
 
 
 /**
@@ -239,7 +239,7 @@ OS_REQ_status_t OS_ISR_enqueue(OS_task *task, OS_queue *q, void *args);
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args);
+OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, void **args);
 
 
 /**
@@ -248,7 +248,7 @@ OS_REQ_status_t OS_dequeue(OS_task *task, OS_queue *queue, void **args);
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args);
+OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, void **args);
 
 
 /**
@@ -256,7 +256,7 @@ OS_REQ_status_t OS_ISR_dequeue(OS_task *task, OS_queue *q, void **args);
  *  @param task Pointer to 'OS_task'.
  *  @param queue Pointer to 'OS_mutex'.
  */
-OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m);
+OS_REQ_status_t OS_lock(volatile OS_task *task, volatile OS_mutex *m);
 
 
 /**
@@ -264,7 +264,7 @@ OS_REQ_status_t OS_lock(OS_task *task, OS_mutex *m);
  *  @param task Pointer to 'OS_task'.
  *  @param m Pointer to 'OS_mutex'.
  */
-OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m);
+OS_REQ_status_t OS_ISR_lock(volatile OS_task *task, volatile OS_mutex *m);
 
 
 /**
@@ -272,7 +272,7 @@ OS_REQ_status_t OS_ISR_lock(OS_task *task, OS_mutex *m);
  *  @param task Pointer to 'OS_task'.
  *  @param m Pointer to 'OS_mutex'.
  */
-OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m);
+OS_REQ_status_t OS_unlock(volatile OS_task *task, volatile OS_mutex *m);
 
 
 /**
@@ -280,7 +280,7 @@ OS_REQ_status_t OS_unlock(OS_task *task, OS_mutex *m);
  *  @param task Pointer to 'OS_task'.
  *  @param m Pointer to 'OS_mutex'.
  */
-OS_REQ_status_t OS_ISR_unlock(OS_task *task, OS_mutex *m);
+OS_REQ_status_t OS_ISR_unlock(volatile OS_task *task, volatile OS_mutex *m);
 
 
 /*************************************************************

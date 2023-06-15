@@ -36,8 +36,11 @@ TARGET := main
 # uC-related compiler flags
 SPECS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard
 
+# Disable, or enable compiler warnings
+WARNINGS := -Wno-discarded-qualifiers
+
 # Compiler, pre-processor, and linker flags
-CFLAGS := $(SPECS) -std=c99 -g3 -Og -fno-move-loop-invariants -ffunction-sections -fdata-sections -nostartfiles -ffreestanding --specs=nano.specs
+CFLAGS := $(SPECS) -std=c99 -g3 -Og -fno-move-loop-invariants -ffunction-sections -fdata-sections -nostartfiles -ffreestanding --specs=nano.specs $(WARNINGS)
 PPFLAGS := $(HDR_DIRS)
 LDFLAGS := -Wl,-Map,$(TARGET).map -Wl,--gc-sections -T mem.ld -T sections.ld -L./__ldscripts
 
