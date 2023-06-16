@@ -6,6 +6,7 @@
         "nvic.h": "c",
         "string.h": "c",
         "bit_utils.h": "c",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "queue.h": "c"
     }
 }

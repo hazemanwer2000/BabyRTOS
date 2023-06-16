@@ -157,8 +157,6 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
     while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
     tmp = instance->SR1 | instance->SR2;
 
-    OS_criticalExit();
-
         /* Write DATA ADDRESS. */
     I2C_writeBuffer_sync(instance, memAdd, memAddSize);
 
@@ -167,6 +165,8 @@ void I2C_masterWrite_sync(I2C_module_t mod, uint8_t deviceAddress,
 
         /* Stop CONDITION. */
     instance->CR1 |= (1 << I2C_BIT_STOP);
+
+    OS_criticalExit();
 }
 
 
@@ -197,8 +197,6 @@ void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
     while (GET_BIT(instance->SR1, I2C_BIT_ADDR) == 0);
     tmp = instance->SR1 | instance->SR2;
 
-    OS_criticalExit();
-
         /* Write DATA ADDRESS. */
     I2C_writeBuffer_sync(instance, memAdd, memAddSize);
 
@@ -206,4 +204,6 @@ void I2C_masterWrite_DMA(I2C_module_t mod, uint8_t deviceAddress,
     DMA_setMemoryAddress(moduleDMA_TX, streamDMA_TX, buffer);
     DMA_setItemCount(moduleDMA_TX, streamDMA_TX, bufferSize);
     DMA_enable(moduleDMA_TX, streamDMA_TX);
+
+    OS_criticalExit();
 }

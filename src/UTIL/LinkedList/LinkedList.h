@@ -15,21 +15,21 @@
 #define LL_dequeue              LL_pop
 
 typedef struct LL_node {
-    void *data;
-    struct LL_node *next;
-    struct LL_node *prev;
+    volatile void *data;
+    volatile struct LL_node *next;
+    volatile struct LL_node *prev;
 } LL_node;
 
 typedef struct {
-    LL_node *head;
-    LL_node *tail;
-    uint32_t length;
+    volatile LL_node *head;
+    volatile LL_node *tail;
+    volatile uint32_t length;
 } LL_list;
 
-LL_node * LL_pop(LL_list *list);
-void LL_push(LL_list *list, LL_node *node);
-void LL_enqueue(LL_list *list, LL_node *node);
-void LL_remove(LL_list *list, LL_node *node);
-void LL_priority_enqueue(LL_list *list, LL_node *node, uint8_t (*compare)(void *, void *));
+volatile LL_node * LL_pop(volatile LL_list *list);
+void LL_push(volatile LL_list *list, volatile LL_node *node);
+void LL_enqueue(volatile LL_list *list, volatile LL_node *node);
+void LL_remove(volatile LL_list *list, volatile LL_node *node);
+void LL_priority_enqueue(volatile LL_list *list, volatile LL_node *node, uint8_t (*compare)(volatile void *, volatile void *));
 
 #endif      /* __LINKED_LIST_H__ */

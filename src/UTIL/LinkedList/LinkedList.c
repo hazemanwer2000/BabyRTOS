@@ -9,8 +9,8 @@
 
 #include "LinkedList.h"
 
-LL_node * LL_pop(LL_list *list) {
-    LL_node *node = list->head;
+volatile LL_node * LL_pop(volatile LL_list *list) {
+    volatile LL_node *node = list->head;
 
     if (list->length > 0) {
         if (list->length == 1) {
@@ -29,7 +29,7 @@ LL_node * LL_pop(LL_list *list) {
     return node;
 }
 
-void LL_push(LL_list *list, LL_node *node) {
+void LL_push(volatile LL_list *list, volatile LL_node *node) {
     if (list->length == 0) {
         list->head = node;
         list->tail = node;
@@ -42,7 +42,7 @@ void LL_push(LL_list *list, LL_node *node) {
     list->length++;
 }
 
-void LL_enqueue(LL_list *list, LL_node *node) {
+void LL_enqueue(volatile LL_list *list, volatile LL_node *node) {
     if (list->length == 0) {
         list->head = node;
         list->tail = node;
@@ -55,8 +55,8 @@ void LL_enqueue(LL_list *list, LL_node *node) {
     list->length++;
 }
 
-void LL_remove(LL_list *list, LL_node *node) {
-    LL_node *tmp = list->head;
+void LL_remove(volatile LL_list *list, volatile LL_node *node) {
+    volatile LL_node *tmp = list->head;
 
     while (tmp != NULL) {
         if (tmp == node) {
@@ -86,8 +86,8 @@ void LL_remove(LL_list *list, LL_node *node) {
     }
 }
 
-void LL_priority_enqueue(LL_list *list, LL_node *node, uint8_t (*compare)(void *, void *)) {
-    LL_node *traverse = list->tail;
+void LL_priority_enqueue(volatile LL_list *list, volatile LL_node *node, uint8_t (*compare)(volatile void *, volatile void *)) {
+    volatile LL_node *traverse = list->tail;
     
     while (traverse != NULL) {
         if (compare(node->data, traverse->data)) {

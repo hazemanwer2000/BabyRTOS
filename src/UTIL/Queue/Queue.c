@@ -9,13 +9,13 @@
 
 #include "Queue.h"
 
-void Queue_init(Queue_t *q, void **content, uint32_t capacity) {
+void Queue_init(volatile Queue_t *q, volatile void **content, uint32_t capacity) {
     q->capacity = capacity;
     q->length = q->start = q->end = 0;
     q->content = content;
 }
 
-Queue_status_t Queue_enqueue(Queue_t *q, void *args) {
+Queue_status_t Queue_enqueue(volatile Queue_t *q, void *args) {
     Queue_status_t status = Queue_status_Ok;
 
     if (q->length == q->capacity) {
@@ -33,7 +33,7 @@ Queue_status_t Queue_enqueue(Queue_t *q, void *args) {
     return status;
 }
 
-Queue_status_t Queue_dequeue(Queue_t *q, void **ret) {  
+Queue_status_t Queue_dequeue(volatile Queue_t *q, volatile void **ret) {  
     Queue_status_t status = Queue_status_Ok;
 
     if (q->length == 0) {

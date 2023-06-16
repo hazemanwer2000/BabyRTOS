@@ -12,26 +12,28 @@ extern volatile OS_semaphore sem_I2C1;
 void ssd1306_WriteCommand(uint8_t byte) {
     uint8_t memAdd = 0x00;
 
-    OS_take(NULL, &sem_I2C1);
+    // OS_take(NULL, &sem_I2C1);
 
     I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) &byte, 1
     );
 
-    OS_give(&sem_I2C1);
+    // OS_give(&sem_I2C1);
 }
 
 // Send data
 void ssd1306_WriteData(uint8_t* buffer, size_t buff_size) {
     uint8_t memAdd = 0x40;
 
-    OS_take(NULL, &sem_I2C1);
+    // OS_take(NULL, &sem_I2C1);
 
-    I2C_masterWrite_DMA(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
+    I2C_masterWrite_sync(SSD1306_I2C_INSTANCE, SSD1306_I2C_ADDR, 
         (uint8_t *) &memAdd, 1,
         (uint8_t *) buffer, buff_size
     );
+
+    // OS_give(&sem_I2C1);
 }
 
 // Screenbuffer

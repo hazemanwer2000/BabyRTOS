@@ -37,7 +37,7 @@ TARGET := main
 SPECS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard
 
 # Disable, or enable compiler warnings
-WARNINGS := -Wno-discarded-qualifiers
+WARNINGS := # -Wno-discarded-qualifiers
 
 # Compiler, pre-processor, and linker flags
 CFLAGS := $(SPECS) -std=c99 -g3 -Og -fno-move-loop-invariants -ffunction-sections -fdata-sections -nostartfiles -ffreestanding --specs=nano.specs $(WARNINGS)

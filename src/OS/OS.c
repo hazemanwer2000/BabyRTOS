@@ -230,7 +230,7 @@ static void OS_makeTaskWait(volatile OS_task *task);
 static void OS_makeTaskReady(volatile OS_task *task);
 static void OS_priorityOn(uint8_t priority);
 static void OS_priorityOff(uint8_t priority);
-static uint8_t OS_comparator(void *arg1, void *arg2);
+static uint8_t OS_comparator(volatile void *arg1, volatile void *arg2);
 static void OS_schedule(void);
 static void OS_stackInit(volatile OS_task *task, void *args, void (*fptr)(void *));
 
@@ -534,10 +534,10 @@ static void OS_priorityOff(uint8_t priority) {
  * Return:
  *      '1' if Task 'A' has higher priority, else '0'.
  *************************************************************/
-static uint8_t OS_comparator(void *arg1, void *arg2) {
+static uint8_t OS_comparator(volatile void *arg1, volatile void *arg2) {
     uint8_t res = 0;
 
-    if (((OS_task *) arg1)->priority < ((OS_task *) arg2)->priority) {
+    if (((volatile OS_task *) arg1)->priority < ((volatile OS_task *) arg2)->priority) {
         res = 1;
     }
 
@@ -612,7 +612,7 @@ void OS_init(void) {
  *      None.
  *************************************************************/
 void OS_setupTask(volatile OS_task *task, void (*fptr)(void *), void *args, 
-        uint8_t priority, uint8_t *stackBegin, uint32_t stackSize) {
+        uint8_t priority, volatile uint8_t *stackBegin, uint32_t stackSize) {
     uint8_t bit_group = priority >> 3;             /* Div 8. */
     uint8_t bit_task = priority & 0b111;           /* Mod 8. */
 
@@ -651,8 +651,9 @@ void OS_setupSemaphore(volatile OS_semaphore *sem, uint32_t initial, uint32_t ma
  *      [3] Array length.
  * Return:
  *      None.
+    Queue_init(&q->queue, array, length);
  *************************************************************/
-void OS_setupQueue(volatile OS_queue *q, void **array, uint32_t length) {
+void OS_setupQueue(volatile OS_queue *q, volatile void **array, uint32_t length) {
     Queue_init(&q->queue, array, length);
 }
 
@@ -1056,7 +1057,7 @@ OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, voi
 
     task->args = (void *) args;
 
-    Queue_status_t op_status = Queue_dequeue(&q->queue, (void **) task->args);
+    Queue_status_t op_status = Queue_dequeue(&q->queue, (volatile void **) task->args);
 
     if (op_status == Queue_status_Empty) {
         if (task->state == OS_task_state_READY) {

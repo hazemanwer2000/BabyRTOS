@@ -107,7 +107,7 @@ void OS_init(void);
  *  @param stackSize Stack size.
  */
 void OS_setupTask(volatile OS_task *task, void (*fptr)(void *), void *args, 
-        uint8_t priority, uint8_t *stackBegin, uint32_t stackSize);
+        uint8_t priority, volatile uint8_t *stackBegin, uint32_t stackSize);
 
 
 /**
@@ -125,7 +125,7 @@ void OS_setupSemaphore(volatile OS_semaphore *sem, uint32_t initial, uint32_t ma
  *  @param array Array of 'void *'.
  *  @param length Array of length.
  */
-void OS_setupQueue(volatile OS_queue *q, void **array, uint32_t length);
+void OS_setupQueue(volatile OS_queue *q, volatile void **array, uint32_t length);
 
 
 /**

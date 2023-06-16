@@ -6,6 +6,7 @@
 #include "SYSTICK.h"
 #include "GPIO.h"
 #include "OS.h"
+#include "BUTTON.h"
 
 #define TICK_US								1000
 #define SECOND								1000
@@ -22,6 +23,7 @@ RCC_status_t quickly_RCC(void) {
 			RCC_configureBusClock(RCC_bus_APB2, RCC_busPrescale_APB_1);
 
 				/* Peripherals */
+			RCC_setPeripheralClockState(RCC_peripheral_GPIOA, RCC_clockState_On);
 			RCC_setPeripheralClockState(RCC_peripheral_GPIOB, RCC_clockState_On);
 			RCC_setPeripheralClockState(RCC_peripheral_I2C1, RCC_clockState_On);
 			RCC_setPeripheralClockState(RCC_peripheral_DMA1, RCC_clockState_On);
@@ -62,25 +64,61 @@ void quickly_GPIO(void) {
 	GPIO_selectAF(pinCfg.port, pinCfg.pinNumber, GPIO_AF_4);
 }
 
-#define GUI_TASK_PRIORITY					0
+#define GUI_TASK_PRIORITY					1
 #define GUI_STACK_SIZE						4096
+#define GUI_QUEUE_CAPACITY					5
+
+#define BUTTON_TASK_PRIORITY				0
+#define BUTTON_STACK_SIZE					2560
 
 uint8_t GUI_stack[GUI_STACK_SIZE];
+uint8_t debounce_stack[BUTTON_STACK_SIZE];
 
 volatile OS_task GUI_task;
+volatile OS_task debounce_task;
 
-void GUI_taskHandler(void *args)
+volatile void *GUI_queueArr[GUI_QUEUE_CAPACITY];
+
+volatile OS_semaphore sem_I2C1;
+
+volatile OS_queue GUI_queue;
+
+typedef enum {
+	GUI_state_BouncingBall = 0
+} GUI_state_t;
+
+void I2C1_TX_Handler(void) 
 {
-	OS_delay(&GUI_task, 100);
+    OS_ISR_give(&sem_I2C1);
+}
 
-	ssd1306_Init();
+#define BB_RATE							1
+
+GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t name) {
+	static int16_t x1, x2, y1, y2;
+	static int16_t xdir = rate, ydir = rate;
+
+	switch (name) {
+		case BUTTON_name_UP:
+			if (rate < BB_RATE_MAX) {
+				rate++;
+			}
+			break;
+		case BUTTON_name_DOWN:
+			if (rate > BB_RATE_MIN) {
+				rate--;
+			}
+			break;
+	}
 
 	const uint8_t xlimit = 128 - 1, ylimit = 64 - 1;
-	const uint8_t dim = 20;
-	const uint8_t rate = 1;
+	const uint8_t dim = 5;
+	const 
 
 	int16_t x1 = 0, x2 = dim, y1 = 0, y2 = dim;
 	int16_t xdir = rate, ydir = rate;
+
+	uint8_t color = 0;
 
 	while (1) 
 	{
@@ -107,17 +145,49 @@ void GUI_taskHandler(void *args)
 			y2 = dim;
 		}
 
-		ssd1306_Fill(White);
-		ssd1306_FillRectangle(x1, y1, x2, y2, Black);
+		color = 0;
+
+		ssd1306_Fill(color);
+		ssd1306_FillRectangle(x1, y1, x2, y2, !color);
 
 		ssd1306_UpdateScreen();
 	}
 }
 
-volatile OS_semaphore sem_I2C1;
-void I2C1_TX_Handler(void) 
+void GUI_taskHandler(void *args)
 {
-    OS_ISR_give(&sem_I2C1);
+	Button_name_t buttonCurr, buttonPrev = BUTTON_name_Count, button;
+	GUI_state_t state = GUI_state_BouncingBall;
+
+	OS_delay(&GUI_task, 100);
+	
+	ssd1306_Init();
+
+	while (1) {
+		for (buttonCurr = 0; buttonCurr < BUTTON_name_Count; buttonCurr++) {
+			if(BUTTON_get(buttonCurr)) {
+				break;
+			}
+		}
+
+		button = (buttonCurr != buttonPrev ? buttonCurr : BUTTON_name_Count);
+		buttonPrev = buttonCurr;
+		
+		switch (state) {
+			case GUI_state_BouncingBall:
+				GUI_stateHandler_BouncingBall(&state, button);
+				break;
+		}
+
+		ssd1306_UpdateScreen();
+	}
+}
+
+void BUTTON_debounce_taskHandler(void *args) {
+	while (1) {
+		BUTTON_service_debounceHandling();
+		OS_delay(NULL, 5);
+	}
 }
 
 void main(void)
@@ -128,6 +198,8 @@ void main(void)
 	quickly_GPIO();
 	quickly_NVIC();
 
+	BUTTON_init();
+
 	I2C_init(I2C1);
 	I2C_initDMAMode(I2C1);
 	I2C_setCallbackTX(I2C1, &I2C1_TX_Handler);
@@ -136,8 +208,13 @@ void main(void)
 
 	OS_setupTask(&GUI_task, &GUI_taskHandler, NULL,
 		GUI_TASK_PRIORITY, GUI_stack, GUI_STACK_SIZE);
+	
+	OS_setupTask(&debounce_task, &BUTTON_debounce_taskHandler, NULL,
+		BUTTON_TASK_PRIORITY, debounce_stack, BUTTON_STACK_SIZE);
 
 	OS_setupSemaphore(&sem_I2C1, 1, 1);
+
+	OS_setupQueue(&GUI_queue, GUI_queueArr, GUI_QUEUE_CAPACITY);
 
 	OS_start();
 }
