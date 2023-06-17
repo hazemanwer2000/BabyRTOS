@@ -8,6 +8,7 @@
 #include "OS.h"
 #include "BUTTON.h"
 #include "LED.h"
+#include "Time.h"
 
 #define SSD1306_MIN_DIM						MIN(SSD1306_HEIGHT, SSD1306_WIDTH)
 
@@ -101,6 +102,9 @@ volatile OS_semaphore sem_I2C1;
 
 volatile OS_queue buttonEvent_queue;
 
+volatile Time_t stopWatchTimeTarget;
+volatile Time_t stopWatchTimeStamp;
+
 typedef enum {
 	GUI_state_BouncingBall = 0,
 	GUI_state_Logo,
@@ -174,6 +178,7 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 {
 	static int16_t radius = BB_INIT_RADIUS;
 	static uint8_t speed = BB_INIT_SPEED;
+	static Time_t currentTime = {0};
 
 	static Point_t dir = {
 		.x = 1,
@@ -187,7 +192,7 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 
 	static uint8_t color = 0;
 
-	switch (input) 
+	switch (input)
 	{
 		case BUTTON_name_UP:
 			radius += BB_STEP_RADIUS;
@@ -212,9 +217,6 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 			if (speed > BB_MAX_SPEED) {
 				speed = BB_MAX_SPEED;
 			}
-			break;
-		case BUTTON_name_ENTER:
-			color = !color;
 			break;
 	}
 
@@ -247,8 +249,13 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 		dir.y = -1;
 	}
 
+	OS_getTime(&currentTime);
+
 	ssd1306_Fill(color);
 	ssd1306_FillCircle(center.x, center.y, radius - 1, !color);
+	ssd1306_SetCursor(0, 0);
+	ssd1306_WriteChar(NUM_2_CHAR(currentTime.seconds / 10), Font_16x26, !color);
+	ssd1306_WriteChar(NUM_2_CHAR(currentTime.seconds % 10), Font_16x26, !color);
 
 	GUI_animation_Lines(color);
 }
@@ -323,7 +330,7 @@ void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
 	static char buffer[2][3] = {0};
 	static uint8_t index = 0;
 	static uint8_t slice = 0;
-	static uint8_t colors[2] = {!SW_BG_COLOR, !SW_BG_COLOR};
+	static uint8_t colors[2] = {SW_BG_COLOR, !SW_BG_COLOR};
 
 	switch (input) {
 		case BUTTON_name_UP:
@@ -348,6 +355,9 @@ void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
 			index++;
 			if (index == SW_INDEX_LIMIT) {
 				index--;
+				stopWatchTimeTarget.minutes = time[0];
+				stopWatchTimeTarget.seconds = time[1];
+				OS_getTime(&stopWatchTimeStamp);
 				*state = GUI_state_BouncingBall;
 			} else {
 				slice = SW_SLICE_COUNT;

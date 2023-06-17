@@ -9,9 +9,17 @@
 
 #include "Std_Types.h"
 
-#define SECONDS_PER_MINUTE              60
+#ifndef __TIME_H__
+#define __TIME_H__
+
 #define MINUTES_PER_HOUR                60
+
+#define SECONDS_PER_MINUTE              60
 #define SECONDS_PER_HOUR                (SECONDS_PER_MINUTE * MINUTES_PER_HOUR)
+
+#define MS_PER_SECOND                   1000
+#define MS_PER_MINUTE                   (MS_PER_SECOND * SECONDS_PER_MINUTE)
+#define MS_PER_HOUR                     (MS_PER_SECOND * SECONDS_PER_HOUR)
 
 typedef struct {
     uint32_t hours;
@@ -24,6 +32,8 @@ Time_t Time_add(Time_t t1, Time_t t2);
 
 Time_t Time_subtract(Time_t t1, Time_t t2);
 
-uint64_t Time_toSeconds(Time_t t);
+uint64_t Time_toMS(Time_t t);
 
-Time_t Time_fromSeconds(uint64_t seconds);
+Time_t Time_fromMS(uint64_t seconds);
+
+#endif  /* __TIME_H__ */

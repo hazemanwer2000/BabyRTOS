@@ -9,35 +9,37 @@
 
 #include "Time.h"
 
-uint64_t Time_toSeconds(Time_t t)
+uint64_t Time_toMS(Time_t t)
 { 
-    uint64_t seconds = 0;
+    uint64_t ms = 0;
 
-    seconds += t.seconds;
-    seconds += t.minutes * SECONDS_PER_MINUTE;
-    seconds += t.hours * SECONDS_PER_HOUR;
+    ms += t.ms;
+    ms += t.seconds * MS_PER_SECOND;
+    ms += t.minutes * MS_PER_MINUTE;
+    ms += t.hours * MS_PER_HOUR;
 }
 
-Time_t Time_fromSeconds(uint64_t seconds) {
+Time_t Time_fromMS(uint64_t ms) {
     Time_t t;
 
-    t.ms = 0;
+    t.hours = ms / MS_PER_HOUR;
+    ms -= t.hours * MS_PER_HOUR;
 
-    t.hours = seconds / SECONDS_PER_HOUR;
-    seconds -= t.hours * SECONDS_PER_HOUR;
+    t.minutes = ms / MS_PER_MINUTE;
+    ms -= t.minutes * MS_PER_MINUTE;
 
-    t.minutes = seconds / SECONDS_PER_MINUTE;
-    seconds -= t.minutes * SECONDS_PER_MINUTE;
+    t.seconds = ms / MS_PER_SECOND;
+    ms -= t.seconds * MS_PER_SECOND;
 
-    t.seconds = seconds;
+    t.ms = ms;
 
     return t;
 }
 
 Time_t Time_add(Time_t t1, Time_t t2) {
-    return Time_fromSeconds(Time_toSeconds(t1) + Time_toSeconds(t2));
+    return Time_fromMS(Time_toMS(t1) + Time_toMS(t2));
 }
 
 Time_t Time_subtract(Time_t t1, Time_t t2) {
-    return Time_fromSeconds(Time_toSeconds(t1) - Time_toSeconds(t2));
+    return Time_fromMS(Time_toMS(t1) - Time_toMS(t2));
 }

@@ -16,6 +16,7 @@
 #include "Std_Types.h"
 #include "LinkedList.h"
 #include "Queue.h"
+#include "Time.h"
 
 
 /** @enum OS_task_state_t
@@ -304,13 +305,23 @@ OS_REQ_status_t OS_criticalExit();
 
 
 /*************************************************************
- * Description: Get time
+ * Description: Get current OS-kept time.
  * Parameters:
- *      [X]
+ *      [1] Time.
  * Return:
- *      Time.
+ *      Status.
  *************************************************************/
-Time_t OS_getTime(void);
+OS_REQ_status_t OS_getTime(volatile Time_t *t);
+
+
+/*************************************************************
+ * Description: (ISR) Get current OS-kept time.
+ * Parameters:
+ *      [1] Time.
+ * Return:
+ *      Status.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_getTime(volatile Time_t *t);
 
 
 #endif /* __OS_KERNEL_H__ */

@@ -8,9 +8,7 @@
  *************************************************************/
 
 #include "OS.h"
-#include "Std_Types.h"
 #include "Bit_Utils.h"
-#include "Time.h"
 
 
 /*************************************************************
@@ -86,6 +84,8 @@ typedef enum {
     OS_REQ_id_CRITICAL_ENTER,
     OS_REQ_id_CRITICAL_EXIT,
 
+    OS_REQ_id_GET_TIME,
+
     OS_REQ_id_MAX = UINT32_MAX
 } OS_REQ_id_t;
 
@@ -151,6 +151,11 @@ typedef struct {
     volatile OS_task *task;
     volatile OS_mutex *m;
 } OS_REQ_unlock_t;
+
+typedef struct {
+    OS_REQ_base_t base;
+    volatile Time_t *time;
+} OS_REQ_getTime_t;
 
 
 /*************************************************************
@@ -252,8 +257,10 @@ SysTick_Handler (void) {
     volatile LL_list *list;
     volatile LL_node *node, *node_tmp;
     volatile OS_task *task;
+    Time_t oneMS = {.ms = 1, .seconds = 0, .minutes = 0, .hours = 0};
 
         /* Time-keeping. */
+    time = Time_add(time, oneMS);
 
         /* Count-down for delayed tasks. */
     
@@ -361,6 +368,11 @@ SVC_Handler (OS_REQ_base_t *request) {
             __asm("MSR BASEPRI, R0");
             __asm("POP {R0}");
             status = OS_REQ_status_OK;
+            break;
+        case OS_REQ_id_GET_TIME:
+            status = OS_ISR_getTime(
+                ((OS_REQ_getTime_t *) request)->time
+            );
             break;
     }
 
@@ -1253,10 +1265,35 @@ OS_REQ_status_t OS_criticalExit() {
 
 
 /*************************************************************
- * Description: Get time
+ * Description: Get current OS-kept time.
  * Parameters:
- *      [X]
+ *      [1] Time.
  * Return:
- *      Time.
+ *      Status.
  *************************************************************/
-Time_t OS_getTime();
+OS_REQ_status_t OS_getTime(volatile Time_t *t) {
+    volatile OS_REQ_getTime_t req = {
+        .base.id = OS_REQ_id_GET_TIME,
+        .time = t
+    };
+
+    SVC_CALL();
+
+    return req.base.status;
+}
+
+
+/*************************************************************
+ * Description: (ISR) Get current OS-kept time.
+ * Parameters:
+ *      [1] Time.
+ * Return:
+ *      Status.
+ *************************************************************/
+OS_REQ_status_t OS_ISR_getTime(volatile Time_t *t) {
+    OS_REQ_status_t status = OS_REQ_status_OK;
+
+    *t = time;
+    
+    return status;
+}
