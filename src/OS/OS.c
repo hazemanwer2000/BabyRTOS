@@ -154,7 +154,7 @@ typedef struct {
 
 typedef struct {
     OS_REQ_base_t base;
-    volatile Time_t *time;
+    volatile uint64_t *time;
 } OS_REQ_getTime_t;
 
 
@@ -230,7 +230,7 @@ static volatile OS_task* prevTask;
  * Description: Time.
  * 
  *************************************************************/
-static Time_t time;
+static volatile uint64_t msTracked;
 
 
 /*************************************************************
@@ -257,10 +257,9 @@ SysTick_Handler (void) {
     volatile LL_list *list;
     volatile LL_node *node, *node_tmp;
     volatile OS_task *task;
-    Time_t oneMS = {.ms = 1, .seconds = 0, .minutes = 0, .hours = 0};
 
         /* Time-keeping. */
-    time = Time_add(time, oneMS);
+    msTracked += 1;
 
         /* Count-down for delayed tasks. */
     
@@ -1271,7 +1270,7 @@ OS_REQ_status_t OS_criticalExit() {
  * Return:
  *      Status.
  *************************************************************/
-OS_REQ_status_t OS_getTime(volatile Time_t *t) {
+OS_REQ_status_t OS_getTime(volatile uint64_t *t) {
     volatile OS_REQ_getTime_t req = {
         .base.id = OS_REQ_id_GET_TIME,
         .time = t
@@ -1290,10 +1289,10 @@ OS_REQ_status_t OS_getTime(volatile Time_t *t) {
  * Return:
  *      Status.
  *************************************************************/
-OS_REQ_status_t OS_ISR_getTime(volatile Time_t *t) {
+OS_REQ_status_t OS_ISR_getTime(volatile uint64_t *t) {
     OS_REQ_status_t status = OS_REQ_status_OK;
 
-    *t = time;
+    *t = msTracked;
     
     return status;
 }

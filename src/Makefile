@@ -34,7 +34,7 @@ SIZER := arm-none-eabi-size
 TARGET := main
 
 # uC-related compiler flags
-SPECS := -mcpu=cortex-m4 -mthumb -mfloat-abi=hard
+SPECS := -mcpu=cortex-m4 -mthumb -mfloat-abi=soft
 
 # Disable, or enable compiler warnings
 WARNINGS := # -Wno-discarded-qualifiers

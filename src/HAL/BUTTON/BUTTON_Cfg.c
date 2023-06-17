@@ -46,16 +46,9 @@ BUTTON_cfg_t BUTTON_cfgs[BUTTON_name_Count] = {
 		.pinMode = GPIO_mode_Input_PullUp
 	},
 
-	[BUTTON_name_ENTER] = {
+	[BUTTON_name_START_STOP] = {
 		.port = GPIOA,
 		.pinNumber = GPIO_pinNumber_8,
-		.activeMode = BUTTON_activeMode_ActiveLow,
-		.pinMode = GPIO_mode_Input_PullUp
-	},
-
-	[BUTTON_name_BACK] = {
-		.port = GPIOA,
-		.pinNumber = GPIO_pinNumber_9,
 		.activeMode = BUTTON_activeMode_ActiveLow,
 		.pinMode = GPIO_mode_Input_PullUp
 	}

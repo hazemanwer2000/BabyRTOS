@@ -30,8 +30,7 @@ typedef enum {
 	BUTTON_name_DOWN,
 	BUTTON_name_LEFT,
 	BUTTON_name_RIGHT,
-	BUTTON_name_ENTER,
-	BUTTON_name_BACK,
+	BUTTON_name_START_STOP,
 	
 	BUTTON_name_Count,
 	BUTTON_name_MAX = UINT32_MAX

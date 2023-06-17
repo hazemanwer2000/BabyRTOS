@@ -82,7 +82,7 @@ void quickly_GPIO(void) {
 }
 
 #define GUI_TASK_PRIORITY					1
-#define GUI_STACK_SIZE						4096
+#define GUI_STACK_SIZE						10000
 #define GUI_QUEUE_CAPACITY					5
 
 #define BUTTON_TASK_PRIORITY				0
@@ -102,8 +102,8 @@ volatile OS_semaphore sem_I2C1;
 
 volatile OS_queue buttonEvent_queue;
 
-volatile Time_t stopWatchTimeTarget;
-volatile Time_t stopWatchTimeStamp;
+volatile uint64_t msTarget;
+volatile uint64_t msMarker;
 
 typedef enum {
 	GUI_state_BouncingBall = 0,
@@ -174,11 +174,55 @@ void GUI_animation_Lines(uint8_t color) {
 #define BB_STEP_RADIUS							3
 #define BB_INIT_RADIUS							((BB_MIN_RADIUS + BB_MAX_RADIUS) / 2)
 
+#define BB_BUZZING_PERIOD						300
+#define BB_BUZZING_COUNT						(2 * 5)
+
+#define BB_LOADING_THICKNESS					3
+#define BB_LOADING_DRAW							ssd1306_DrawRectangle
+#define BB_INIT_BG_COLOR						Black
+
+typedef enum {
+	BB_state_CountDown = 0,
+	BB_state_Buzzing
+} BB_state_t;
+
+void BB_loadingGraphics(double ratio, uint8_t color) {
+	static const uint8_t limits[4] = {SSD1306_WIDTH - 1, SSD1306_HEIGHT - 1, SSD1306_WIDTH - 1, SSD1306_HEIGHT - 1};
+
+	uint16_t length = ((uint16_t) (ratio * ((2 * (SSD1306_WIDTH - 1)) + (2 * (SSD1306_HEIGHT - 1)))));
+	uint8_t buckets[4] = {0};
+	uint8_t colors[4];
+	uint8_t index = 0;
+
+	for (index = 0; index < 4; index++) {
+		colors[4] = !color;
+	}
+
+	for (index = 0; length > limits[index]; index++) {
+		buckets[index] = limits[index];
+		length -= limits[index];
+		colors[index] = color;
+	}
+
+	buckets[index] = length;
+	colors[index] = color;	
+
+	BB_LOADING_DRAW(0, 0, buckets[0], BB_LOADING_THICKNESS - 1, colors[0]);
+	BB_LOADING_DRAW(SSD1306_WIDTH - BB_LOADING_THICKNESS, 0, SSD1306_WIDTH - 1, buckets[1], colors[1]);
+	BB_LOADING_DRAW(SSD1306_WIDTH - buckets[2] - 1, SSD1306_HEIGHT - BB_LOADING_THICKNESS, SSD1306_WIDTH - 1, SSD1306_HEIGHT - 1, colors[2]);
+	BB_LOADING_DRAW(0, SSD1306_HEIGHT - buckets[3] - 1, BB_LOADING_THICKNESS - 1, SSD1306_HEIGHT - 1, colors[3]);
+}
+
 void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 {
 	static int16_t radius = BB_INIT_RADIUS;
 	static uint8_t speed = BB_INIT_SPEED;
-	static Time_t currentTime = {0};
+	static volatile uint64_t msCurrent = 0;
+
+		/* State-related. */
+	static BB_state_t BB_state = BB_state_CountDown;
+	static uint8_t counter = 0;
+	static uint8_t color = BB_INIT_BG_COLOR;
 
 	static Point_t dir = {
 		.x = 1,
@@ -189,8 +233,6 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 		.x = BB_MIN_RADIUS,
 		.y = BB_MIN_RADIUS
 	};
-
-	static uint8_t color = 0;
 
 	switch (input)
 	{
@@ -217,6 +259,15 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 			if (speed > BB_MAX_SPEED) {
 				speed = BB_MAX_SPEED;
 			}
+			break;
+		case BUTTON_name_START_STOP:
+			counter = 0;
+			color = BB_INIT_BG_COLOR;
+			BB_state = BB_state_CountDown;
+
+			LED_setState(LED_name_Buzzer, LED_state_Off);
+
+			*state = GUI_state_StopWatch;
 			break;
 	}
 
@@ -249,14 +300,42 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 		dir.y = -1;
 	}
 
-	OS_getTime(&currentTime);
+	OS_getTime(&msCurrent);
+	uint64_t msDiff = msCurrent - msMarker;
+
+	switch (BB_state) {
+		case BB_state_CountDown:
+			if (msDiff >= msTarget) {
+				BB_state = BB_state_Buzzing;
+				msMarker = msCurrent;
+				LED_toggle(LED_name_Buzzer);
+				color = !color;
+			}
+			break;
+		case BB_state_Buzzing:
+			if (msDiff >= BB_BUZZING_PERIOD) {
+				msMarker = msCurrent;
+				counter++;
+
+				if (counter >= BB_BUZZING_COUNT) {
+					counter = 0;
+					color = BB_INIT_BG_COLOR;
+					BB_state = BB_state_CountDown;
+
+					*state = GUI_state_StopWatch;
+				} else {
+					LED_toggle(LED_name_Buzzer);
+				}
+			}
+			break;
+	}
 
 	ssd1306_Fill(color);
+	
+	if (BB_state == BB_state_CountDown) {
+		BB_loadingGraphics(((double) msDiff) / msTarget, !color);
+	}
 	ssd1306_FillCircle(center.x, center.y, radius - 1, !color);
-	ssd1306_SetCursor(0, 0);
-	ssd1306_WriteChar(NUM_2_CHAR(currentTime.seconds / 10), Font_16x26, !color);
-	ssd1306_WriteChar(NUM_2_CHAR(currentTime.seconds % 10), Font_16x26, !color);
-
 	GUI_animation_Lines(color);
 }
 
@@ -312,11 +391,21 @@ void GUI_stateHandler_Logo(GUI_state_t *state, BUTTON_name_t input)
 #define SW_BG_COLOR								Black
 #define SW_FONT									Font_16x26
 #define SW_CHAR_COUNT							4
-#define SW_OFFSET_Y								((SSD1306_HEIGHT - LOGO_FONT.FontHeight) / 2)
+#define SW_OFFSET_Y								((SSD1306_HEIGHT - LOGO_FONT.FontHeight) / 3)
 #define SW_OFFSET_X								((int) (SSD1306_WIDTH / 5.3))
 #define SW_SLICE_COUNT							12
 #define SW_TIME_MAX								59
-#define SW_INDEX_LIMIT							2
+#define SW_INDEX_MAX							1
+
+#define SW_MM_OFFSET_X							SW_OFFSET_X
+#define SW_MM_OFFSET_Y							(SW_OFFSET_Y * 3)
+#define SW_MM_LABEL								"MM"
+
+#define SW_SS_OFFSET_X							(SW_OFFSET_X * 3)
+#define SW_SS_OFFSET_Y							(SW_OFFSET_Y * 3)
+#define SW_SS_LABEL								"SS"
+
+#define SW_LABEL_FONT							Font_7x10
 
 void timeFormat(uint8_t num, char *buffer)
 {
@@ -328,14 +417,14 @@ void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
 {
 	static int8_t time[2] = {0};
 	static char buffer[2][3] = {0};
-	static uint8_t index = 0;
+	static int8_t index = 0;
 	static uint8_t slice = 0;
 	static uint8_t colors[2] = {SW_BG_COLOR, !SW_BG_COLOR};
 
 	switch (input) {
 		case BUTTON_name_UP:
 			time[index]++;
-			if (time[index] >= SW_TIME_MAX) {
+			if (time[index] > SW_TIME_MAX) {
 				time[index] = 0;
 			}
 			break;
@@ -346,21 +435,31 @@ void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
 			}
 			break;
 		case BUTTON_name_LEFT:
-			if (index > 0) {
-				index--;
+			index--;
+			if (index < 0) {
+				index = SW_INDEX_MAX;
 				slice = SW_SLICE_COUNT;
 			}
 			break;
 		case BUTTON_name_RIGHT:
 			index++;
-			if (index == SW_INDEX_LIMIT) {
-				index--;
-				stopWatchTimeTarget.minutes = time[0];
-				stopWatchTimeTarget.seconds = time[1];
-				OS_getTime(&stopWatchTimeStamp);
-				*state = GUI_state_BouncingBall;
-			} else {
+			if (index > SW_INDEX_MAX) {
+				index = 0;
 				slice = SW_SLICE_COUNT;
+			}
+			break;
+		case BUTTON_name_START_STOP:
+			if (time[0] || time[1]) 
+			{
+				volatile Time_t t = {0};
+
+				t.minutes = time[0];
+				t.seconds = time[1];
+				msTarget = Time_toMS(t);
+
+				OS_getTime(&msMarker);
+
+				*state = GUI_state_BouncingBall;
 			}
 			break;
 	}
@@ -380,24 +479,30 @@ void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
 	ssd1306_WriteChar(':', SW_FONT, !SW_BG_COLOR);
 	ssd1306_WriteString(buffer[1], SW_FONT, colors[1]);
 
+	ssd1306_SetCursor(SW_MM_OFFSET_X, SW_MM_OFFSET_Y);
+	ssd1306_WriteString(SW_MM_LABEL, SW_LABEL_FONT, !SW_BG_COLOR);
+
+	ssd1306_SetCursor(SW_SS_OFFSET_X, SW_SS_OFFSET_Y);
+	ssd1306_WriteString(SW_SS_LABEL, SW_LABEL_FONT, !SW_BG_COLOR);
+
 	GUI_animation_Lines(!SW_BG_COLOR);
 }
 
-#define GUI_INIT_STATE							GUI_state_StopWatch
+#define GUI_INIT_STATE							GUI_state_Logo
 
 void GUI_taskHandler(void *args)
 {
-	BUTTON_name_t button = BUTTON_name_Count;
+	volatile BUTTON_name_t button = BUTTON_name_Count;
 
 	GUI_state_t state = GUI_INIT_STATE;
 
-	OS_delay(&GUI_task, 100);
+	OS_delay(NULL, 100);
 	
 	ssd1306_Init();
 
 	while (1) {
 		if (buttonEvent_queue.queue.length > 0) {
-			OS_dequeue(NULL, &buttonEvent_queue, (void **) &button);
+			OS_dequeue(NULL, &buttonEvent_queue, (void * volatile *) &button);
 		} else {
 			button = BUTTON_name_Count;
 		}
@@ -430,8 +535,15 @@ void BUTTON_debounce_taskHandler(void *args) {
 	}
 }
 
+#define BUTTON_INPUT_DELAY						50
+#define BUTTON_IUPUT_THRESHOLD					400
+#define BUTTON_INPUT_COUNTER_LIMIT				(BUTTON_IUPUT_THRESHOLD / BUTTON_INPUT_DELAY)
+#define BUTTON_INPUT_META_CEIL					7
+#define BUTTON_INPUT_META_RATE					2
+
 void BUTTON_input_taskHandler(void *args) {
 	BUTTON_name_t buttonCurr, buttonPrev = BUTTON_name_Count, button;
+	uint8_t counter = 0, metaCounter = 0;
 
 	while (1) {
 		for (buttonCurr = 0; buttonCurr < BUTTON_name_Count; buttonCurr++) {
@@ -440,12 +552,26 @@ void BUTTON_input_taskHandler(void *args) {
 			}
 		}
 
-		button = (buttonCurr != buttonPrev ? buttonCurr : BUTTON_name_Count);
+		if (buttonCurr != buttonPrev) {
+			button = buttonCurr;
+			counter = 0;
+			metaCounter = 0;
+		} else if (counter >= (BUTTON_INPUT_COUNTER_LIMIT - metaCounter)) {
+			button = buttonCurr;
+			counter = 0;
+			metaCounter += BUTTON_INPUT_META_RATE;
+			metaCounter = min(metaCounter, BUTTON_INPUT_META_CEIL);
+		} else {
+			button = BUTTON_name_Count;
+			counter++;
+		}
 		buttonPrev = buttonCurr;
 
-		OS_enqueue(NULL, &buttonEvent_queue, (void *) button);
+		if (button != BUTTON_name_Count) {
+			OS_enqueue(NULL, &buttonEvent_queue, (void *) button);
+		}
 
-		OS_delay(NULL, 50);
+		OS_delay(NULL, BUTTON_INPUT_DELAY);
 	}
 }
 

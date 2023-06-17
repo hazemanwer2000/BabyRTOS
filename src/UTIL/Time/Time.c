@@ -17,6 +17,8 @@ uint64_t Time_toMS(Time_t t)
     ms += t.seconds * MS_PER_SECOND;
     ms += t.minutes * MS_PER_MINUTE;
     ms += t.hours * MS_PER_HOUR;
+
+    return ms;
 }
 
 Time_t Time_fromMS(uint64_t ms) {
