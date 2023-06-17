@@ -26,11 +26,7 @@
  *
  *************************************************************/
 typedef enum {
-	LED_name_1s = 0,
-	LED_name_2s,
-	LED_name_4s,
-
-	LED_name_Toggler,
+	LED_name_Buzzer = 0,
 
 	LED_name_Count
 } LED_name_t;

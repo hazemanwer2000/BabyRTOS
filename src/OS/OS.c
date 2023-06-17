@@ -10,6 +10,7 @@
 #include "OS.h"
 #include "Std_Types.h"
 #include "Bit_Utils.h"
+#include "Time.h"
 
 
 /*************************************************************
@@ -221,6 +222,13 @@ static volatile OS_task* prevTask;
 
 
 /*************************************************************
+ * Description: Time.
+ * 
+ *************************************************************/
+static Time_t time;
+
+
+/*************************************************************
  * Description: Static function declarations.
  * 
  *************************************************************/
@@ -244,6 +252,8 @@ SysTick_Handler (void) {
     volatile LL_list *list;
     volatile LL_node *node, *node_tmp;
     volatile OS_task *task;
+
+        /* Time-keeping. */
 
         /* Count-down for delayed tasks. */
     
@@ -1240,3 +1250,13 @@ OS_REQ_status_t OS_criticalExit() {
 
     return req.status;
 }
+
+
+/*************************************************************
+ * Description: Get time
+ * Parameters:
+ *      [X]
+ * Return:
+ *      Time.
+ *************************************************************/
+Time_t OS_getTime();

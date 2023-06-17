@@ -17,8 +17,5 @@
  *
  *************************************************************/
 LED_cfg_t LED_cfgs[LED_name_Count] = {
-	[LED_name_1s] = {GPIOA, GPIO_pinNumber_0, LED_activeMode_ActiveHigh},
-	[LED_name_2s] = {GPIOA, GPIO_pinNumber_1, LED_activeMode_ActiveHigh},
-	[LED_name_4s] = {GPIOA, GPIO_pinNumber_2, LED_activeMode_ActiveHigh},
-	[LED_name_Toggler] = {GPIOA, GPIO_pinNumber_3, LED_activeMode_ActiveHigh}
+	[LED_name_Buzzer] = {GPIOA, GPIO_pinNumber_10, LED_activeMode_ActiveHigh}
 };

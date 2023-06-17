@@ -288,7 +288,7 @@ OS_REQ_status_t OS_ISR_unlock(volatile OS_task *task, volatile OS_mutex *m);
  * Parameters:
  *      [X]
  * Return:
- *      None.
+ *      Status.
  *************************************************************/
 OS_REQ_status_t OS_criticalEnter();
 
@@ -298,9 +298,19 @@ OS_REQ_status_t OS_criticalEnter();
  * Parameters:
  *      [X]
  * Return:
- *      None.
+ *      Status.
  *************************************************************/
 OS_REQ_status_t OS_criticalExit();
+
+
+/*************************************************************
+ * Description: Get time
+ * Parameters:
+ *      [X]
+ * Return:
+ *      Time.
+ *************************************************************/
+Time_t OS_getTime(void);
 
 
 #endif /* __OS_KERNEL_H__ */

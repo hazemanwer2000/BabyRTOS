@@ -7,8 +7,11 @@
 #include "GPIO.h"
 #include "OS.h"
 #include "BUTTON.h"
+#include "LED.h"
 
 #define SSD1306_MIN_DIM						MIN(SSD1306_HEIGHT, SSD1306_WIDTH)
+
+#define NUM_2_CHAR(X)						((X) + '0')
 
 #define MAX(X, Y)							((X) > (Y) ? (X) : (Y))
 #define MIN(X, Y)							((X) < (Y) ? (X) : (Y))
@@ -100,7 +103,8 @@ volatile OS_queue buttonEvent_queue;
 
 typedef enum {
 	GUI_state_BouncingBall = 0,
-	GUI_state_Logo
+	GUI_state_Logo,
+	GUI_state_StopWatch
 } GUI_state_t;
 
 typedef struct {
@@ -250,15 +254,19 @@ void GUI_stateHandler_BouncingBall(GUI_state_t *state, BUTTON_name_t input)
 }
 
 #define LOGO_STRING								"BabyRTOS."
-#define LOGO_CHAR_COUNT							sizeof(LOGO_STRING)
+#define LOGO_CHAR_COUNT							(sizeof(LOGO_STRING) - 1)
 #define LOGO_BG_COLOR							Black
 #define LOGO_FRAME_COUNT						(300)
 #define LOGO_SLICT_COUNT						(LOGO_FRAME_COUNT / ((int) (LOGO_CHAR_COUNT * 1.75)))
 #define LOGO_CURSOR_FLICKER_RATE				((LOGO_SLICT_COUNT * 3) / 4)
-#define LOGO_OFFSET_X							16
-#define LOGO_OFFSET_Y							24
+#define LOGO_FONT								Font_11x18
+#define LOGO_OFFSET_Y							((SSD1306_HEIGHT - LOGO_FONT.FontHeight) / 2)
+#define LOGO_OFFSET_X							((SSD1306_WIDTH - (LOGO_FONT.FontWidth * LOGO_CHAR_COUNT)) / 2)
+#define LOGO_NEXT_STATE							GUI_state_StopWatch
 
-void GUI_stateHandler_Logo(GUI_state_t *state, BUTTON_name_t input) {
+void GUI_stateHandler_Logo(GUI_state_t *state, BUTTON_name_t input)
+{
+	
 	static uint32_t timeout = 0;
 	static uint32_t slice = 0;
 	static uint32_t i = 0;
@@ -266,7 +274,7 @@ void GUI_stateHandler_Logo(GUI_state_t *state, BUTTON_name_t input) {
 	static const char *logoString = LOGO_STRING;
 	static uint8_t cursorColor = 0;
 
-	if (i < (LOGO_CHAR_COUNT - 1)) {
+	if (i < LOGO_CHAR_COUNT) {
 		if (slice >= LOGO_SLICT_COUNT) {
 			buffer[i] = logoString[i];
 			buffer[i+1] = '\0';
@@ -283,22 +291,95 @@ void GUI_stateHandler_Logo(GUI_state_t *state, BUTTON_name_t input) {
 
 	ssd1306_Fill(LOGO_BG_COLOR);
 	ssd1306_SetCursor(LOGO_OFFSET_X, LOGO_OFFSET_Y);
-	ssd1306_WriteString(buffer, Font_11x18, !LOGO_BG_COLOR);
+	ssd1306_WriteString(buffer, LOGO_FONT, !LOGO_BG_COLOR);
 	if (cursorColor == !LOGO_BG_COLOR) {
-		ssd1306_WriteChar('|', Font_11x18, cursorColor);
+		ssd1306_WriteChar('|', LOGO_FONT, cursorColor);
 	}
 	GUI_animation_Lines(!LOGO_BG_COLOR);
 
 	if (++timeout >= LOGO_FRAME_COUNT) {
-		*state = GUI_state_BouncingBall;
+		*state = LOGO_NEXT_STATE;
 	}
 }
+
+#define SW_BG_COLOR								Black
+#define SW_FONT									Font_16x26
+#define SW_CHAR_COUNT							4
+#define SW_OFFSET_Y								((SSD1306_HEIGHT - LOGO_FONT.FontHeight) / 2)
+#define SW_OFFSET_X								((int) (SSD1306_WIDTH / 5.3))
+#define SW_SLICE_COUNT							12
+#define SW_TIME_MAX								59
+#define SW_INDEX_LIMIT							2
+
+void timeFormat(uint8_t num, char *buffer)
+{
+	buffer[0] = NUM_2_CHAR(num / 10);
+	buffer[1] = NUM_2_CHAR(num % 10);
+}
+
+void GUI_stateHandler_StopWatch(GUI_state_t *state, BUTTON_name_t input)
+{
+	static int8_t time[2] = {0};
+	static char buffer[2][3] = {0};
+	static uint8_t index = 0;
+	static uint8_t slice = 0;
+	static uint8_t colors[2] = {!SW_BG_COLOR, !SW_BG_COLOR};
+
+	switch (input) {
+		case BUTTON_name_UP:
+			time[index]++;
+			if (time[index] >= SW_TIME_MAX) {
+				time[index] = 0;
+			}
+			break;
+		case BUTTON_name_DOWN:
+			time[index]--;
+			if (time[index] < 0) {
+				time[index] = SW_TIME_MAX;
+			}
+			break;
+		case BUTTON_name_LEFT:
+			if (index > 0) {
+				index--;
+				slice = SW_SLICE_COUNT;
+			}
+			break;
+		case BUTTON_name_RIGHT:
+			index++;
+			if (index == SW_INDEX_LIMIT) {
+				index--;
+				*state = GUI_state_BouncingBall;
+			} else {
+				slice = SW_SLICE_COUNT;
+			}
+			break;
+	}
+
+	if (++slice >= SW_SLICE_COUNT) {
+		colors[index] = !colors[index];
+		colors[!index] = !SW_BG_COLOR;
+		slice = 0;
+	}
+
+	timeFormat(time[0], buffer[0]);
+	timeFormat(time[1], buffer[1]);
+
+	ssd1306_Fill(SW_BG_COLOR);
+	ssd1306_SetCursor(SW_OFFSET_X, SW_OFFSET_Y);
+	ssd1306_WriteString(buffer[0], SW_FONT, colors[0]);
+	ssd1306_WriteChar(':', SW_FONT, !SW_BG_COLOR);
+	ssd1306_WriteString(buffer[1], SW_FONT, colors[1]);
+
+	GUI_animation_Lines(!SW_BG_COLOR);
+}
+
+#define GUI_INIT_STATE							GUI_state_StopWatch
 
 void GUI_taskHandler(void *args)
 {
 	BUTTON_name_t button = BUTTON_name_Count;
 
-	GUI_state_t state = GUI_state_Logo;
+	GUI_state_t state = GUI_INIT_STATE;
 
 	OS_delay(&GUI_task, 100);
 	
@@ -317,6 +398,9 @@ void GUI_taskHandler(void *args)
 				break;
 			case GUI_state_BouncingBall:
 				GUI_stateHandler_BouncingBall(&state, button);
+				break;
+			case GUI_state_StopWatch:
+				GUI_stateHandler_StopWatch(&state, button);
 				break;
 		}
 
@@ -351,7 +435,7 @@ void BUTTON_input_taskHandler(void *args) {
 
 		OS_enqueue(NULL, &buttonEvent_queue, (void *) button);
 
-		OS_delay(NULL, 100);
+		OS_delay(NULL, 50);
 	}
 }
 
@@ -364,6 +448,7 @@ void main(void)
 	quickly_NVIC();
 
 	BUTTON_init();
+	LED_init();
 
 	I2C_init(I2C1);
 	I2C_initDMAMode(I2C1);
