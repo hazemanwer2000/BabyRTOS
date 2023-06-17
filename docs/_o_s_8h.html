@@ -520,6 +520,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -546,6 +547,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -572,6 +574,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -598,6 +601,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -635,6 +639,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -672,6 +677,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -698,6 +704,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -724,6 +731,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -761,6 +769,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -798,6 +807,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -842,6 +852,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -886,6 +897,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -930,6 +942,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -974,6 +987,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1011,6 +1025,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1048,6 +1063,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1085,6 +1101,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1122,6 +1139,7 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1141,6 +1159,7 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Request to disable all interrupts (except SVC, and Fault exceptions), before entering a critical section. </p>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
@@ -1180,6 +1199,12 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Request the current time, OS-maintained since a hard-reset occured, in milli-seconds. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">t</td><td>Pointer to 'uint64_t'. </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -1200,6 +1225,13 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>(ISR-specific) Request the current time, OS-maintained since a hard-reset occured, in milli-seconds. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramdir">[out]</td><td class="paramname">t</td><td>Pointer to 'uint64_t'. </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Request status. </dd></dl>
 
 </div>
 </div>
