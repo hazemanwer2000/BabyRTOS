@@ -45,10 +45,8 @@ Discarded input sections
  .text          0x0000000000000000        0x0 main.o
  .data          0x0000000000000000        0x0 main.o
  .bss           0x0000000000000000        0x0 main.o
- .bss.debounce_stack
-                0x0000000000000000      0xa00 main.o
- .bss.debounce_task
-                0x0000000000000000       0x20 main.o
+ .text.min      0x0000000000000000        0x8 main.o
+ .text.max      0x0000000000000000        0x8 main.o
  .group         0x0000000000000000        0xc OS/OS.o
  .group         0x0000000000000000        0xc OS/OS.o
  .group         0x0000000000000000        0xc OS/OS.o
@@ -62,10 +60,8 @@ Discarded input sections
  .text.OS_wait  0x0000000000000000       0x2c OS/OS.o
  .text.OS_ready
                 0x0000000000000000       0x40 OS/OS.o
- .text.OS_enqueue
-                0x0000000000000000       0x54 OS/OS.o
- .text.OS_dequeue
-                0x0000000000000000       0x54 OS/OS.o
+ .text.OS_give  0x0000000000000000       0x2e OS/OS.o
+ .text.OS_take  0x0000000000000000       0x40 OS/OS.o
  .text.OS_lock  0x0000000000000000       0x40 OS/OS.o
  .text.OS_unlock
                 0x0000000000000000       0x40 OS/OS.o
@@ -121,14 +117,6 @@ Discarded input sections
                 0x0000000000000000       0x10 HAL/ssd1306/ssd1306.o
  .text.ssd1306_FillBuffer
                 0x0000000000000000       0x20 HAL/ssd1306/ssd1306.o
- .text.ssd1306_WriteChar
-                0x0000000000000000       0xb0 HAL/ssd1306/ssd1306.o
- .text.ssd1306_WriteString
-                0x0000000000000000       0x2e HAL/ssd1306/ssd1306.o
- .text.ssd1306_SetCursor
-                0x0000000000000000        0xc HAL/ssd1306/ssd1306.o
- .text.ssd1306_Line
-                0x0000000000000000       0x8a HAL/ssd1306/ssd1306.o
  .text.ssd1306_Polyline
                 0x0000000000000000       0x40 HAL/ssd1306/ssd1306.o
  .text.ssd1306_DrawArc
@@ -137,10 +125,10 @@ Discarded input sections
                 0x0000000000000000      0x1e8 HAL/ssd1306/ssd1306.o
  .text.ssd1306_DrawCircle
                 0x0000000000000000       0xac HAL/ssd1306/ssd1306.o
- .text.ssd1306_FillCircle
-                0x0000000000000000       0x94 HAL/ssd1306/ssd1306.o
  .text.ssd1306_DrawRectangle
                 0x0000000000000000       0x52 HAL/ssd1306/ssd1306.o
+ .text.ssd1306_FillRectangle
+                0x0000000000000000       0x56 HAL/ssd1306/ssd1306.o
  .text.ssd1306_DrawBitmap
                 0x0000000000000000       0x82 HAL/ssd1306/ssd1306.o
  .text.ssd1306_GetDisplayOn
@@ -166,8 +154,6 @@ Discarded input sections
  .text          0x0000000000000000        0x0 HAL/ssd1306/ssd1306_fonts.o
  .data          0x0000000000000000        0x0 HAL/ssd1306/ssd1306_fonts.o
  .bss           0x0000000000000000        0x0 HAL/ssd1306/ssd1306_fonts.o
- .data.Font_11x18
-                0x0000000000000000        0x8 HAL/ssd1306/ssd1306_fonts.o
  .data.Font_16x24
                 0x0000000000000000        0x8 HAL/ssd1306/ssd1306_fonts.o
  .data.Font_16x26
@@ -176,8 +162,6 @@ Discarded input sections
                 0x0000000000000000        0x8 HAL/ssd1306/ssd1306_fonts.o
  .data.Font_7x10
                 0x0000000000000000        0x8 HAL/ssd1306/ssd1306_fonts.o
- .rodata.Font11x18
-                0x0000000000000000      0xd5c HAL/ssd1306/ssd1306_fonts.o
  .rodata.Font16x24
                 0x0000000000000000     0x11d0 HAL/ssd1306/ssd1306_fonts.o
  .rodata.Font16x26
@@ -186,20 +170,9 @@ Discarded input sections
                 0x0000000000000000      0x5f0 HAL/ssd1306/ssd1306_fonts.o
  .rodata.Font7x10
                 0x0000000000000000      0x76c HAL/ssd1306/ssd1306_fonts.o
- .debug_info    0x0000000000000000      0x21e HAL/ssd1306/ssd1306_fonts.o
- .debug_abbrev  0x0000000000000000       0xbe HAL/ssd1306/ssd1306_fonts.o
- .debug_aranges
-                0x0000000000000000       0x18 HAL/ssd1306/ssd1306_fonts.o
- .debug_macro   0x0000000000000000       0x50 HAL/ssd1306/ssd1306_fonts.o
  .debug_macro   0x0000000000000000      0xa60 HAL/ssd1306/ssd1306_fonts.o
  .debug_macro   0x0000000000000000      0x34e HAL/ssd1306/ssd1306_fonts.o
- .debug_macro   0x0000000000000000       0x1c HAL/ssd1306/ssd1306_fonts.o
  .debug_macro   0x0000000000000000       0x2e HAL/ssd1306/ssd1306_fonts.o
- .debug_line    0x0000000000000000       0xd5 HAL/ssd1306/ssd1306_fonts.o
- .debug_str     0x0000000000000000     0x38f3 HAL/ssd1306/ssd1306_fonts.o
- .comment       0x0000000000000000       0x34 HAL/ssd1306/ssd1306_fonts.o
- .ARM.attributes
-                0x0000000000000000       0x37 HAL/ssd1306/ssd1306_fonts.o
  .group         0x0000000000000000        0xc HAL/LED/LED.o
  .group         0x0000000000000000        0xc HAL/LED/LED.o
  .group         0x0000000000000000        0xc HAL/LED/LED.o
@@ -273,26 +246,16 @@ Discarded input sections
  .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON.o
  .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON.o
  .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON.o
+ .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON.o
  .text          0x0000000000000000        0x0 HAL/BUTTON/BUTTON.o
  .data          0x0000000000000000        0x0 HAL/BUTTON/BUTTON.o
  .bss           0x0000000000000000        0x0 HAL/BUTTON/BUTTON.o
- .text.BUTTON_getQuick
-                0x0000000000000000       0x20 HAL/BUTTON/BUTTON.o
- .text.BUTTON_service_debounceHandling
-                0x0000000000000000       0x4c HAL/BUTTON/BUTTON.o
- .text.BUTTON_get
-                0x0000000000000000        0xc HAL/BUTTON/BUTTON.o
- .bss.BUTTON_debouceCounters
-                0x0000000000000000        0x6 HAL/BUTTON/BUTTON.o
- .bss.BUTTON_previousStates
-                0x0000000000000000        0x6 HAL/BUTTON/BUTTON.o
- .bss.BUTTON_states
-                0x0000000000000000        0x6 HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000      0xa60 HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000      0x34e HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000       0x16 HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000       0x22 HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000      0x1dd HAL/BUTTON/BUTTON.o
+ .debug_macro   0x0000000000000000       0x10 HAL/BUTTON/BUTTON.o
  .debug_macro   0x0000000000000000       0x10 HAL/BUTTON/BUTTON.o
  .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON_Cfg.o
  .group         0x0000000000000000        0xc HAL/BUTTON/BUTTON_Cfg.o
@@ -574,8 +537,6 @@ Discarded input sections
                 0x0000000000000000       0x2a MCAL/GPIO/GPIO.o
  .text.GPIO_setPortValue
                 0x0000000000000000        0x4 MCAL/GPIO/GPIO.o
- .text.GPIO_readPinState
-                0x0000000000000000        0xa MCAL/GPIO/GPIO.o
  .text.GPIO_readPortValue
                 0x0000000000000000        0x6 MCAL/GPIO/GPIO.o
  .debug_macro   0x0000000000000000      0xa60 MCAL/GPIO/GPIO.o
@@ -617,6 +578,8 @@ Discarded input sections
  .text          0x0000000000000000        0x0 MCAL/I2C/I2C.o
  .data          0x0000000000000000        0x0 MCAL/I2C/I2C.o
  .bss           0x0000000000000000        0x0 MCAL/I2C/I2C.o
+ .text.I2C_masterWrite_DMA
+                0x0000000000000000       0xa0 MCAL/I2C/I2C.o
  .debug_macro   0x0000000000000000      0xa60 MCAL/I2C/I2C.o
  .debug_macro   0x0000000000000000      0x34e MCAL/I2C/I2C.o
  .debug_macro   0x0000000000000000       0x16 MCAL/I2C/I2C.o
@@ -669,6 +632,14 @@ Discarded input sections
  .text          0x0000000000000000        0x0 MCAL/DMA/DMA.o
  .data          0x0000000000000000        0x0 MCAL/DMA/DMA.o
  .bss           0x0000000000000000        0x0 MCAL/DMA/DMA.o
+ .text.DMA_enable
+                0x0000000000000000       0x24 MCAL/DMA/DMA.o
+ .text.DMA_setCallback
+                0x0000000000000000       0x10 MCAL/DMA/DMA.o
+ .text.DMA_setItemCount
+                0x0000000000000000       0x18 MCAL/DMA/DMA.o
+ .text.DMA_setMemoryAddress
+                0x0000000000000000       0x18 MCAL/DMA/DMA.o
  .debug_macro   0x0000000000000000      0xa60 MCAL/DMA/DMA.o
  .debug_macro   0x0000000000000000      0x34e MCAL/DMA/DMA.o
  .debug_macro   0x0000000000000000       0x16 MCAL/DMA/DMA.o
@@ -736,20 +707,8 @@ Discarded input sections
  .debug_frame   0x0000000000000000       0x24 /usr/lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
  .ARM.attributes
                 0x0000000000000000       0x1e /usr/lib/gcc/arm-none-eabi/10.3.1/thumb/v7e-m+fp/hard/libgcc.a(_arm_truncdfsf2.o)
- .text          0x0000000000000000        0x8 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_info    0x0000000000000000       0xa3 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_abbrev  0x0000000000000000       0x5a /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_loc     0x0000000000000000       0x25 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_aranges
-                0x0000000000000000       0x20 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_line    0x0000000000000000       0xac /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_str     0x0000000000000000      0x19b /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .comment       0x0000000000000000       0x34 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .debug_frame   0x0000000000000000       0x20 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
- .ARM.attributes
-                0x0000000000000000       0x34 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
  .text          0x0000000000000000      0x134 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-memcpy.o)
  .data          0x0000000000000000        0x0 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-memcpy.o)
  .bss           0x0000000000000000        0x0 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-memcpy.o)
@@ -891,607 +850,706 @@ END GROUP
                 0x0000000008000388                DMA2_Stream2_IRQHandler
                 0x00000000080003a0                DMA2_Stream7_IRQHandler
 
-.text           0x00000000080003b8     0x144c
+.text           0x00000000080003b8     0x2660
  *(.text .text.*)
  .text.I2C1_TX_Handler
                 0x00000000080003b8       0x10 main.o
                 0x00000000080003b8                I2C1_TX_Handler
- .text.GUI_taskHandler
-                0x00000000080003c8       0x98 main.o
-                0x00000000080003c8                GUI_taskHandler
+ .text.BUTTON_debounce_taskHandler
+                0x00000000080003c8       0x10 main.o
+                0x00000000080003c8                BUTTON_debounce_taskHandler
+ .text.BUTTON_input_taskHandler
+                0x00000000080003d8       0x3c main.o
+                0x00000000080003d8                BUTTON_input_taskHandler
  .text.quickly_RCC
-                0x0000000008000460       0x50 main.o
-                0x0000000008000460                quickly_RCC
+                0x0000000008000414       0x58 main.o
+                0x0000000008000414                quickly_RCC
  .text.quickly_SYSTICK
-                0x00000000080004b0       0x12 main.o
-                0x00000000080004b0                quickly_SYSTICK
+                0x000000000800046c       0x12 main.o
+                0x000000000800046c                quickly_SYSTICK
  .text.quickly_NVIC
-                0x00000000080004c2       0x12 main.o
-                0x00000000080004c2                quickly_NVIC
+                0x000000000800047e       0x12 main.o
+                0x000000000800047e                quickly_NVIC
  .text.quickly_GPIO
-                0x00000000080004d4       0x44 main.o
-                0x00000000080004d4                quickly_GPIO
- .text.main     0x0000000008000518       0x88 main.o
-                0x0000000008000518                main
+                0x0000000008000490       0x44 main.o
+                0x0000000008000490                quickly_GPIO
+ .text.GUI_pointLimit
+                0x00000000080004d4       0x32 main.o
+                0x00000000080004d4                GUI_pointLimit
+ *fill*         0x0000000008000506        0x2 
+ .text.GUI_animation_Lines
+                0x0000000008000508       0x88 main.o
+                0x0000000008000508                GUI_animation_Lines
+ .text.GUI_stateHandler_BouncingBall
+                0x0000000008000590      0x15c main.o
+                0x0000000008000590                GUI_stateHandler_BouncingBall
+ .text.GUI_stateHandler_Logo
+                0x00000000080006ec       0xbc main.o
+                0x00000000080006ec                GUI_stateHandler_Logo
+ .text.GUI_taskHandler
+                0x00000000080007a8       0x64 main.o
+                0x00000000080007a8                GUI_taskHandler
+ .text.main     0x000000000800080c       0xc8 main.o
+                0x000000000800080c                main
  .text.OS_idleTask
-                0x00000000080005a0        0x2 OS/OS.o
- *fill*         0x00000000080005a2        0x2 
+                0x00000000080008d4        0x2 OS/OS.o
+ *fill*         0x00000000080008d6        0x2 
  .text.OS_getHighestPriorityTasks
-                0x00000000080005a4       0x34 OS/OS.o
+                0x00000000080008d8       0x34 OS/OS.o
  .text.OS_getHighestPriorityTask
-                0x00000000080005d8        0xc OS/OS.o
+                0x000000000800090c        0xc OS/OS.o
  .text.OS_schedule
-                0x00000000080005e4       0x38 OS/OS.o
+                0x0000000008000918       0x38 OS/OS.o
  .text.OS_priorityOn
-                0x000000000800061c       0x38 OS/OS.o
+                0x0000000008000950       0x38 OS/OS.o
  .text.OS_priorityOff
-                0x0000000008000654       0x34 OS/OS.o
+                0x0000000008000988       0x34 OS/OS.o
  .text.OS_comparator
-                0x0000000008000688       0x10 OS/OS.o
+                0x00000000080009bc       0x14 OS/OS.o
  .text.OS_stackInit
-                0x0000000008000698       0x6e OS/OS.o
- *fill*         0x0000000008000706        0x2 
+                0x00000000080009d0       0x6e OS/OS.o
+ *fill*         0x0000000008000a3e        0x2 
  .text.OS_makeTaskWait
-                0x0000000008000708       0x34 OS/OS.o
+                0x0000000008000a40       0x34 OS/OS.o
  .text.OS_makeTaskReady
-                0x000000000800073c       0x24 OS/OS.o
+                0x0000000008000a74       0x24 OS/OS.o
  .text.OS_setupTask
-                0x0000000008000760       0x70 OS/OS.o
-                0x0000000008000760                OS_setupTask
- .text.OS_init  0x00000000080007d0       0x54 OS/OS.o
-                0x00000000080007d0                OS_init
+                0x0000000008000a98       0x70 OS/OS.o
+                0x0000000008000a98                OS_setupTask
+ .text.OS_init  0x0000000008000b08       0x54 OS/OS.o
+                0x0000000008000b08                OS_init
  .text.OS_setupSemaphore
-                0x0000000008000824        0x6 OS/OS.o
-                0x0000000008000824                OS_setupSemaphore
+                0x0000000008000b5c        0x6 OS/OS.o
+                0x0000000008000b5c                OS_setupSemaphore
  .text.OS_setupQueue
-                0x000000000800082a        0x8 OS/OS.o
-                0x000000000800082a                OS_setupQueue
- *fill*         0x0000000008000832        0x2 
+                0x0000000008000b62        0x8 OS/OS.o
+                0x0000000008000b62                OS_setupQueue
+ *fill*         0x0000000008000b6a        0x2 
  .text.OS_start
-                0x0000000008000834       0x54 OS/OS.o
-                0x0000000008000834                OS_start
+                0x0000000008000b6c       0x54 OS/OS.o
+                0x0000000008000b6c                OS_start
  .text.OS_ISR_wait
-                0x0000000008000888       0x2c OS/OS.o
-                0x0000000008000888                OS_ISR_wait
+                0x0000000008000bc0       0x2c OS/OS.o
+                0x0000000008000bc0                OS_ISR_wait
  .text.OS_ISR_ready
-                0x00000000080008b4       0x30 OS/OS.o
-                0x00000000080008b4                OS_ISR_ready
+                0x0000000008000bec       0x30 OS/OS.o
+                0x0000000008000bec                OS_ISR_ready
  .text.OS_delay
-                0x00000000080008e4       0x40 OS/OS.o
-                0x00000000080008e4                OS_delay
+                0x0000000008000c1c       0x40 OS/OS.o
+                0x0000000008000c1c                OS_delay
  .text.OS_ISR_delay
-                0x0000000008000924       0x2c OS/OS.o
-                0x0000000008000924                OS_ISR_delay
- .text.OS_give  0x0000000008000950       0x2e OS/OS.o
-                0x0000000008000950                OS_give
+                0x0000000008000c5c       0x2c OS/OS.o
+                0x0000000008000c5c                OS_ISR_delay
  .text.OS_ISR_give
-                0x000000000800097e       0x38 OS/OS.o
-                0x000000000800097e                OS_ISR_give
- *fill*         0x00000000080009b6        0x2 
- .text.OS_take  0x00000000080009b8       0x40 OS/OS.o
-                0x00000000080009b8                OS_take
+                0x0000000008000c88       0x38 OS/OS.o
+                0x0000000008000c88                OS_ISR_give
  .text.OS_ISR_take
-                0x00000000080009f8       0x40 OS/OS.o
-                0x00000000080009f8                OS_ISR_take
+                0x0000000008000cc0       0x40 OS/OS.o
+                0x0000000008000cc0                OS_ISR_take
+ .text.OS_enqueue
+                0x0000000008000d00       0x54 OS/OS.o
+                0x0000000008000d00                OS_enqueue
  .text.OS_ISR_enqueue
-                0x0000000008000a38       0x64 OS/OS.o
-                0x0000000008000a38                OS_ISR_enqueue
+                0x0000000008000d54       0x64 OS/OS.o
+                0x0000000008000d54                OS_ISR_enqueue
+ .text.OS_dequeue
+                0x0000000008000db8       0x54 OS/OS.o
+                0x0000000008000db8                OS_dequeue
  .text.OS_ISR_dequeue
-                0x0000000008000a9c       0x6c OS/OS.o
-                0x0000000008000a9c                OS_ISR_dequeue
+                0x0000000008000e0c       0x6c OS/OS.o
+                0x0000000008000e0c                OS_ISR_dequeue
  .text.OS_ISR_lock
-                0x0000000008000b08       0x5c OS/OS.o
-                0x0000000008000b08                OS_ISR_lock
+                0x0000000008000e78       0x5c OS/OS.o
+                0x0000000008000e78                OS_ISR_lock
  .text.OS_ISR_unlock
-                0x0000000008000b64       0x54 OS/OS.o
-                0x0000000008000b64                OS_ISR_unlock
+                0x0000000008000ed4       0x54 OS/OS.o
+                0x0000000008000ed4                OS_ISR_unlock
  .text.OS_criticalEnter
-                0x0000000008000bb8       0x1e OS/OS.o
-                0x0000000008000bb8                OS_criticalEnter
+                0x0000000008000f28       0x1e OS/OS.o
+                0x0000000008000f28                OS_criticalEnter
  .text.OS_criticalExit
-                0x0000000008000bd6       0x1e OS/OS.o
-                0x0000000008000bd6                OS_criticalExit
+                0x0000000008000f46       0x1e OS/OS.o
+                0x0000000008000f46                OS_criticalExit
  .text.ssd1306_WriteCommand
-                0x0000000008000bf4       0x3c HAL/ssd1306/ssd1306.o
-                0x0000000008000bf4                ssd1306_WriteCommand
+                0x0000000008000f64       0x28 HAL/ssd1306/ssd1306.o
+                0x0000000008000f64                ssd1306_WriteCommand
  .text.ssd1306_WriteData
-                0x0000000008000c30       0x30 HAL/ssd1306/ssd1306.o
-                0x0000000008000c30                ssd1306_WriteData
+                0x0000000008000f8c       0x22 HAL/ssd1306/ssd1306.o
+                0x0000000008000f8c                ssd1306_WriteData
+ *fill*         0x0000000008000fae        0x2 
  .text.ssd1306_DoubleBuffer
-                0x0000000008000c60       0x40 HAL/ssd1306/ssd1306.o
-                0x0000000008000c60                ssd1306_DoubleBuffer
+                0x0000000008000fb0       0x40 HAL/ssd1306/ssd1306.o
+                0x0000000008000fb0                ssd1306_DoubleBuffer
  .text.ssd1306_Fill
-                0x0000000008000ca0       0x24 HAL/ssd1306/ssd1306.o
-                0x0000000008000ca0                ssd1306_Fill
+                0x0000000008000ff0       0x24 HAL/ssd1306/ssd1306.o
+                0x0000000008000ff0                ssd1306_Fill
  .text.ssd1306_UpdateScreen
-                0x0000000008000cc4       0x3c HAL/ssd1306/ssd1306.o
-                0x0000000008000cc4                ssd1306_UpdateScreen
+                0x0000000008001014       0x3c HAL/ssd1306/ssd1306.o
+                0x0000000008001014                ssd1306_UpdateScreen
  .text.ssd1306_DrawPixel
-                0x0000000008000d00       0x48 HAL/ssd1306/ssd1306.o
-                0x0000000008000d00                ssd1306_DrawPixel
- .text.ssd1306_FillRectangle
-                0x0000000008000d48       0x56 HAL/ssd1306/ssd1306.o
-                0x0000000008000d48                ssd1306_FillRectangle
+                0x0000000008001050       0x48 HAL/ssd1306/ssd1306.o
+                0x0000000008001050                ssd1306_DrawPixel
+ .text.ssd1306_WriteChar
+                0x0000000008001098       0xb0 HAL/ssd1306/ssd1306.o
+                0x0000000008001098                ssd1306_WriteChar
+ .text.ssd1306_WriteString
+                0x0000000008001148       0x2e HAL/ssd1306/ssd1306.o
+                0x0000000008001148                ssd1306_WriteString
+ *fill*         0x0000000008001176        0x2 
+ .text.ssd1306_SetCursor
+                0x0000000008001178        0xc HAL/ssd1306/ssd1306.o
+                0x0000000008001178                ssd1306_SetCursor
+ .text.ssd1306_Line
+                0x0000000008001184       0x8a HAL/ssd1306/ssd1306.o
+                0x0000000008001184                ssd1306_Line
+ .text.ssd1306_FillCircle
+                0x000000000800120e       0x94 HAL/ssd1306/ssd1306.o
+                0x000000000800120e                ssd1306_FillCircle
  .text.ssd1306_SetContrast
-                0x0000000008000d9e       0x12 HAL/ssd1306/ssd1306.o
-                0x0000000008000d9e                ssd1306_SetContrast
+                0x00000000080012a2       0x12 HAL/ssd1306/ssd1306.o
+                0x00000000080012a2                ssd1306_SetContrast
  .text.ssd1306_SetDisplayOn
-                0x0000000008000db0       0x20 HAL/ssd1306/ssd1306.o
-                0x0000000008000db0                ssd1306_SetDisplayOn
+                0x00000000080012b4       0x20 HAL/ssd1306/ssd1306.o
+                0x00000000080012b4                ssd1306_SetDisplayOn
  .text.ssd1306_Init
-                0x0000000008000dd0       0xc4 HAL/ssd1306/ssd1306.o
-                0x0000000008000dd0                ssd1306_Init
+                0x00000000080012d4       0xc4 HAL/ssd1306/ssd1306.o
+                0x00000000080012d4                ssd1306_Init
+ .text.BUTTON_getQuick
+                0x0000000008001398       0x20 HAL/BUTTON/BUTTON.o
  .text.BUTTON_init
-                0x0000000008000e94       0x40 HAL/BUTTON/BUTTON.o
-                0x0000000008000e94                BUTTON_init
- .text.LL_pop   0x0000000008000ed4       0x2a UTIL/LinkedList/LinkedList.o
-                0x0000000008000ed4                LL_pop
- .text.LL_push  0x0000000008000efe       0x1a UTIL/LinkedList/LinkedList.o
-                0x0000000008000efe                LL_push
+                0x00000000080013b8       0x40 HAL/BUTTON/BUTTON.o
+                0x00000000080013b8                BUTTON_init
+ .text.BUTTON_service_debounceHandling
+                0x00000000080013f8       0x54 HAL/BUTTON/BUTTON.o
+                0x00000000080013f8                BUTTON_service_debounceHandling
+ .text.BUTTON_get
+                0x000000000800144c        0xc HAL/BUTTON/BUTTON.o
+                0x000000000800144c                BUTTON_get
+ .text.LL_pop   0x0000000008001458       0x32 UTIL/LinkedList/LinkedList.o
+                0x0000000008001458                LL_pop
+ .text.LL_push  0x000000000800148a       0x1c UTIL/LinkedList/LinkedList.o
+                0x000000000800148a                LL_push
  .text.LL_enqueue
-                0x0000000008000f18       0x1a UTIL/LinkedList/LinkedList.o
-                0x0000000008000f18                LL_enqueue
+                0x00000000080014a6       0x1c UTIL/LinkedList/LinkedList.o
+                0x00000000080014a6                LL_enqueue
  .text.LL_remove
-                0x0000000008000f32       0x58 UTIL/LinkedList/LinkedList.o
-                0x0000000008000f32                LL_remove
+                0x00000000080014c2       0x5e UTIL/LinkedList/LinkedList.o
+                0x00000000080014c2                LL_remove
  .text.LL_priority_enqueue
-                0x0000000008000f8a       0x44 UTIL/LinkedList/LinkedList.o
-                0x0000000008000f8a                LL_priority_enqueue
+                0x0000000008001520       0x44 UTIL/LinkedList/LinkedList.o
+                0x0000000008001520                LL_priority_enqueue
  .text.Queue_init
-                0x0000000008000fce        0x6 UTIL/Queue/Queue.o
-                0x0000000008000fce                Queue_init
+                0x0000000008001564        0xe UTIL/Queue/Queue.o
+                0x0000000008001564                Queue_init
  .text.Queue_enqueue
-                0x0000000008000fd4       0x36 UTIL/Queue/Queue.o
-                0x0000000008000fd4                Queue_enqueue
+                0x0000000008001572       0x36 UTIL/Queue/Queue.o
+                0x0000000008001572                Queue_enqueue
  .text.Queue_dequeue
-                0x000000000800100a       0x34 UTIL/Queue/Queue.o
-                0x000000000800100a                Queue_dequeue
- *fill*         0x000000000800103e        0x2 
+                0x00000000080015a8       0x34 UTIL/Queue/Queue.o
+                0x00000000080015a8                Queue_dequeue
  .text.RCC_selectSystemClock
-                0x0000000008001040       0x34 MCAL/RCC/RCC.o
-                0x0000000008001040                RCC_selectSystemClock
+                0x00000000080015dc       0x34 MCAL/RCC/RCC.o
+                0x00000000080015dc                RCC_selectSystemClock
  .text.RCC_setSystemClockState
-                0x0000000008001074       0x9c MCAL/RCC/RCC.o
-                0x0000000008001074                RCC_setSystemClockState
+                0x0000000008001610       0x9c MCAL/RCC/RCC.o
+                0x0000000008001610                RCC_setSystemClockState
  .text.RCC_setPeripheralClockState
-                0x0000000008001110       0x34 MCAL/RCC/RCC.o
-                0x0000000008001110                RCC_setPeripheralClockState
+                0x00000000080016ac       0x34 MCAL/RCC/RCC.o
+                0x00000000080016ac                RCC_setPeripheralClockState
  .text.RCC_configureBusClock
-                0x0000000008001144       0x40 MCAL/RCC/RCC.o
-                0x0000000008001144                RCC_configureBusClock
+                0x00000000080016e0       0x40 MCAL/RCC/RCC.o
+                0x00000000080016e0                RCC_configureBusClock
  .text.UART_IRQHandler
-                0x0000000008001184       0xc8 MCAL/UART/UART.o
+                0x0000000008001720       0xc8 MCAL/UART/UART.o
  .text.GPIO_initializePin
-                0x000000000800124c       0x8a MCAL/GPIO/GPIO.o
-                0x000000000800124c                GPIO_initializePin
+                0x00000000080017e8       0x8a MCAL/GPIO/GPIO.o
+                0x00000000080017e8                GPIO_initializePin
  .text.GPIO_selectAF
-                0x00000000080012d6       0x3a MCAL/GPIO/GPIO.o
-                0x00000000080012d6                GPIO_selectAF
+                0x0000000008001872       0x3a MCAL/GPIO/GPIO.o
+                0x0000000008001872                GPIO_selectAF
+ .text.GPIO_readPinState
+                0x00000000080018ac        0xa MCAL/GPIO/GPIO.o
+                0x00000000080018ac                GPIO_readPinState
  .text.SYSTICK_configureClockSource
-                0x0000000008001310       0x10 MCAL/SYSTICK/SYSTICK.o
-                0x0000000008001310                SYSTICK_configureClockSource
+                0x00000000080018b6       0x10 MCAL/SYSTICK/SYSTICK.o
+                0x00000000080018b6                SYSTICK_configureClockSource
+ *fill*         0x00000000080018c6        0x2 
  .text.SYSTICK_setPeriod_us
-                0x0000000008001320       0x28 MCAL/SYSTICK/SYSTICK.o
-                0x0000000008001320                SYSTICK_setPeriod_us
+                0x00000000080018c8       0x28 MCAL/SYSTICK/SYSTICK.o
+                0x00000000080018c8                SYSTICK_setPeriod_us
  .text.I2C_writeBuffer_sync
-                0x0000000008001348       0x26 MCAL/I2C/I2C.o
- *fill*         0x000000000800136e        0x2 
+                0x00000000080018f0       0x26 MCAL/I2C/I2C.o
+ *fill*         0x0000000008001916        0x2 
  .text.I2C_init
-                0x0000000008001370       0x34 MCAL/I2C/I2C.o
-                0x0000000008001370                I2C_init
+                0x0000000008001918       0x34 MCAL/I2C/I2C.o
+                0x0000000008001918                I2C_init
  .text.I2C_initDMAMode
-                0x00000000080013a4       0x70 MCAL/I2C/I2C.o
-                0x00000000080013a4                I2C_initDMAMode
+                0x000000000800194c       0x70 MCAL/I2C/I2C.o
+                0x000000000800194c                I2C_initDMAMode
  .text.I2C_setCallbackTX
-                0x0000000008001414        0xc MCAL/I2C/I2C.o
-                0x0000000008001414                I2C_setCallbackTX
+                0x00000000080019bc        0xc MCAL/I2C/I2C.o
+                0x00000000080019bc                I2C_setCallbackTX
  .text.I2C_masterWrite_sync
-                0x0000000008001420       0x60 MCAL/I2C/I2C.o
-                0x0000000008001420                I2C_masterWrite_sync
- .text.I2C_masterWrite_DMA
-                0x0000000008001480       0xa0 MCAL/I2C/I2C.o
-                0x0000000008001480                I2C_masterWrite_DMA
+                0x00000000080019c8       0x60 MCAL/I2C/I2C.o
+                0x00000000080019c8                I2C_masterWrite_sync
  .text.NVIC_enableInterrupt
-                0x0000000008001520       0x1e MCAL/NVIC/NVIC.o
-                0x0000000008001520                NVIC_enableInterrupt
+                0x0000000008001a28       0x1e MCAL/NVIC/NVIC.o
+                0x0000000008001a28                NVIC_enableInterrupt
  .text.NVIC_setPriority
-                0x000000000800153e       0x2a MCAL/NVIC/NVIC.o
-                0x000000000800153e                NVIC_setPriority
+                0x0000000008001a46       0x2a MCAL/NVIC/NVIC.o
+                0x0000000008001a46                NVIC_setPriority
  .text.DMA_enableInterrupt
-                0x0000000008001568       0x20 MCAL/DMA/DMA.o
-                0x0000000008001568                DMA_enableInterrupt
+                0x0000000008001a70       0x20 MCAL/DMA/DMA.o
+                0x0000000008001a70                DMA_enableInterrupt
  .text.DMA_clearInterruptFlags
-                0x0000000008001588       0x30 MCAL/DMA/DMA.o
-                0x0000000008001588                DMA_clearInterruptFlags
+                0x0000000008001a90       0x30 MCAL/DMA/DMA.o
+                0x0000000008001a90                DMA_clearInterruptFlags
  .text.DMA_selectChannel
-                0x00000000080015b8       0x24 MCAL/DMA/DMA.o
-                0x00000000080015b8                DMA_selectChannel
+                0x0000000008001ac0       0x24 MCAL/DMA/DMA.o
+                0x0000000008001ac0                DMA_selectChannel
  .text.DMA_selectDataSize
-                0x00000000080015dc       0x24 MCAL/DMA/DMA.o
-                0x00000000080015dc                DMA_selectDataSize
+                0x0000000008001ae4       0x24 MCAL/DMA/DMA.o
+                0x0000000008001ae4                DMA_selectDataSize
  .text.DMA_selectDataDirection
-                0x0000000008001600       0x24 MCAL/DMA/DMA.o
-                0x0000000008001600                DMA_selectDataDirection
+                0x0000000008001b08       0x24 MCAL/DMA/DMA.o
+                0x0000000008001b08                DMA_selectDataDirection
  .text.DMA_selectMemoryIncrementMode
-                0x0000000008001624       0x24 MCAL/DMA/DMA.o
-                0x0000000008001624                DMA_selectMemoryIncrementMode
+                0x0000000008001b2c       0x24 MCAL/DMA/DMA.o
+                0x0000000008001b2c                DMA_selectMemoryIncrementMode
  .text.DMA_selectPeripheralIncrementMode
-                0x0000000008001648       0x24 MCAL/DMA/DMA.o
-                0x0000000008001648                DMA_selectPeripheralIncrementMode
- .text.DMA_enable
-                0x000000000800166c       0x24 MCAL/DMA/DMA.o
-                0x000000000800166c                DMA_enable
- .text.DMA_setCallback
-                0x0000000008001690       0x10 MCAL/DMA/DMA.o
-                0x0000000008001690                DMA_setCallback
- .text.DMA_setItemCount
-                0x00000000080016a0       0x18 MCAL/DMA/DMA.o
-                0x00000000080016a0                DMA_setItemCount
+                0x0000000008001b50       0x24 MCAL/DMA/DMA.o
+                0x0000000008001b50                DMA_selectPeripheralIncrementMode
  .text.DMA_setPeripheralAddress
-                0x00000000080016b8       0x18 MCAL/DMA/DMA.o
-                0x00000000080016b8                DMA_setPeripheralAddress
- .text.DMA_setMemoryAddress
-                0x00000000080016d0       0x18 MCAL/DMA/DMA.o
-                0x00000000080016d0                DMA_setMemoryAddress
+                0x0000000008001b74       0x18 MCAL/DMA/DMA.o
+                0x0000000008001b74                DMA_setPeripheralAddress
+ .text          0x0000000008001b8c        0x8 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
+                0x0000000008001b8c                abs
  *(.rodata .rodata.* .constdata .constdata.*)
- .rodata        0x00000000080016e8        0x8 main.o
+ .rodata.GUI_stateHandler_Logo.str1.4
+                0x0000000008001b94        0xa main.o
+ *fill*         0x0000000008001b9e        0x2 
+ .rodata        0x0000000008001ba0        0x8 main.o
  .rodata.bitmap
-                0x00000000080016f0      0x100 OS/OS.o
+                0x0000000008001ba8      0x100 OS/OS.o
+ .rodata.Font11x18
+                0x0000000008001ca8      0xd5c HAL/ssd1306/ssd1306_fonts.o
  .rodata.UART_regs
-                0x00000000080017f0        0xc MCAL/UART/UART.o
+                0x0000000008002a04        0xc MCAL/UART/UART.o
  .rodata.DMA_registers
-                0x00000000080017fc        0x8 MCAL/DMA/DMA.o
-                0x0000000008001804                __idata_start = LOADADDR (.data)
+                0x0000000008002a10        0x8 MCAL/DMA/DMA.o
+                0x0000000008002a18                __idata_start = LOADADDR (.data)
 
-.glue_7         0x0000000008001804        0x0
- .glue_7        0x0000000008001804        0x0 linker stubs
+.glue_7         0x0000000008002a18        0x0
+ .glue_7        0x0000000008002a18        0x0 linker stubs
 
-.glue_7t        0x0000000008001804        0x0
- .glue_7t       0x0000000008001804        0x0 linker stubs
+.glue_7t        0x0000000008002a18        0x0
+ .glue_7t       0x0000000008002a18        0x0 linker stubs
 
-.vfp11_veneer   0x0000000008001804        0x0
- .vfp11_veneer  0x0000000008001804        0x0 linker stubs
+.vfp11_veneer   0x0000000008002a18        0x0
+ .vfp11_veneer  0x0000000008002a18        0x0 linker stubs
 
-.v4_bx          0x0000000008001804        0x0
- .v4_bx         0x0000000008001804        0x0 linker stubs
+.v4_bx          0x0000000008002a18        0x0
+ .v4_bx         0x0000000008002a18        0x0 linker stubs
 
-.iplt           0x0000000008001804        0x0
- .iplt          0x0000000008001804        0x0 main.o
+.iplt           0x0000000008002a18        0x0
+ .iplt          0x0000000008002a18        0x0 main.o
 
-.rel.dyn        0x0000000008001804        0x0
- .rel.iplt      0x0000000008001804        0x0 main.o
+.rel.dyn        0x0000000008002a18        0x0
+ .rel.iplt      0x0000000008002a18        0x0 main.o
 
-.data           0x0000000020000000       0x3c load address 0x0000000008001804
+.data           0x0000000020000000       0x60 load address 0x0000000008002a18
  FILL mask 0xff
                 0x0000000020000000                __data_start = .
  *(.data_begin .data_begin.*)
  *(.data .data.*)
+ .data.center.7
+                0x0000000020000000        0x4 main.o
+ .data.dir.13   0x0000000020000004        0x4 main.o
+ .data.dir.6    0x0000000020000008        0x4 main.o
+ .data.dir2.11  0x000000002000000c        0x4 main.o
+ .data.pt.14    0x0000000020000010        0x4 main.o
+ .data.pt2.12   0x0000000020000014        0x4 main.o
+ .data.radius.10
+                0x0000000020000018        0x2 main.o
+ .data.speed.9  0x000000002000001a        0x1 main.o
+ *fill*         0x000000002000001b        0x1 ff
+ .data.Font_11x18
+                0x000000002000001c        0x8 HAL/ssd1306/ssd1306_fonts.o
+                0x000000002000001c                Font_11x18
  .data.BUTTON_cfgs
-                0x0000000020000000       0x30 HAL/BUTTON/BUTTON_Cfg.o
-                0x0000000020000000                BUTTON_cfgs
+                0x0000000020000024       0x30 HAL/BUTTON/BUTTON_Cfg.o
+                0x0000000020000024                BUTTON_cfgs
  .data.I2C_numberToDMAChannelTX
-                0x0000000020000030        0x1 MCAL/I2C/I2C.o
-                0x0000000020000030                I2C_numberToDMAChannelTX
- *fill*         0x0000000020000031        0x3 ff
+                0x0000000020000054        0x1 MCAL/I2C/I2C.o
+                0x0000000020000054                I2C_numberToDMAChannelTX
+ *fill*         0x0000000020000055        0x3 ff
  .data.I2C_numberToDMAStreamTX
-                0x0000000020000034        0x1 MCAL/I2C/I2C.o
-                0x0000000020000034                I2C_numberToDMAStreamTX
- *fill*         0x0000000020000035        0x3 ff
+                0x0000000020000058        0x1 MCAL/I2C/I2C.o
+                0x0000000020000058                I2C_numberToDMAStreamTX
+ *fill*         0x0000000020000059        0x3 ff
  .data.I2C_numberToModule
-                0x0000000020000038        0x4 MCAL/I2C/I2C.o
-                0x0000000020000038                I2C_numberToModule
+                0x000000002000005c        0x4 MCAL/I2C/I2C.o
+                0x000000002000005c                I2C_numberToModule
  *(.data_end .data_end.*)
-                0x000000002000003c                . = ALIGN (0x4)
-                0x000000002000003c                __data_end = .
+                0x0000000020000060                . = ALIGN (0x4)
+                0x0000000020000060                __data_end = .
 
-.igot.plt       0x000000002000003c        0x0 load address 0x0000000008001840
- .igot.plt      0x000000002000003c        0x0 main.o
+.igot.plt       0x0000000020000060        0x0 load address 0x0000000008002a78
+ .igot.plt      0x0000000020000060        0x0 main.o
 
-.bss            0x000000002000003c     0x1d7c load address 0x0000000008001840
+.bss            0x0000000020000060     0x1ff0 load address 0x0000000008002a78
  FILL mask 0xff
-                0x000000002000003c                __bss_start = .
+                0x0000000020000060                __bss_start = .
  *(.bss_begin .bss_begin.*)
  *(.bss .bss.*)
- .bss.GUI_queue
-                0x000000002000003c       0x2c main.o
-                0x000000002000003c                GUI_queue
- .bss.GUI_queueArr
-                0x0000000020000068       0x14 main.o
-                0x0000000020000068                GUI_queueArr
  .bss.GUI_stack
-                0x000000002000007c     0x1000 main.o
-                0x000000002000007c                GUI_stack
- .bss.GUI_task  0x000000002000107c       0x20 main.o
-                0x000000002000107c                GUI_task
- .bss.sem_I2C1  0x000000002000109c       0x14 main.o
-                0x000000002000109c                sem_I2C1
- .bss.group     0x00000000200010b0        0x8 OS/OS.o
- .bss.groups    0x00000000200010b8        0x1 OS/OS.o
- *fill*         0x00000000200010b9        0x3 ff
+                0x0000000020000060     0x1000 main.o
+                0x0000000020000060                GUI_stack
+ .bss.GUI_task  0x0000000020001060       0x20 main.o
+                0x0000000020001060                GUI_task
+ .bss.buffer.2  0x0000000020001080        0xa main.o
+ *fill*         0x000000002000108a        0x2 ff
+ .bss.buttonEvent_queue
+                0x000000002000108c       0x2c main.o
+                0x000000002000108c                buttonEvent_queue
+ .bss.buttonEvent_queueArr
+                0x00000000200010b8       0x14 main.o
+                0x00000000200010b8                buttonEvent_queueArr
+ .bss.buttonInput_stack
+                0x00000000200010cc      0x100 main.o
+                0x00000000200010cc                buttonInput_stack
+ .bss.buttonInput_task
+                0x00000000200011cc       0x20 main.o
+                0x00000000200011cc                buttonInput_task
+ .bss.color.8   0x00000000200011ec        0x1 main.o
+ .bss.cursorColor.0
+                0x00000000200011ed        0x1 main.o
+ *fill*         0x00000000200011ee        0x2 ff
+ .bss.debounce_stack
+                0x00000000200011f0      0x100 main.o
+                0x00000000200011f0                debounce_stack
+ .bss.debounce_task
+                0x00000000200012f0       0x20 main.o
+                0x00000000200012f0                debounce_task
+ .bss.i.5       0x0000000020001310        0x4 main.o
+ .bss.sem_I2C1  0x0000000020001314       0x14 main.o
+                0x0000000020001314                sem_I2C1
+ .bss.slice.4   0x0000000020001328        0x4 main.o
+ .bss.timeout.1
+                0x000000002000132c        0x4 main.o
+ .bss.group     0x0000000020001330        0x8 OS/OS.o
+ .bss.groups    0x0000000020001338        0x1 OS/OS.o
+ *fill*         0x0000000020001339        0x3 ff
  .bss.idleStack
-                0x00000000200010bc      0x100 OS/OS.o
- .bss.idleTask  0x00000000200011bc       0x20 OS/OS.o
- .bss.nextTask  0x00000000200011dc        0x4 OS/OS.o
- .bss.prevTask  0x00000000200011e0        0x4 OS/OS.o
- .bss.tasks     0x00000000200011e4      0x300 OS/OS.o
+                0x000000002000133c      0x100 OS/OS.o
+ .bss.idleTask  0x000000002000143c       0x20 OS/OS.o
+ .bss.nextTask  0x000000002000145c        0x4 OS/OS.o
+ .bss.prevTask  0x0000000020001460        0x4 OS/OS.o
+ .bss.tasks     0x0000000020001464      0x300 OS/OS.o
  .bss.tasks_delayed
-                0x00000000200014e4        0xc OS/OS.o
+                0x0000000020001764        0xc OS/OS.o
  .bss.tasks_waiting
-                0x00000000200014f0        0xc OS/OS.o
- .bss.SSD1306   0x00000000200014fc        0x6 HAL/ssd1306/ssd1306.o
- *fill*         0x0000000020001502        0x2 ff
+                0x0000000020001770        0xc OS/OS.o
+ .bss.SSD1306   0x000000002000177c        0x6 HAL/ssd1306/ssd1306.o
+ *fill*         0x0000000020001782        0x2 ff
  .bss.SSD1306_Buffer
-                0x0000000020001504        0x4 HAL/ssd1306/ssd1306.o
+                0x0000000020001784        0x4 HAL/ssd1306/ssd1306.o
  .bss.SSD1306_BufferA
-                0x0000000020001508      0x400 HAL/ssd1306/ssd1306.o
+                0x0000000020001788      0x400 HAL/ssd1306/ssd1306.o
  .bss.SSD1306_BufferB
-                0x0000000020001908      0x400 HAL/ssd1306/ssd1306.o
+                0x0000000020001b88      0x400 HAL/ssd1306/ssd1306.o
  .bss.SSD1306_BufferUpdate
-                0x0000000020001d08        0x4 HAL/ssd1306/ssd1306.o
+                0x0000000020001f88        0x4 HAL/ssd1306/ssd1306.o
  .bss.SSD1306_Buffer_flag
-                0x0000000020001d0c        0x1 HAL/ssd1306/ssd1306.o
- *fill*         0x0000000020001d0d        0x3 ff
+                0x0000000020001f8c        0x1 HAL/ssd1306/ssd1306.o
+ *fill*         0x0000000020001f8d        0x3 ff
+ .bss.BUTTON_debouceCounters
+                0x0000000020001f90        0x6 HAL/BUTTON/BUTTON.o
+ *fill*         0x0000000020001f96        0x2 ff
+ .bss.BUTTON_previousStates
+                0x0000000020001f98        0x6 HAL/BUTTON/BUTTON.o
+ *fill*         0x0000000020001f9e        0x2 ff
+ .bss.BUTTON_states
+                0x0000000020001fa0        0x6 HAL/BUTTON/BUTTON.o
+ *fill*         0x0000000020001fa6        0x2 ff
  .bss.UART_RX_buffer
-                0x0000000020001d10        0xc MCAL/UART/UART.o
+                0x0000000020001fa8        0xc MCAL/UART/UART.o
  .bss.UART_RX_callback
-                0x0000000020001d1c        0xc MCAL/UART/UART.o
+                0x0000000020001fb4        0xc MCAL/UART/UART.o
  .bss.UART_RX_idx
-                0x0000000020001d28        0xc MCAL/UART/UART.o
+                0x0000000020001fc0        0xc MCAL/UART/UART.o
  .bss.UART_RX_size
-                0x0000000020001d34        0xc MCAL/UART/UART.o
+                0x0000000020001fcc        0xc MCAL/UART/UART.o
  .bss.UART_TX_buffer
-                0x0000000020001d40        0xc MCAL/UART/UART.o
+                0x0000000020001fd8        0xc MCAL/UART/UART.o
  .bss.UART_TX_callback
-                0x0000000020001d4c        0xc MCAL/UART/UART.o
+                0x0000000020001fe4        0xc MCAL/UART/UART.o
  .bss.UART_TX_idx
-                0x0000000020001d58        0xc MCAL/UART/UART.o
+                0x0000000020001ff0        0xc MCAL/UART/UART.o
  .bss.UART_TX_size
-                0x0000000020001d64        0xc MCAL/UART/UART.o
+                0x0000000020001ffc        0xc MCAL/UART/UART.o
  .bss.I2C_callbackTX
-                0x0000000020001d70        0x4 MCAL/I2C/I2C.o
-                0x0000000020001d70                I2C_callbackTX
+                0x0000000020002008        0x4 MCAL/I2C/I2C.o
+                0x0000000020002008                I2C_callbackTX
  .bss.I2C_numberToDMAModuleTX
-                0x0000000020001d74        0x1 MCAL/I2C/I2C.o
-                0x0000000020001d74                I2C_numberToDMAModuleTX
- *fill*         0x0000000020001d75        0x3 ff
+                0x000000002000200c        0x1 MCAL/I2C/I2C.o
+                0x000000002000200c                I2C_numberToDMAModuleTX
+ *fill*         0x000000002000200d        0x3 ff
  .bss.DMA_callbacks
-                0x0000000020001d78       0x40 MCAL/DMA/DMA.o
+                0x0000000020002010       0x40 MCAL/DMA/DMA.o
  *(COMMON)
  *(.bss_end .bss_end.*)
-                0x0000000020001db8                . = ALIGN (0x4)
-                0x0000000020001db8                __bss_end = .
+                0x0000000020002050                . = ALIGN (0x4)
+                0x0000000020002050                __bss_end = .
 OUTPUT(main.elf elf32-littlearm)
 LOAD linker stubs
 
-.debug_info     0x0000000000000000     0x712c
- .debug_info    0x0000000000000000      0xb1f main.o
- .debug_info    0x0000000000000b1f     0x1848 OS/OS.o
- .debug_info    0x0000000000002367      0x181 __special/__startup.o
- .debug_info    0x00000000000024e8       0x8f __special/__vector.o
- .debug_info    0x0000000000002577     0x19c9 HAL/ssd1306/ssd1306.o
- .debug_info    0x0000000000003f40      0x3eb HAL/BUTTON/BUTTON.o
- .debug_info    0x000000000000432b      0x202 HAL/BUTTON/BUTTON_Cfg.o
- .debug_info    0x000000000000452d      0x2b7 UTIL/LinkedList/LinkedList.o
- .debug_info    0x00000000000047e4      0x1e7 UTIL/Queue/Queue.o
- .debug_info    0x00000000000049cb      0x4f6 MCAL/RCC/RCC.o
- .debug_info    0x0000000000004ec1      0xa58 MCAL/UART/UART.o
- .debug_info    0x0000000000005919      0x4aa MCAL/GPIO/GPIO.o
- .debug_info    0x0000000000005dc3      0x189 MCAL/SYSTICK/SYSTICK.o
- .debug_info    0x0000000000005f4c      0x7c1 MCAL/I2C/I2C.o
- .debug_info    0x000000000000670d      0x2d7 MCAL/NVIC/NVIC.o
- .debug_info    0x00000000000069e4      0x748 MCAL/DMA/DMA.o
+.debug_info     0x0000000000000000     0x79a3
+ .debug_info    0x0000000000000000     0x11ce main.o
+ .debug_info    0x00000000000011ce     0x1852 OS/OS.o
+ .debug_info    0x0000000000002a20      0x181 __special/__startup.o
+ .debug_info    0x0000000000002ba1       0x8f __special/__vector.o
+ .debug_info    0x0000000000002c30     0x188b HAL/ssd1306/ssd1306.o
+ .debug_info    0x00000000000044bb      0x21e HAL/ssd1306/ssd1306_fonts.o
+ .debug_info    0x00000000000046d9      0x3f2 HAL/BUTTON/BUTTON.o
+ .debug_info    0x0000000000004acb      0x20b HAL/BUTTON/BUTTON_Cfg.o
+ .debug_info    0x0000000000004cd6      0x2d0 UTIL/LinkedList/LinkedList.o
+ .debug_info    0x0000000000004fa6      0x1f1 UTIL/Queue/Queue.o
+ .debug_info    0x0000000000005197      0x4f6 MCAL/RCC/RCC.o
+ .debug_info    0x000000000000568d      0xa58 MCAL/UART/UART.o
+ .debug_info    0x00000000000060e5      0x4aa MCAL/GPIO/GPIO.o
+ .debug_info    0x000000000000658f      0x189 MCAL/SYSTICK/SYSTICK.o
+ .debug_info    0x0000000000006718      0x7c9 MCAL/I2C/I2C.o
+ .debug_info    0x0000000000006ee1      0x2d7 MCAL/NVIC/NVIC.o
+ .debug_info    0x00000000000071b8      0x748 MCAL/DMA/DMA.o
+ .debug_info    0x0000000000007900       0xa3 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_abbrev   0x0000000000000000     0x1889
- .debug_abbrev  0x0000000000000000      0x1f5 main.o
- .debug_abbrev  0x00000000000001f5      0x2a3 OS/OS.o
- .debug_abbrev  0x0000000000000498       0xf8 __special/__startup.o
- .debug_abbrev  0x0000000000000590       0x9a __special/__vector.o
- .debug_abbrev  0x000000000000062a      0x30e HAL/ssd1306/ssd1306.o
- .debug_abbrev  0x0000000000000938      0x1ee HAL/BUTTON/BUTTON.o
- .debug_abbrev  0x0000000000000b26       0xed HAL/BUTTON/BUTTON_Cfg.o
- .debug_abbrev  0x0000000000000c13      0x154 UTIL/LinkedList/LinkedList.o
- .debug_abbrev  0x0000000000000d67      0x11b UTIL/Queue/Queue.o
- .debug_abbrev  0x0000000000000e82      0x174 MCAL/RCC/RCC.o
- .debug_abbrev  0x0000000000000ff6      0x1e7 MCAL/UART/UART.o
- .debug_abbrev  0x00000000000011dd      0x14d MCAL/GPIO/GPIO.o
- .debug_abbrev  0x000000000000132a       0xd2 MCAL/SYSTICK/SYSTICK.o
- .debug_abbrev  0x00000000000013fc      0x1d3 MCAL/I2C/I2C.o
- .debug_abbrev  0x00000000000015cf       0xed MCAL/NVIC/NVIC.o
- .debug_abbrev  0x00000000000016bc      0x1cd MCAL/DMA/DMA.o
+.debug_abbrev   0x0000000000000000     0x1a30
+ .debug_abbrev  0x0000000000000000      0x29a main.o
+ .debug_abbrev  0x000000000000029a      0x2a8 OS/OS.o
+ .debug_abbrev  0x0000000000000542       0xf8 __special/__startup.o
+ .debug_abbrev  0x000000000000063a       0x9a __special/__vector.o
+ .debug_abbrev  0x00000000000006d4      0x2dc HAL/ssd1306/ssd1306.o
+ .debug_abbrev  0x00000000000009b0       0xbe HAL/ssd1306/ssd1306_fonts.o
+ .debug_abbrev  0x0000000000000a6e      0x1f0 HAL/BUTTON/BUTTON.o
+ .debug_abbrev  0x0000000000000c5e       0xf6 HAL/BUTTON/BUTTON_Cfg.o
+ .debug_abbrev  0x0000000000000d54      0x159 UTIL/LinkedList/LinkedList.o
+ .debug_abbrev  0x0000000000000ead      0x122 UTIL/Queue/Queue.o
+ .debug_abbrev  0x0000000000000fcf      0x174 MCAL/RCC/RCC.o
+ .debug_abbrev  0x0000000000001143      0x1e7 MCAL/UART/UART.o
+ .debug_abbrev  0x000000000000132a      0x14d MCAL/GPIO/GPIO.o
+ .debug_abbrev  0x0000000000001477       0xd2 MCAL/SYSTICK/SYSTICK.o
+ .debug_abbrev  0x0000000000001549      0x1d3 MCAL/I2C/I2C.o
+ .debug_abbrev  0x000000000000171c       0xed MCAL/NVIC/NVIC.o
+ .debug_abbrev  0x0000000000001809      0x1cd MCAL/DMA/DMA.o
+ .debug_abbrev  0x00000000000019d6       0x5a /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_loc      0x0000000000000000     0x3d39
- .debug_loc     0x0000000000000000      0x20d main.o
- .debug_loc     0x000000000000020d     0x1244 OS/OS.o
- .debug_loc     0x0000000000001451       0x93 __special/__startup.o
- .debug_loc     0x00000000000014e4     0x12b0 HAL/ssd1306/ssd1306.o
- .debug_loc     0x0000000000002794       0xff HAL/BUTTON/BUTTON.o
- .debug_loc     0x0000000000002893       0xe1 UTIL/LinkedList/LinkedList.o
- .debug_loc     0x0000000000002974      0x100 UTIL/Queue/Queue.o
- .debug_loc     0x0000000000002a74      0x50d MCAL/RCC/RCC.o
- .debug_loc     0x0000000000002f81      0x3f9 MCAL/UART/UART.o
- .debug_loc     0x000000000000337a      0x201 MCAL/GPIO/GPIO.o
- .debug_loc     0x000000000000357b       0xa7 MCAL/SYSTICK/SYSTICK.o
- .debug_loc     0x0000000000003622      0x2f1 MCAL/I2C/I2C.o
- .debug_loc     0x0000000000003913      0x17c MCAL/NVIC/NVIC.o
- .debug_loc     0x0000000000003a8f      0x2aa MCAL/DMA/DMA.o
+.debug_loc      0x0000000000000000     0x3e10
+ .debug_loc     0x0000000000000000      0x2c5 main.o
+ .debug_loc     0x00000000000002c5     0x1244 OS/OS.o
+ .debug_loc     0x0000000000001509       0x93 __special/__startup.o
+ .debug_loc     0x000000000000159c     0x12cf HAL/ssd1306/ssd1306.o
+ .debug_loc     0x000000000000286b       0xda HAL/BUTTON/BUTTON.o
+ .debug_loc     0x0000000000002945       0xe1 UTIL/LinkedList/LinkedList.o
+ .debug_loc     0x0000000000002a26      0x100 UTIL/Queue/Queue.o
+ .debug_loc     0x0000000000002b26      0x50d MCAL/RCC/RCC.o
+ .debug_loc     0x0000000000003033      0x3f9 MCAL/UART/UART.o
+ .debug_loc     0x000000000000342c      0x201 MCAL/GPIO/GPIO.o
+ .debug_loc     0x000000000000362d       0xa7 MCAL/SYSTICK/SYSTICK.o
+ .debug_loc     0x00000000000036d4      0x2f1 MCAL/I2C/I2C.o
+ .debug_loc     0x00000000000039c5      0x17c MCAL/NVIC/NVIC.o
+ .debug_loc     0x0000000000003b41      0x2aa MCAL/DMA/DMA.o
+ .debug_loc     0x0000000000003deb       0x25 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_aranges  0x0000000000000000      0x630
+.debug_aranges  0x0000000000000000      0x6a8
  .debug_aranges
-                0x0000000000000000       0x50 main.o
+                0x0000000000000000       0x90 main.o
  .debug_aranges
-                0x0000000000000050      0x150 OS/OS.o
+                0x0000000000000090      0x150 OS/OS.o
  .debug_aranges
-                0x00000000000001a0       0x20 __special/__startup.o
+                0x00000000000001e0       0x20 __special/__startup.o
  .debug_aranges
-                0x00000000000001c0       0x20 __special/__vector.o
+                0x0000000000000200       0x20 __special/__vector.o
  .debug_aranges
-                0x00000000000001e0       0xe0 HAL/ssd1306/ssd1306.o
+                0x0000000000000220       0xe0 HAL/ssd1306/ssd1306.o
  .debug_aranges
-                0x00000000000002c0       0x38 HAL/BUTTON/BUTTON.o
+                0x0000000000000300       0x18 HAL/ssd1306/ssd1306_fonts.o
  .debug_aranges
-                0x00000000000002f8       0x18 HAL/BUTTON/BUTTON_Cfg.o
+                0x0000000000000318       0x38 HAL/BUTTON/BUTTON.o
  .debug_aranges
-                0x0000000000000310       0x40 UTIL/LinkedList/LinkedList.o
+                0x0000000000000350       0x18 HAL/BUTTON/BUTTON_Cfg.o
  .debug_aranges
-                0x0000000000000350       0x30 UTIL/Queue/Queue.o
+                0x0000000000000368       0x40 UTIL/LinkedList/LinkedList.o
  .debug_aranges
-                0x0000000000000380       0x40 MCAL/RCC/RCC.o
+                0x00000000000003a8       0x30 UTIL/Queue/Queue.o
  .debug_aranges
-                0x00000000000003c0       0x80 MCAL/UART/UART.o
+                0x00000000000003d8       0x40 MCAL/RCC/RCC.o
  .debug_aranges
-                0x0000000000000440       0x68 MCAL/GPIO/GPIO.o
+                0x0000000000000418       0x80 MCAL/UART/UART.o
  .debug_aranges
-                0x00000000000004a8       0x48 MCAL/SYSTICK/SYSTICK.o
+                0x0000000000000498       0x68 MCAL/GPIO/GPIO.o
  .debug_aranges
-                0x00000000000004f0       0x48 MCAL/I2C/I2C.o
+                0x0000000000000500       0x48 MCAL/SYSTICK/SYSTICK.o
  .debug_aranges
-                0x0000000000000538       0x68 MCAL/NVIC/NVIC.o
+                0x0000000000000548       0x48 MCAL/I2C/I2C.o
  .debug_aranges
-                0x00000000000005a0       0x90 MCAL/DMA/DMA.o
+                0x0000000000000590       0x68 MCAL/NVIC/NVIC.o
+ .debug_aranges
+                0x00000000000005f8       0x90 MCAL/DMA/DMA.o
+ .debug_aranges
+                0x0000000000000688       0x20 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_ranges   0x0000000000000000      0x5b8
- .debug_ranges  0x0000000000000000       0x40 main.o
- .debug_ranges  0x0000000000000040      0x158 OS/OS.o
- .debug_ranges  0x0000000000000198       0x10 __special/__startup.o
- .debug_ranges  0x00000000000001a8       0x10 __special/__vector.o
- .debug_ranges  0x00000000000001b8      0x148 HAL/ssd1306/ssd1306.o
- .debug_ranges  0x0000000000000300       0x28 HAL/BUTTON/BUTTON.o
- .debug_ranges  0x0000000000000328       0x30 UTIL/LinkedList/LinkedList.o
- .debug_ranges  0x0000000000000358       0x20 UTIL/Queue/Queue.o
- .debug_ranges  0x0000000000000378       0x30 MCAL/RCC/RCC.o
- .debug_ranges  0x00000000000003a8       0x70 MCAL/UART/UART.o
- .debug_ranges  0x0000000000000418       0x58 MCAL/GPIO/GPIO.o
- .debug_ranges  0x0000000000000470       0x38 MCAL/SYSTICK/SYSTICK.o
- .debug_ranges  0x00000000000004a8       0x38 MCAL/I2C/I2C.o
- .debug_ranges  0x00000000000004e0       0x58 MCAL/NVIC/NVIC.o
- .debug_ranges  0x0000000000000538       0x80 MCAL/DMA/DMA.o
+.debug_ranges   0x0000000000000000      0x5f8
+ .debug_ranges  0x0000000000000000       0x80 main.o
+ .debug_ranges  0x0000000000000080      0x158 OS/OS.o
+ .debug_ranges  0x00000000000001d8       0x10 __special/__startup.o
+ .debug_ranges  0x00000000000001e8       0x10 __special/__vector.o
+ .debug_ranges  0x00000000000001f8      0x148 HAL/ssd1306/ssd1306.o
+ .debug_ranges  0x0000000000000340       0x28 HAL/BUTTON/BUTTON.o
+ .debug_ranges  0x0000000000000368       0x30 UTIL/LinkedList/LinkedList.o
+ .debug_ranges  0x0000000000000398       0x20 UTIL/Queue/Queue.o
+ .debug_ranges  0x00000000000003b8       0x30 MCAL/RCC/RCC.o
+ .debug_ranges  0x00000000000003e8       0x70 MCAL/UART/UART.o
+ .debug_ranges  0x0000000000000458       0x58 MCAL/GPIO/GPIO.o
+ .debug_ranges  0x00000000000004b0       0x38 MCAL/SYSTICK/SYSTICK.o
+ .debug_ranges  0x00000000000004e8       0x38 MCAL/I2C/I2C.o
+ .debug_ranges  0x0000000000000520       0x58 MCAL/NVIC/NVIC.o
+ .debug_ranges  0x0000000000000578       0x80 MCAL/DMA/DMA.o
 
-.debug_macro    0x0000000000000000     0x3251
- .debug_macro   0x0000000000000000      0x1a7 main.o
- .debug_macro   0x00000000000001a7      0xa60 main.o
- .debug_macro   0x0000000000000c07      0x16d main.o
- .debug_macro   0x0000000000000d74       0x22 main.o
- .debug_macro   0x0000000000000d96       0x46 main.o
- .debug_macro   0x0000000000000ddc       0x18 main.o
- .debug_macro   0x0000000000000df4       0x5c main.o
- .debug_macro   0x0000000000000e50       0x3c main.o
- .debug_macro   0x0000000000000e8c       0x34 main.o
- .debug_macro   0x0000000000000ec0      0x34e main.o
- .debug_macro   0x000000000000120e       0x10 main.o
- .debug_macro   0x000000000000121e       0x2e main.o
- .debug_macro   0x000000000000124c       0x10 main.o
- .debug_macro   0x000000000000125c       0x16 main.o
- .debug_macro   0x0000000000001272       0x58 main.o
- .debug_macro   0x00000000000012ca       0xb7 main.o
- .debug_macro   0x0000000000001381       0x10 main.o
- .debug_macro   0x0000000000001391      0x1ea main.o
- .debug_macro   0x000000000000157b      0x21b main.o
- .debug_macro   0x0000000000001796      0x185 main.o
- .debug_macro   0x000000000000191b       0x10 main.o
- .debug_macro   0x000000000000192b       0x28 main.o
- .debug_macro   0x0000000000001953      0x1dd main.o
- .debug_macro   0x0000000000001b30       0x10 main.o
- .debug_macro   0x0000000000001b40       0x10 main.o
- .debug_macro   0x0000000000001b50       0x10 main.o
- .debug_macro   0x0000000000001b60       0xd3 OS/OS.o
- .debug_macro   0x0000000000001c33       0x16 OS/OS.o
- .debug_macro   0x0000000000001c49       0x11 __special/__startup.o
- .debug_macro   0x0000000000001c5a       0x11 __special/__vector.o
- .debug_macro   0x0000000000001c6b      0x198 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001e03       0x16 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001e19       0x43 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001e5c       0x57 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001eb3       0x34 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001ee7       0x10 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001ef7       0x52 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001f49       0x71 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001fba       0x16 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000001fd0      0x12a HAL/ssd1306/ssd1306.o
- .debug_macro   0x00000000000020fa      0x356 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000002450       0xde HAL/ssd1306/ssd1306.o
- .debug_macro   0x000000000000252e       0x16 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000002544       0x35 HAL/ssd1306/ssd1306.o
- .debug_macro   0x0000000000002579       0x22 HAL/ssd1306/ssd1306.o
- .debug_macro   0x000000000000259b       0x16 HAL/ssd1306/ssd1306.o
- .debug_macro   0x00000000000025b1       0x72 HAL/BUTTON/BUTTON.o
- .debug_macro   0x0000000000002623       0x10 HAL/BUTTON/BUTTON.o
- .debug_macro   0x0000000000002633       0x16 HAL/BUTTON/BUTTON.o
- .debug_macro   0x0000000000002649       0x69 HAL/BUTTON/BUTTON_Cfg.o
- .debug_macro   0x00000000000026b2       0x39 UTIL/LinkedList/LinkedList.o
- .debug_macro   0x00000000000026eb       0x2d UTIL/Queue/Queue.o
- .debug_macro   0x0000000000002718       0x4d MCAL/RCC/RCC.o
- .debug_macro   0x0000000000002765      0x18b MCAL/RCC/RCC.o
- .debug_macro   0x00000000000028f0       0x16 MCAL/RCC/RCC.o
- .debug_macro   0x0000000000002906       0x81 MCAL/UART/UART.o
- .debug_macro   0x0000000000002987      0x16e MCAL/UART/UART.o
- .debug_macro   0x0000000000002af5       0x46 MCAL/UART/UART.o
- .debug_macro   0x0000000000002b3b       0xe2 MCAL/UART/UART.o
- .debug_macro   0x0000000000002c1d       0x53 MCAL/GPIO/GPIO.o
- .debug_macro   0x0000000000002c70       0x1c MCAL/GPIO/GPIO.o
- .debug_macro   0x0000000000002c8c      0x1e3 MCAL/GPIO/GPIO.o
- .debug_macro   0x0000000000002e6f       0x60 MCAL/SYSTICK/SYSTICK.o
- .debug_macro   0x0000000000002ecf       0x1c MCAL/SYSTICK/SYSTICK.o
- .debug_macro   0x0000000000002eeb       0x16 MCAL/SYSTICK/SYSTICK.o
- .debug_macro   0x0000000000002f01       0x52 MCAL/SYSTICK/SYSTICK.o
- .debug_macro   0x0000000000002f53       0x16 MCAL/SYSTICK/SYSTICK.o
- .debug_macro   0x0000000000002f69       0x8e MCAL/I2C/I2C.o
- .debug_macro   0x0000000000002ff7       0x40 MCAL/I2C/I2C.o
- .debug_macro   0x0000000000003037       0x63 MCAL/NVIC/NVIC.o
- .debug_macro   0x000000000000309a       0x8f MCAL/DMA/DMA.o
- .debug_macro   0x0000000000003129       0x40 MCAL/DMA/DMA.o
- .debug_macro   0x0000000000003169       0xe8 MCAL/DMA/DMA.o
+.debug_macro    0x0000000000000000     0x336e
+ .debug_macro   0x0000000000000000      0x241 main.o
+ .debug_macro   0x0000000000000241      0xa60 main.o
+ .debug_macro   0x0000000000000ca1      0x16d main.o
+ .debug_macro   0x0000000000000e0e       0x22 main.o
+ .debug_macro   0x0000000000000e30       0x46 main.o
+ .debug_macro   0x0000000000000e76       0x18 main.o
+ .debug_macro   0x0000000000000e8e       0x5c main.o
+ .debug_macro   0x0000000000000eea       0x3c main.o
+ .debug_macro   0x0000000000000f26       0x34 main.o
+ .debug_macro   0x0000000000000f5a      0x34e main.o
+ .debug_macro   0x00000000000012a8       0x10 main.o
+ .debug_macro   0x00000000000012b8       0x2e main.o
+ .debug_macro   0x00000000000012e6       0x10 main.o
+ .debug_macro   0x00000000000012f6       0x16 main.o
+ .debug_macro   0x000000000000130c       0x58 main.o
+ .debug_macro   0x0000000000001364       0xb7 main.o
+ .debug_macro   0x000000000000141b       0x10 main.o
+ .debug_macro   0x000000000000142b      0x1ea main.o
+ .debug_macro   0x0000000000001615      0x21b main.o
+ .debug_macro   0x0000000000001830      0x185 main.o
+ .debug_macro   0x00000000000019b5       0x10 main.o
+ .debug_macro   0x00000000000019c5       0x28 main.o
+ .debug_macro   0x00000000000019ed      0x1dd main.o
+ .debug_macro   0x0000000000001bca       0x10 main.o
+ .debug_macro   0x0000000000001bda       0x10 main.o
+ .debug_macro   0x0000000000001bea       0x10 main.o
+ .debug_macro   0x0000000000001bfa       0xd3 OS/OS.o
+ .debug_macro   0x0000000000001ccd       0x16 OS/OS.o
+ .debug_macro   0x0000000000001ce3       0x11 __special/__startup.o
+ .debug_macro   0x0000000000001cf4       0x11 __special/__vector.o
+ .debug_macro   0x0000000000001d05      0x198 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001e9d       0x16 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001eb3       0x43 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001ef6       0x57 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001f4d       0x34 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001f81       0x10 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001f91       0x52 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000001fe3       0x71 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000002054       0x16 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x000000000000206a      0x12a HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000002194      0x356 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x00000000000024ea       0xde HAL/ssd1306/ssd1306.o
+ .debug_macro   0x00000000000025c8       0x16 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x00000000000025de       0x35 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000002613       0x22 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x0000000000002635       0x16 HAL/ssd1306/ssd1306.o
+ .debug_macro   0x000000000000264b       0x50 HAL/ssd1306/ssd1306_fonts.o
+ .debug_macro   0x000000000000269b       0x1c HAL/ssd1306/ssd1306_fonts.o
+ .debug_macro   0x00000000000026b7       0x89 HAL/BUTTON/BUTTON.o
+ .debug_macro   0x0000000000002740       0x10 HAL/BUTTON/BUTTON.o
+ .debug_macro   0x0000000000002750       0x16 HAL/BUTTON/BUTTON.o
+ .debug_macro   0x0000000000002766       0x69 HAL/BUTTON/BUTTON_Cfg.o
+ .debug_macro   0x00000000000027cf       0x39 UTIL/LinkedList/LinkedList.o
+ .debug_macro   0x0000000000002808       0x2d UTIL/Queue/Queue.o
+ .debug_macro   0x0000000000002835       0x4d MCAL/RCC/RCC.o
+ .debug_macro   0x0000000000002882      0x18b MCAL/RCC/RCC.o
+ .debug_macro   0x0000000000002a0d       0x16 MCAL/RCC/RCC.o
+ .debug_macro   0x0000000000002a23       0x81 MCAL/UART/UART.o
+ .debug_macro   0x0000000000002aa4      0x16e MCAL/UART/UART.o
+ .debug_macro   0x0000000000002c12       0x46 MCAL/UART/UART.o
+ .debug_macro   0x0000000000002c58       0xe2 MCAL/UART/UART.o
+ .debug_macro   0x0000000000002d3a       0x53 MCAL/GPIO/GPIO.o
+ .debug_macro   0x0000000000002d8d       0x1c MCAL/GPIO/GPIO.o
+ .debug_macro   0x0000000000002da9      0x1e3 MCAL/GPIO/GPIO.o
+ .debug_macro   0x0000000000002f8c       0x60 MCAL/SYSTICK/SYSTICK.o
+ .debug_macro   0x0000000000002fec       0x1c MCAL/SYSTICK/SYSTICK.o
+ .debug_macro   0x0000000000003008       0x16 MCAL/SYSTICK/SYSTICK.o
+ .debug_macro   0x000000000000301e       0x52 MCAL/SYSTICK/SYSTICK.o
+ .debug_macro   0x0000000000003070       0x16 MCAL/SYSTICK/SYSTICK.o
+ .debug_macro   0x0000000000003086       0x8e MCAL/I2C/I2C.o
+ .debug_macro   0x0000000000003114       0x40 MCAL/I2C/I2C.o
+ .debug_macro   0x0000000000003154       0x63 MCAL/NVIC/NVIC.o
+ .debug_macro   0x00000000000031b7       0x8f MCAL/DMA/DMA.o
+ .debug_macro   0x0000000000003246       0x40 MCAL/DMA/DMA.o
+ .debug_macro   0x0000000000003286       0xe8 MCAL/DMA/DMA.o
 
-.debug_line     0x0000000000000000     0x3b7f
- .debug_line    0x0000000000000000      0x492 main.o
- .debug_line    0x0000000000000492      0xc7a OS/OS.o
- .debug_line    0x000000000000110c       0x9d __special/__startup.o
- .debug_line    0x00000000000011a9       0x5c __special/__vector.o
- .debug_line    0x0000000000001205      0xd1d HAL/ssd1306/ssd1306.o
- .debug_line    0x0000000000001f22      0x250 HAL/BUTTON/BUTTON.o
- .debug_line    0x0000000000002172       0xdb HAL/BUTTON/BUTTON_Cfg.o
- .debug_line    0x000000000000224d      0x31b UTIL/LinkedList/LinkedList.o
- .debug_line    0x0000000000002568      0x196 UTIL/Queue/Queue.o
- .debug_line    0x00000000000026fe      0x335 MCAL/RCC/RCC.o
- .debug_line    0x0000000000002a33      0x3ec MCAL/UART/UART.o
- .debug_line    0x0000000000002e1f      0x265 MCAL/GPIO/GPIO.o
- .debug_line    0x0000000000003084      0x1ca MCAL/SYSTICK/SYSTICK.o
- .debug_line    0x000000000000324e      0x3a1 MCAL/I2C/I2C.o
- .debug_line    0x00000000000035ef      0x265 MCAL/NVIC/NVIC.o
- .debug_line    0x0000000000003854      0x32b MCAL/DMA/DMA.o
+.debug_line     0x0000000000000000     0x4085
+ .debug_line    0x0000000000000000      0x7b1 main.o
+ .debug_line    0x00000000000007b1      0xc6f OS/OS.o
+ .debug_line    0x0000000000001420       0x9d __special/__startup.o
+ .debug_line    0x00000000000014bd       0x5c __special/__vector.o
+ .debug_line    0x0000000000001519      0xd17 HAL/ssd1306/ssd1306.o
+ .debug_line    0x0000000000002230       0xd5 HAL/ssd1306/ssd1306_fonts.o
+ .debug_line    0x0000000000002305      0x299 HAL/BUTTON/BUTTON.o
+ .debug_line    0x000000000000259e       0xdb HAL/BUTTON/BUTTON_Cfg.o
+ .debug_line    0x0000000000002679      0x337 UTIL/LinkedList/LinkedList.o
+ .debug_line    0x00000000000029b0      0x1a4 UTIL/Queue/Queue.o
+ .debug_line    0x0000000000002b54      0x335 MCAL/RCC/RCC.o
+ .debug_line    0x0000000000002e89      0x3ec MCAL/UART/UART.o
+ .debug_line    0x0000000000003275      0x265 MCAL/GPIO/GPIO.o
+ .debug_line    0x00000000000034da      0x1ca MCAL/SYSTICK/SYSTICK.o
+ .debug_line    0x00000000000036a4      0x3a5 MCAL/I2C/I2C.o
+ .debug_line    0x0000000000003a49      0x265 MCAL/NVIC/NVIC.o
+ .debug_line    0x0000000000003cae      0x32b MCAL/DMA/DMA.o
+ .debug_line    0x0000000000003fd9       0xac /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_str      0x0000000000000000     0xc039
- .debug_str     0x0000000000000000     0x6b7c main.o
-                                       0x6d9f (size before relaxing)
- .debug_str     0x0000000000006b7c      0x71b OS/OS.o
+.debug_str      0x0000000000000000     0xc5d1
+ .debug_str     0x0000000000000000     0x7060 main.o
+                                       0x72a3 (size before relaxing)
+ .debug_str     0x0000000000007060      0x705 OS/OS.o
                                        0x4665 (size before relaxing)
- .debug_str     0x0000000000007297       0xa0 __special/__startup.o
+ .debug_str     0x0000000000007765       0xa0 __special/__startup.o
                                        0x2d27 (size before relaxing)
- .debug_str     0x0000000000007337       0x43 __special/__vector.o
+ .debug_str     0x0000000000007805       0x43 __special/__vector.o
                                        0x2cbe (size before relaxing)
- .debug_str     0x000000000000737a     0x34ef HAL/ssd1306/ssd1306.o
-                                       0x7684 (size before relaxing)
- .debug_str     0x000000000000a869      0x12f HAL/BUTTON/BUTTON.o
-                                       0x4264 (size before relaxing)
- .debug_str     0x000000000000a998       0x18 HAL/BUTTON/BUTTON_Cfg.o
-                                       0x4124 (size before relaxing)
- .debug_str     0x000000000000a9b0       0x36 UTIL/LinkedList/LinkedList.o
+ .debug_str     0x0000000000007848     0x346c HAL/ssd1306/ssd1306.o
+                                       0x760f (size before relaxing)
+ .debug_str     0x000000000000acb4       0x74 HAL/ssd1306/ssd1306_fonts.o
+                                       0x38f3 (size before relaxing)
+ .debug_str     0x000000000000ad28       0xf6 HAL/BUTTON/BUTTON.o
+                                       0x42a5 (size before relaxing)
+ .debug_str     0x000000000000ae1e       0x18 HAL/BUTTON/BUTTON_Cfg.o
+                                       0x4134 (size before relaxing)
+ .debug_str     0x000000000000ae36       0x36 UTIL/LinkedList/LinkedList.o
                                        0x3819 (size before relaxing)
- .debug_str     0x000000000000a9e6       0x13 UTIL/Queue/Queue.o
+ .debug_str     0x000000000000ae6c       0x13 UTIL/Queue/Queue.o
                                        0x37fc (size before relaxing)
- .debug_str     0x000000000000a9f9      0x25b MCAL/RCC/RCC.o
+ .debug_str     0x000000000000ae7f      0x253 MCAL/RCC/RCC.o
                                        0x4a70 (size before relaxing)
- .debug_str     0x000000000000ac54      0xb89 MCAL/UART/UART.o
+ .debug_str     0x000000000000b0d2      0xb89 MCAL/UART/UART.o
                                        0x48d4 (size before relaxing)
- .debug_str     0x000000000000b7dd      0x152 MCAL/GPIO/GPIO.o
+ .debug_str     0x000000000000bc5b      0x152 MCAL/GPIO/GPIO.o
                                        0x46f5 (size before relaxing)
- .debug_str     0x000000000000b92f      0x254 MCAL/SYSTICK/SYSTICK.o
+ .debug_str     0x000000000000bdad      0x254 MCAL/SYSTICK/SYSTICK.o
                                        0x4095 (size before relaxing)
- .debug_str     0x000000000000bb83      0x1a3 MCAL/I2C/I2C.o
+ .debug_str     0x000000000000c001      0x1b7 MCAL/I2C/I2C.o
                                        0x45fa (size before relaxing)
- .debug_str     0x000000000000bd26      0x152 MCAL/NVIC/NVIC.o
+ .debug_str     0x000000000000c1b8      0x152 MCAL/NVIC/NVIC.o
                                        0x4b9d (size before relaxing)
- .debug_str     0x000000000000be78      0x1c1 MCAL/DMA/DMA.o
+ .debug_str     0x000000000000c30a      0x1c1 MCAL/DMA/DMA.o
                                        0x5291 (size before relaxing)
+ .debug_str     0x000000000000c4cb      0x106 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
+                                        0x19b (size before relaxing)
 
 .comment        0x0000000000000000       0x33
  .comment       0x0000000000000000       0x33 main.o
@@ -1500,6 +1558,7 @@ LOAD linker stubs
  .comment       0x0000000000000033       0x34 __special/__startup.o
  .comment       0x0000000000000033       0x34 __special/__vector.o
  .comment       0x0000000000000033       0x34 HAL/ssd1306/ssd1306.o
+ .comment       0x0000000000000033       0x34 HAL/ssd1306/ssd1306_fonts.o
  .comment       0x0000000000000033       0x34 HAL/BUTTON/BUTTON.o
  .comment       0x0000000000000033       0x34 HAL/BUTTON/BUTTON_Cfg.o
  .comment       0x0000000000000033       0x34 UTIL/LinkedList/LinkedList.o
@@ -1511,6 +1570,7 @@ LOAD linker stubs
  .comment       0x0000000000000033       0x34 MCAL/I2C/I2C.o
  .comment       0x0000000000000033       0x34 MCAL/NVIC/NVIC.o
  .comment       0x0000000000000033       0x34 MCAL/DMA/DMA.o
+ .comment       0x0000000000000033       0x34 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
 .ARM.attributes
                 0x0000000000000000       0x32
@@ -1525,41 +1585,46 @@ LOAD linker stubs
  .ARM.attributes
                 0x00000000000000d0       0x34 HAL/ssd1306/ssd1306.o
  .ARM.attributes
-                0x0000000000000104       0x34 HAL/BUTTON/BUTTON.o
+                0x0000000000000104       0x37 HAL/ssd1306/ssd1306_fonts.o
  .ARM.attributes
-                0x0000000000000138       0x37 HAL/BUTTON/BUTTON_Cfg.o
+                0x000000000000013b       0x34 HAL/BUTTON/BUTTON.o
  .ARM.attributes
-                0x000000000000016f       0x34 UTIL/LinkedList/LinkedList.o
+                0x000000000000016f       0x37 HAL/BUTTON/BUTTON_Cfg.o
  .ARM.attributes
-                0x00000000000001a3       0x34 UTIL/Queue/Queue.o
+                0x00000000000001a6       0x34 UTIL/LinkedList/LinkedList.o
  .ARM.attributes
-                0x00000000000001d7       0x34 MCAL/RCC/RCC.o
+                0x00000000000001da       0x34 UTIL/Queue/Queue.o
  .ARM.attributes
-                0x000000000000020b       0x34 MCAL/UART/UART.o
+                0x000000000000020e       0x34 MCAL/RCC/RCC.o
  .ARM.attributes
-                0x000000000000023f       0x34 MCAL/GPIO/GPIO.o
+                0x0000000000000242       0x34 MCAL/UART/UART.o
  .ARM.attributes
-                0x0000000000000273       0x34 MCAL/SYSTICK/SYSTICK.o
+                0x0000000000000276       0x34 MCAL/GPIO/GPIO.o
  .ARM.attributes
-                0x00000000000002a7       0x34 MCAL/I2C/I2C.o
+                0x00000000000002aa       0x34 MCAL/SYSTICK/SYSTICK.o
  .ARM.attributes
-                0x00000000000002db       0x34 MCAL/NVIC/NVIC.o
+                0x00000000000002de       0x34 MCAL/I2C/I2C.o
  .ARM.attributes
-                0x000000000000030f       0x34 MCAL/DMA/DMA.o
+                0x0000000000000312       0x34 MCAL/NVIC/NVIC.o
+ .ARM.attributes
+                0x0000000000000346       0x34 MCAL/DMA/DMA.o
+ .ARM.attributes
+                0x000000000000037a       0x34 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)
 
-.debug_frame    0x0000000000000000      0xf2c
- .debug_frame   0x0000000000000000       0xd4 main.o
- .debug_frame   0x00000000000000d4      0x3e0 OS/OS.o
- .debug_frame   0x00000000000004b4       0x28 __special/__startup.o
- .debug_frame   0x00000000000004dc       0x20 __special/__vector.o
- .debug_frame   0x00000000000004fc      0x354 HAL/ssd1306/ssd1306.o
- .debug_frame   0x0000000000000850       0x70 HAL/BUTTON/BUTTON.o
- .debug_frame   0x00000000000008c0       0x70 UTIL/LinkedList/LinkedList.o
- .debug_frame   0x0000000000000930       0x60 UTIL/Queue/Queue.o
- .debug_frame   0x0000000000000990       0x94 MCAL/RCC/RCC.o
- .debug_frame   0x0000000000000a24      0x144 MCAL/UART/UART.o
- .debug_frame   0x0000000000000b68       0xdc MCAL/GPIO/GPIO.o
- .debug_frame   0x0000000000000c44       0x70 MCAL/SYSTICK/SYSTICK.o
- .debug_frame   0x0000000000000cb4       0xb0 MCAL/I2C/I2C.o
- .debug_frame   0x0000000000000d64       0xb0 MCAL/NVIC/NVIC.o
- .debug_frame   0x0000000000000e14      0x118 MCAL/DMA/DMA.o
+.debug_frame    0x0000000000000000     0x1004
+ .debug_frame   0x0000000000000000      0x194 main.o
+ .debug_frame   0x0000000000000194      0x3e0 OS/OS.o
+ .debug_frame   0x0000000000000574       0x28 __special/__startup.o
+ .debug_frame   0x000000000000059c       0x20 __special/__vector.o
+ .debug_frame   0x00000000000005bc      0x34c HAL/ssd1306/ssd1306.o
+ .debug_frame   0x0000000000000908       0x70 HAL/BUTTON/BUTTON.o
+ .debug_frame   0x0000000000000978       0x70 UTIL/LinkedList/LinkedList.o
+ .debug_frame   0x00000000000009e8       0x60 UTIL/Queue/Queue.o
+ .debug_frame   0x0000000000000a48       0x94 MCAL/RCC/RCC.o
+ .debug_frame   0x0000000000000adc      0x144 MCAL/UART/UART.o
+ .debug_frame   0x0000000000000c20       0xdc MCAL/GPIO/GPIO.o
+ .debug_frame   0x0000000000000cfc       0x70 MCAL/SYSTICK/SYSTICK.o
+ .debug_frame   0x0000000000000d6c       0xb0 MCAL/I2C/I2C.o
+ .debug_frame   0x0000000000000e1c       0xb0 MCAL/NVIC/NVIC.o
+ .debug_frame   0x0000000000000ecc      0x118 MCAL/DMA/DMA.o
+ .debug_frame   0x0000000000000fe4       0x20 /usr/lib/gcc/arm-none-eabi/10.3.1/../../../arm-none-eabi/lib/thumb/v7e-m+fp/hard/libg_nano.a(lib_a-abs.o)

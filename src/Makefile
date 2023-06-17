@@ -43,6 +43,7 @@ WARNINGS := # -Wno-discarded-qualifiers
 CFLAGS := $(SPECS) -std=c99 -g3 -Og -fno-move-loop-invariants -ffunction-sections -fdata-sections -nostartfiles -ffreestanding --specs=nano.specs $(WARNINGS)
 PPFLAGS := $(HDR_DIRS)
 LDFLAGS := -Wl,-Map,$(TARGET).map -Wl,--gc-sections -T mem.ld -T sections.ld -L./__ldscripts
+LDFLAGS_END := # -lm
 
 .PHONY: clean build $(ASMS) $(PRES)
 
@@ -50,7 +51,7 @@ build: $(TARGET).elf
 
 # RULE: Build target file, along with necessary files 
 $(TARGET).elf: $(OBJS)
-	$(CC) $(PPFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@
+	$(CC) $(PPFLAGS) $(CFLAGS) $(LDFLAGS) $^ -o $@ $(LDFLAGS_END)
 	$(SIZER) $@
 
 # RULE: Remove all generated files

@@ -136,7 +136,7 @@ typedef struct {
     OS_REQ_base_t base;
     volatile OS_task *task;
     volatile OS_queue *queue;
-    void **args;
+    void * volatile *args;
 } OS_REQ_dequeue_t;
 
 typedef struct {
@@ -653,7 +653,7 @@ void OS_setupSemaphore(volatile OS_semaphore *sem, uint32_t initial, uint32_t ma
  *      None.
     Queue_init(&q->queue, array, length);
  *************************************************************/
-void OS_setupQueue(volatile OS_queue *q, volatile void **array, uint32_t length) {
+void OS_setupQueue(volatile OS_queue *q, void * volatile *array, uint32_t length) {
     Queue_init(&q->queue, array, length);
 }
 
@@ -1025,7 +1025,7 @@ OS_REQ_status_t OS_ISR_enqueue(volatile OS_task *task, volatile OS_queue *q, voi
  * Return:
  *      None.
  *************************************************************/
-OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, void **args) {
+OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, void * volatile *args) {
     volatile OS_REQ_dequeue_t req = {
         .base.id = OS_REQ_id_DEQUEUE,
         .task = task,
@@ -1052,12 +1052,12 @@ OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, voi
  * Return:
  *      None.
  *************************************************************/
-OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, void **args) {
+OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, void * volatile *args) {
     OS_REQ_status_t status = OS_REQ_status_OK;
 
     task->args = (void *) args;
 
-    Queue_status_t op_status = Queue_dequeue(&q->queue, (volatile void **) task->args);
+    Queue_status_t op_status = Queue_dequeue(&q->queue, (void * volatile *) task->args);
 
     if (op_status == Queue_status_Empty) {
         if (task->state == OS_task_state_READY) {
@@ -1071,7 +1071,7 @@ OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, voi
             status = OS_REQ_status_NOK;
         }
     } else if (q->waiting_enqueue.length > 0) {
-        OS_task *task_x = (OS_task *) LL_dequeue(&q->waiting_enqueue)->data;
+        volatile OS_task *task_x = (volatile OS_task *) LL_dequeue(&q->waiting_enqueue)->data;
         OS_makeTaskReady(task_x);
 
         task_x->state = OS_task_state_READY;

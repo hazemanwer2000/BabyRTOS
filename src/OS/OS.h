@@ -125,7 +125,7 @@ void OS_setupSemaphore(volatile OS_semaphore *sem, uint32_t initial, uint32_t ma
  *  @param array Array of 'void *'.
  *  @param length Array of length.
  */
-void OS_setupQueue(volatile OS_queue *q, volatile void **array, uint32_t length);
+void OS_setupQueue(volatile OS_queue *q, void * volatile *array, uint32_t length);
 
 
 /**
@@ -239,7 +239,7 @@ OS_REQ_status_t OS_ISR_enqueue(volatile OS_task *task, volatile OS_queue *q, voi
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, void **args);
+OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, void * volatile *args);
 
 
 /**
@@ -248,7 +248,7 @@ OS_REQ_status_t OS_dequeue(volatile OS_task *task, volatile OS_queue *queue, voi
  *  @param queue Pointer to 'OS_queue'.
  *  @param args Pointer to arguments.
  */
-OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, void **args);
+OS_REQ_status_t OS_ISR_dequeue(volatile OS_task *task, volatile OS_queue *q, void * volatile *args);
 
 
 /**
