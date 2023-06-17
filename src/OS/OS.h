@@ -283,43 +283,27 @@ OS_REQ_status_t OS_unlock(volatile OS_task *task, volatile OS_mutex *m);
 OS_REQ_status_t OS_ISR_unlock(volatile OS_task *task, volatile OS_mutex *m);
 
 
-/*************************************************************
- * Description: Critical section entry.
- * Parameters:
- *      [X]
- * Return:
- *      Status.
- *************************************************************/
+/**
+ *  @brief Request to disable all interrupts (except SVC, and Fault exceptions), before entering a critical section.
+ */
 OS_REQ_status_t OS_criticalEnter();
 
 
-/*************************************************************
- * Description: Critical section exit.
- * Parameters:
- *      [X]
- * Return:
- *      Status.
- *************************************************************/
+/**
+ *  @brief Request to enable all interrupts (except SVC, and Fault exceptions), after exiting a critical section.
+ */
 OS_REQ_status_t OS_criticalExit();
 
 
-/*************************************************************
- * Description: Get current OS-kept time.
- * Parameters:
- *      [1] Time.
- * Return:
- *      Status.
- *************************************************************/
+/**
+ *  @brief Request the current time, OS-maintained since a hard-reset occured, in milli-seconds.
+ */
 OS_REQ_status_t OS_getTime(volatile uint64_t *t);
 
 
-/*************************************************************
- * Description: (ISR) Get current OS-kept time.
- * Parameters:
- *      [1] Time.
- * Return:
- *      Status.
- *************************************************************/
+/**
+ *  @brief (ISR-specific) Request the current time, OS-maintained since a hard-reset occured, in milli-seconds.
+ */
 OS_REQ_status_t OS_ISR_getTime(volatile uint64_t *t);
 
 
