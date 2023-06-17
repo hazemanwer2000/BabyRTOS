@@ -297,12 +297,15 @@ OS_REQ_status_t OS_criticalExit();
 
 /**
  *  @brief Request the current time, OS-maintained since a hard-reset occured, in milli-seconds.
+ *  @param t Pointer to 'uint64_t'.
  */
 OS_REQ_status_t OS_getTime(volatile uint64_t *t);
 
 
 /**
  *  @brief (ISR-specific) Request the current time, OS-maintained since a hard-reset occured, in milli-seconds.
+ *  @param t Pointer to 'uint64_t'.
+ *  @return Request status.
  */
 OS_REQ_status_t OS_ISR_getTime(volatile uint64_t *t);
 
