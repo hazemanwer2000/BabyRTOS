@@ -129,6 +129,7 @@ $(document).ready(function(){initNavTree('index.html',''); initResizable(); });
 <li>Zero interrupt-priority is reserved, and should not be assigned to any other interrupt.</li>
 <li>Interrupt pre-emption in the system is automatically disabled by <code>OS_init</code>.</li>
 <li>All system resources (i.e, tasks, mutexes, semaphores, queues) must be zero-initialized (i.e, defined as global variables).</li>
+<li>Use <code>make -r -s build</code> or <code>make -r -s clean</code> while in the <code>/src</code> directory.</li>
 </ul>
 <blockquote class="doxtable">
 <p>&zwj;Links </p>

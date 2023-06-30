@@ -24,6 +24,7 @@ Major features of the implementation includes,
 * Zero interrupt-priority is reserved, and should not be assigned to any other interrupt.
 * Interrupt pre-emption in the system is automatically disabled by `OS_init`.
 * All system resources (i.e, tasks, mutexes, semaphores, queues) must be zero-initialized (i.e, defined as global variables).
+* Use `make -r -s build` or `make -r -s clean` while in the `/src` directory. 
 
 > Links
 
